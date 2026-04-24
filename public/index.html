@@ -361,10 +361,9 @@ select.form-input{cursor:pointer}
     <div class="modal-title">Nova <span>despesa</span></div>
     <div class="form-field">
       <div class="form-label">Tipo</div>
-      <div class="type-sel">
+      <div class="type-sel" style="grid-template-columns:1fr 1fr">
         <div class="type-btn active" data-type="unica" onclick="setType('unica')">💳<br>Única</div>
-        <div class="type-btn" data-type="parcelada" onclick="setType('parcelada')">📦<br>Parcelada</div>
-        <div class="type-btn" data-type="recorrente" onclick="setType('recorrente')">🔁<br>Recorrente</div>
+        <div class="type-btn" data-type="recorrente" onclick="setType('recorrente')">🔁<br>Recorrente<br><span style="font-size:.6rem;font-weight:400">mesmo valor por X meses</span></div>
       </div>
     </div>
     <div class="form-field">
@@ -936,15 +935,16 @@ function setType(t) {
   S.type = t;
   document.querySelectorAll('.type-btn[data-type]').forEach(b=>b.classList.toggle('active',b.dataset.type===t));
   const nWrap = el('f-n-wrap');
-  const vLbl = el('f-valor-lbl');
-  const nLbl = el('f-n-lbl');
+  const vLbl  = el('f-valor-lbl');
+  const nLbl  = el('f-n-lbl');
   if (t==='unica') {
-    nWrap.style.display='none'; vLbl.textContent='Valor (R$)';
-  } else if (t==='parcelada') {
-    nWrap.style.display='block'; vLbl.textContent='Valor total (R$)'; nLbl.textContent='Nº de parcelas';
-    el('f-n').value='12';
+    nWrap.style.display='none';
+    vLbl.textContent='Valor (R$)';
   } else {
-    nWrap.style.display='block'; vLbl.textContent='Valor mensal (R$)'; nLbl.textContent='Por quantos meses';
+    // recorrente
+    nWrap.style.display='block';
+    vLbl.textContent='Valor mensal (R$)';
+    nLbl.textContent='Por quantos meses';
     el('f-n').value='12';
   }
   updatePreview();
@@ -965,14 +965,10 @@ function onStatusChange() {
 
 function buildParcelas(nome, valor, n, dataInicio, tipo) {
   const base = new Date(dataInicio+'T12:00:00');
-  const vp = tipo==='parcelada' ? valor/n : valor;
   return Array.from({length:n},(_,i)=>{
     const d = new Date(base); d.setMonth(d.getMonth()+i);
-    let nm;
-    if (tipo==='unica') nm=nome;
-    else if (tipo==='parcelada') nm=`${nome} ${i+1}/${n}`;
-    else nm=`${nome} ∞`;
-    return { nome:nm, valor:vp, data:d, mes:MESES[d.getMonth()], ano:d.getFullYear() };
+    const nm = tipo==='unica' ? nome : `${nome} ∞`;
+    return { nome:nm, valor, data:d, mes:MESES[d.getMonth()], ano:d.getFullYear() };
   });
 }
 
@@ -1045,7 +1041,7 @@ async function criarDespesas() {
     if (obsText) props.Observação={rich_text:[{text:{content:obsText}}]};
     if (mesId) props.Mês={relation:[{id:mesId}]};
     try {
-      const r = await nReq('pages','POST',{parent:{database_id:DB.despesas},properties:props});
+      const r = await nReq('pages','POST',{parent:{database_id:DB.despesas},icon:{type:'external',external:{url:'https://raw.githubusercontent.com/cristianNoleto/NotionPWA/main/public/icons/arrow%20up%20heavy.svg'}},properties:props});
       if (r.object==='error') { console.error(r); erros++; }
     } catch { erros++; }
   }
@@ -1206,9 +1202,13 @@ async function saveEdit() {
     const dataPagRef  = S.activeItem.dataPagStr; // data pag da parcela editada
 
     const todos   = await qDB(DB.despesas, { property:'Nome', title:{contains:nomeBase} });
+    const isRec   = S.activeItem.nome.endsWith('∞');
     const futuros = todos.filter(d => {
-      const ds = d.properties['Data da Despesa']?.date?.start||'';
-      return ds >= dataRef;
+      const ds      = d.properties['Data da Despesa']?.date?.start||'';
+      const dNome   = d.properties.Nome?.title?.[0]?.plain_text||'';
+      const dIsRec  = dNome.endsWith('∞');
+      // Só edita despesas do mesmo tipo (recorrente ou única/parcela)
+      return ds >= dataRef && dIsRec === isRec;
     }).sort((a,b) => {
       const da = a.properties['Data da Despesa']?.date?.start||'';
       const db = b.properties['Data da Despesa']?.date?.start||'';
@@ -1225,8 +1225,8 @@ async function saveEdit() {
       const sufixo = sufixoMatch ? sufixoMatch[1] : '';
       const novoNome = sufixo ? `${novoBase} ${sufixo}` : novoBase;
 
-      // Data da despesa: NÃO altera — mantém a data original de cada parcela
-      const dataOriginal = d.properties['Data da Despesa']?.date?.start || '';
+      // Data da despesa: propaga o mesmo dia digitado no form para meses subsequentes
+      const dataOriginal = calcDataPag(data, i);  // data do form + i meses, mesmo dia
 
       // Data de pagamento: mesmo dia da data de pagamento da parcela editada + i meses
       let dpStr = null;
@@ -1250,8 +1250,10 @@ async function saveEdit() {
 }
 
 function getNomeBase(nome) {
-  // Remove sufixo de parcela "1/12" ou "∞" do nome
-  return nome.replace(/\s+\d+\/\d+$/, '').replace(/\s+∞$/, '').trim();
+  return nome
+    .replace(/\s+∞(\s+∞)*$/, '')   // remove um ou mais " ∞" no final
+    .replace(/\s+\d+\/\d+$/, '')    // remove sufixo "1/12"
+    .trim();
 }
 
 // ═══════════════════════════════════════
