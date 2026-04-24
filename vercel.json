@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/notion/:path*", "destination": "/api/notion" }
+  ]
+}
