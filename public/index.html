@@ -181,7 +181,7 @@
   <div class="setup-logo">💸 <span>Fin</span>Track</div>
   <div class="setup-card">
     <h2>Configuração inicial</h2>
-    <p>Cole o seu <strong>Notion Token</strong> abaixo (começa com <code>ntn_</code>). <a href="https://www.notion.so/my-integrations" target="_blank">Ver integrações →</a></p>
+    <p>Cole o seu <strong>Notion Token</strong> abaixo (começa com <code>ntn_</code>). <a href="https://www.notion.so/my-integrations" target="_blank">Ver integrações →</a><br><br>⚡ <strong>Você faz isso só uma vez.</strong> O token fica salvo no dispositivo — na próxima vez entra direto.</p>
     <div class="field-group">
       <label>Notion Token</label>
       <input type="password" id="token-input" placeholder="ntn_..." autocomplete="off">
@@ -363,7 +363,7 @@
 
     <div id="parcelas-preview-section" style="display:none;">
       <div class="form-label" style="margin-bottom:0.5rem;">Preview das parcelas</div>
-      <div class="parcelas-preview" id="parcelas-preview"></div>
+      <div class="parcelas-preview" id="parcelas-preview" style="font-size:0.72rem;"></div>
     </div>
 
     <div class="limit-warning-modal" id="limit-warning-modal">
@@ -496,19 +496,38 @@ function getMesId(month, year) {
 async function loadMesData() {
   const mesId = getMesId(state.currentMonth, state.currentYear);
   if (!mesId) {
+    state.despesas = [];
+    state.ganhos = [];
     renderDespesas([]);
     renderStats([], []);
     return;
   }
-  const filter = { property: 'Mês', relation: { contains: mesId } };
-  const [despesas, ganhos] = await Promise.all([
-    queryDB(DB.despesas, filter),
-    queryDB(DB.ganhos, filter),
-  ]);
-  state.despesas = despesas;
-  state.ganhos = ganhos;
-  renderDespesas(despesas);
-  renderStats(despesas, ganhos);
+
+  // Filtro de despesas pelo mês
+  const despesasFilter = { property: 'Mês', relation: { contains: mesId } };
+
+  // Filtro de ganhos: mês + Recebido = Sim (só conta o que entrou na conta)
+  const ganhosFilter = {
+    and: [
+      { property: 'Mês', relation: { contains: mesId } },
+      { property: 'Recebido', select: { equals: 'Sim' } }
+    ]
+  };
+
+  try {
+    const [despesas, ganhos] = await Promise.all([
+      queryDB(DB.despesas, despesasFilter),
+      queryDB(DB.ganhos, ganhosFilter),
+    ]);
+    state.despesas = despesas;
+    state.ganhos = ganhos;
+    renderDespesas(despesas);
+    renderStats(despesas, ganhos);
+  } catch(e) {
+    console.error('Erro ao carregar dados:', e);
+    renderDespesas([]);
+    renderStats([], []);
+  }
 }
 
 // ═══════════════════════════════════
@@ -612,13 +631,16 @@ function updateParcelasPreview() {
 
   if (n > 1) {
     document.getElementById('parcelas-preview-section').style.display='block';
-    document.getElementById('parcelas-preview').innerHTML = parcelas.map(p => `
-      <div class="parcela-row">
-        <span class="parcela-num">${p.nome.match(/\((.+)\)/)?.[1]||'1/1'}</span>
-        <span class="parcela-mes">${p.mes}/${p.ano}</span>
-        <span class="parcela-val">${fmt(p.valor)}</span>
-        ${!p.mesId ? '<span class="parcela-warn">⚠ mês não mapeado</span>' : ''}
-      </div>`).join('');
+    document.getElementById('parcelas-preview').innerHTML = parcelas.map((p, i) => {
+      const fracao = `${i+1}/${n}`;
+      const nomeBase = nome || 'Despesa';
+      return `<div class="parcela-row">
+        <span class="parcela-num" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${nomeBase} ${fracao}</span>
+        <span class="parcela-mes" style="margin:0 0.5rem;flex-shrink:0;">${p.mes}/${p.ano}</span>
+        <span class="parcela-val" style="flex-shrink:0;">${fmt(p.valor)}</span>
+        ${!p.mesId ? '<span class="parcela-warn">⚠</span>' : ''}
+      </div>`;
+    }).join('');
   } else {
     document.getElementById('parcelas-preview-section').style.display='none';
   }
@@ -833,8 +855,13 @@ if (state.notifEnabled && Notification.permission==='granted') {
   document.getElementById('notif-toggle').classList.add('on');
 }
 
-// BOOT
-if (state.token) startApp();
+// BOOT — se token já está salvo, entra direto sem mostrar setup
+if (state.token) {
+  startApp();
+} else {
+  document.getElementById('setup-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
 </script>
 </body>
 </html>
