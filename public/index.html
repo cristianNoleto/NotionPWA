@@ -99,11 +99,18 @@ body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-
 .exp-info{flex:1;min-width:0}
 .exp-name{font-family:'Syne',sans-serif;font-weight:600;font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .exp-meta{font-size:.62rem;color:var(--muted2);margin-top:2px}
-.exp-val{font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;color:var(--accent2);flex-shrink:0}
+.exp-val{font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;flex-shrink:0}
+.exp-val.pendente{color:var(--accent2)}
+.exp-val.pago{color:var(--accent3)}
+.exp-datapag{font-size:.62rem;color:var(--accent3);margin-top:2px}
 .badge{font-size:.56rem;padding:2px 5px;border-radius:4px;font-family:'Syne',sans-serif;font-weight:700;flex-shrink:0}
-.b-pago{background:#0a2a0a;color:var(--accent3);border:1px solid var(--accent3)}
-.b-pendente{background:#2a1a0a;color:#f0a44a;border:1px solid #f0a44a}
 .b-rec{background:#0a142a;color:#4a9af0;border:1px solid #4a9af0}
+/* SORT BAR */
+.sort-bar{display:flex;align-items:center;gap:.4rem;overflow-x:auto;padding-bottom:.2rem;scrollbar-width:none}
+.sort-bar::-webkit-scrollbar{display:none}
+.sort-chip{font-family:'Syne',sans-serif;font-weight:700;font-size:.62rem;padding:.3rem .6rem;border-radius:99px;border:1px solid var(--border);background:var(--surface2);color:var(--muted2);cursor:pointer;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:.25rem;flex-shrink:0}
+.sort-chip.active{background:var(--accent);color:#000;border-color:var(--accent)}
+.sort-arrow{font-size:.7rem}
 
 /* EMPTY / LOADING */
 .empty{text-align:center;padding:2.5rem 1rem;color:var(--muted2);font-size:.76rem}
@@ -184,6 +191,11 @@ select.form-input{cursor:pointer}
 .sel-all{display:flex;align-items:center;gap:.45rem;font-size:.7rem;color:var(--muted2);cursor:pointer;padding:.2rem 0}
 .sel-all input{accent-color:var(--accent)}
 
+/* TOGGLE ROW */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.65rem .9rem;cursor:pointer}
+.toggle-row-label{font-size:.78rem}
+.toggle-row-sub{font-size:.62rem;color:var(--muted2);margin-top:2px}
+
 /* SETTINGS */
 .settings-section{display:flex;flex-direction:column;gap:.35rem}
 .settings-label{font-size:.62rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;padding-left:2px}
@@ -197,7 +209,19 @@ select.form-input{cursor:pointer}
 .toggle::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;background:#000;border-radius:50%;transition:transform .2s}
 .toggle.on::after{transform:translateX(17px)}
 
+/* SORT BAR */
+.sort-bar{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+.sort-btn{font-size:.62rem;padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--muted2);cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;white-space:nowrap;transition:all .15s}
+.sort-btn.active{background:var(--accent);color:#000;border-color:var(--accent)}
+.sort-dir{font-size:.7rem;padding:3px 7px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--muted2);cursor:pointer;transition:all .15s}
+.sort-dir.active{border-color:var(--accent);color:var(--accent)}
+.exp-val.paid{color:var(--accent3)}
+.exp-val.unpaid{color:var(--accent2)}
+.exp-datapag{font-size:.6rem;color:var(--accent3);margin-top:1px}
+.divider-pagas{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:.5rem .25rem .15rem;font-family:'Syne',sans-serif;font-weight:700;border-top:1px solid var(--border);margin-top:.25rem}
+
 /* TOAST */
+.toast{/* TOAST */
 .toast{position:fixed;top:1.2rem;left:50%;transform:translateX(-50%) translateY(-130%);background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;font-size:.76rem;font-family:'Syne',sans-serif;font-weight:600;z-index:500;transition:transform .3s cubic-bezier(.4,0,.2,1);white-space:nowrap;max-width:90vw;text-align:center}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.success{border-color:var(--accent3);color:var(--accent3)}
@@ -292,6 +316,16 @@ select.form-input{cursor:pointer}
         <div class="section-title">Despesas do mês</div>
         <div class="section-badge" id="despesas-count">0</div>
       </div>
+
+      <!-- SORT BAR -->
+      <div class="sort-bar" id="sort-bar">
+        <div class="sort-chip active" data-sort="status" onclick="setSort('status')">Pagas por último <span class="sort-arrow" id="arr-status">↑</span></div>
+        <div class="sort-chip" data-sort="data" onclick="setSort('data')">Data despesa <span class="sort-arrow" id="arr-data">↑</span></div>
+        <div class="sort-chip" data-sort="datapag" onclick="setSort('datapag')">Data pagamento <span class="sort-arrow" id="arr-datapag">↑</span></div>
+        <div class="sort-chip" data-sort="valor" onclick="setSort('valor')">Valor <span class="sort-arrow" id="arr-valor">↑</span></div>
+        <div class="sort-chip" data-sort="nome" onclick="setSort('nome')">Nome <span class="sort-arrow" id="arr-nome">↑</span></div>
+      </div>
+
       <div id="despesas-list" class="expense-list">
         <div class="loading"><div class="spinner"></div> Carregando...</div>
       </div>
@@ -363,7 +397,15 @@ select.form-input{cursor:pointer}
       <div class="form-label">Tipo</div>
       <div class="type-sel" style="grid-template-columns:1fr 1fr">
         <div class="type-btn active" data-type="unica" onclick="setType('unica')">💳<br>Única</div>
-        <div class="type-btn" data-type="recorrente" onclick="setType('recorrente')">🔁<br>Recorrente<br><span style="font-size:.6rem;font-weight:400">mesmo valor por X meses</span></div>
+        <div class="type-btn" data-type="multipla" onclick="setType('multipla')">📦<br>Múltiplos meses</div>
+      </div>
+    </div>
+    <!-- Subtipo: só aparece quando multipla -->
+    <div class="form-field" id="f-subtipo-wrap" style="display:none">
+      <div class="form-label">Como funciona?</div>
+      <div class="type-sel" style="grid-template-columns:1fr 1fr">
+        <div class="type-btn active" data-sub="parcelada" onclick="setSubtipo('parcelada')">📦 Parcelada<br><span style="font-size:.6rem;font-weight:400">valor total ÷ parcelas<br>ex: Notebook 1/12</span></div>
+        <div class="type-btn" data-sub="recorrente" onclick="setSubtipo('recorrente')">🔁 Recorrente<br><span style="font-size:.6rem;font-weight:400">mesmo valor por mês<br>ex: Netflix ∞</span></div>
       </div>
     </div>
     <div class="form-field">
@@ -692,7 +734,10 @@ let S = {
   despesas: [], ganhos: [],
   mesesCache: {},   // "year-month" → pageId
   notif: localStorage.getItem('fin_notif') === 'true',
-  type: 'unica',    // tipo de despesa no form
+  type: 'unica',
+  subtipo: 'parcelada',
+  sortBy: 'status',  // status | data | datapag | valor | nome
+  sortDir: 'asc',   // asc | desc
   // contexto da despesa clicada
   activeItem: null, // { id, nome, valor, pago, obs, data, dataStr }
   editScope: 'this', // 'this' | 'next'
@@ -893,35 +938,98 @@ function renderStats(desp, ganh) {
   } else alertEl.style.display='none';
 }
 
+function setSort(by) {
+  S.sortBy = by;
+  document.querySelectorAll('.sort-btn[data-sort]').forEach(b=>b.classList.toggle('active',b.dataset.sort===by));
+  renderDespesas(S.despesas);
+}
+
+function toggleSortDir() {
+  S.sortDir = S.sortDir==='asc'?'desc':'asc';
+  const btn = el('sort-dir-btn');
+  btn.textContent = S.sortDir==='asc'?'↑ Cresc':'↓ Decresc';
+  btn.classList.toggle('active', S.sortDir==='desc');
+  renderDespesas(S.despesas);
+}
+
+function renderItem(d) {
+  const nome    = d.properties.Nome?.title?.[0]?.plain_text||'(sem nome)';
+  const valor   = d.properties.Total?.number||0;
+  const pago    = d.properties.Pago?.select?.name==='Sim';
+  const data    = d.properties['Data da Despesa']?.date?.start||'';
+  const dataPag = d.properties['Data de Pagamento']?.date?.start||'';
+  const catId   = d.properties.Categoria?.relation?.[0]?.id||'';
+  const cor     = CAT_COLORS[catId]||'var(--muted)';
+  const df      = data ? new Date(data+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : '—';
+  const dfPag   = dataPag ? new Date(dataPag+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : null;
+  const isRec   = nome.endsWith('∞');
+  return `<div class="expense-item" onclick="openActions('${d.id}')">
+    <div class="cat-dot" style="background:${cor}"></div>
+    <div class="exp-info">
+      <div class="exp-name">${nome}</div>
+      <div class="exp-meta">${pago && dfPag ? `✓ Pago em ${dfPag}` : `Despesa: ${df}`}</div>
+    </div>
+    <div class="exp-val ${pago?'paid':'unpaid'}">${fmt(valor)}</div>
+    ${isRec?'<div class="badge b-rec">∞</div>':''}
+  </div>`;
+}
+
 function renderDespesas(desp) {
   el('despesas-count').textContent = desp.length;
   const list = el('despesas-list');
   if (!desp.length) { list.innerHTML='<div class="empty"><div class="empty-icon">📭</div>Nenhuma despesa neste mês</div>'; return; }
-  const sorted = [...desp].sort((a,b)=>{
-    const da=a.properties['Data da Despesa']?.date?.start||'';
-    const db=b.properties['Data da Despesa']?.date?.start||'';
-    return db.localeCompare(da);
-  });
-  list.innerHTML = sorted.map(d=>{
-    const nome = d.properties.Nome?.title?.[0]?.plain_text||'(sem nome)';
-    const valor = d.properties.Total?.number||0;
-    const pago = d.properties.Pago?.select?.name||'Pendente';
-    const data = d.properties['Data da Despesa']?.date?.start||'';
-    const catId = d.properties.Categoria?.relation?.[0]?.id||'';
-    const cor = CAT_COLORS[catId]||'var(--muted)';
-    const df = data ? new Date(data+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : '—';
-    const isRec = nome.endsWith('∞') || (d.properties.Observação?.rich_text?.[0]?.plain_text||'').includes('[rec]');
-    return `<div class="expense-item" onclick="openActions('${d.id}')">
-      <div class="cat-dot" style="background:${cor}"></div>
-      <div class="exp-info">
-        <div class="exp-name">${nome}</div>
-        <div class="exp-meta">${df}</div>
-      </div>
-      <div class="exp-val">${fmt(valor)}</div>
-      <div class="badge ${pago==='Pago'?'b-pago':'b-pendente'}">${pago==='Pago'?'✓':'!'}</div>
-      ${isRec?'<div class="badge b-rec">∞</div>':''}
-    </div>`;
-  }).join('');
+
+  const mul = S.sortDir==='asc' ? 1 : -1;
+
+  function sortFn(a, b) {
+    const pa = a.properties.Pago?.select?.name==='Sim';
+    const pb = b.properties.Pago?.select?.name==='Sim';
+    if (S.sortBy==='status') {
+      if (pa !== pb) return pa ? 1 : -1; // pagas sempre por último
+      // dentro do mesmo grupo: ordena por data relevante asc
+      if (pa) {
+        const da = a.properties['Data de Pagamento']?.date?.start||'';
+        const db = b.properties['Data de Pagamento']?.date?.start||'';
+        return da.localeCompare(db);
+      } else {
+        const da = a.properties['Data da Despesa']?.date?.start||'';
+        const db = b.properties['Data da Despesa']?.date?.start||'';
+        return da.localeCompare(db);
+      }
+    }
+    if (S.sortBy==='data') {
+      const da = a.properties['Data da Despesa']?.date?.start||'';
+      const db = b.properties['Data da Despesa']?.date?.start||'';
+      return da.localeCompare(db) * mul;
+    }
+    if (S.sortBy==='datapag') {
+      const da = a.properties['Data de Pagamento']?.date?.start||'';
+      const db = b.properties['Data de Pagamento']?.date?.start||'';
+      return da.localeCompare(db) * mul;
+    }
+    if (S.sortBy==='valor') {
+      return ((a.properties.Total?.number||0) - (b.properties.Total?.number||0)) * mul;
+    }
+    if (S.sortBy==='nome') {
+      const na = a.properties.Nome?.title?.[0]?.plain_text||'';
+      const nb = b.properties.Nome?.title?.[0]?.plain_text||'';
+      return na.localeCompare(nb, 'pt-BR') * mul;
+    }
+    return 0;
+  }
+
+  const sorted = [...desp].sort(sortFn);
+
+  if (S.sortBy==='status') {
+    const pendentes = sorted.filter(d=>d.properties.Pago?.select?.name!=='Sim');
+    const pagas     = sorted.filter(d=>d.properties.Pago?.select?.name==='Sim');
+    list.innerHTML =
+      pendentes.map(d=>renderItem(d)).join('') +
+      (pagas.length ? `<div class="divider-pagas">✓ Pagas — ${pagas.length}</div>` : '') +
+      pagas.map(d=>renderItem(d)).join('');
+  } else {
+    list.innerHTML = sorted.map(d=>renderItem(d)).join('');
+  }
 }
 
 function renderMonthLabel() {
@@ -936,16 +1044,32 @@ function setType(t) {
   document.querySelectorAll('.type-btn[data-type]').forEach(b=>b.classList.toggle('active',b.dataset.type===t));
   const nWrap = el('f-n-wrap');
   const vLbl  = el('f-valor-lbl');
-  const nLbl  = el('f-n-lbl');
+  const subWrap = el('f-subtipo-wrap');
   if (t==='unica') {
     nWrap.style.display='none';
+    subWrap.style.display='none';
     vLbl.textContent='Valor (R$)';
+    S.subtipo = 'unica';
   } else {
-    // recorrente
+    subWrap.style.display='block';
     nWrap.style.display='block';
+    el('f-n').value='12';
+    setSubtipo(S.subtipo==='unica'?'parcelada':S.subtipo);
+  }
+  updatePreview();
+}
+
+function setSubtipo(sub) {
+  S.subtipo = sub;
+  document.querySelectorAll('.type-btn[data-sub]').forEach(b=>b.classList.toggle('active',b.dataset.sub===sub));
+  const vLbl = el('f-valor-lbl');
+  const nLbl = el('f-n-lbl');
+  if (sub==='parcelada') {
+    vLbl.textContent='Valor total (R$)';
+    nLbl.textContent='Nº de parcelas';
+  } else {
     vLbl.textContent='Valor mensal (R$)';
     nLbl.textContent='Por quantos meses';
-    el('f-n').value='12';
   }
   updatePreview();
 }
@@ -965,10 +1089,15 @@ function onStatusChange() {
 
 function buildParcelas(nome, valor, n, dataInicio, tipo) {
   const base = new Date(dataInicio+'T12:00:00');
+  const sub  = S.subtipo; // 'parcelada' | 'recorrente' | 'unica'
+  const vp   = (tipo!=='unica' && sub==='parcelada') ? valor/n : valor;
   return Array.from({length:n},(_,i)=>{
     const d = new Date(base); d.setMonth(d.getMonth()+i);
-    const nm = tipo==='unica' ? nome : `${nome} ∞`;
-    return { nome:nm, valor, data:d, mes:MESES[d.getMonth()], ano:d.getFullYear() };
+    let nm;
+    if (tipo==='unica')           nm = nome;
+    else if (sub==='parcelada')   nm = `${nome} ${i+1}/${n}`;
+    else                          nm = `${nome} ∞`;
+    return { nome:nm, valor:vp, data:d, mes:MESES[d.getMonth()], ano:d.getFullYear() };
   });
 }
 
@@ -999,8 +1128,8 @@ async function criarDespesas() {
   const catId=v('f-cat'), pago=v('f-pago'), obs=v('f-obs').trim();
   const contaId=v('f-conta'), orcamentoId=v('f-orcamento');
   const comprovante=(v('f-comprovante')||'').trim(), datapag=v('f-datapag');
-  const tipo=S.type;
   if (!nome||!valor||!data) { showToast('Preencha nome, valor e data.','error'); return; }
+  const tipo  = S.type;
   const count = tipo==='unica'?1:n;
   const parcelas = buildParcelas(nome,valor,count,data,tipo);
   const btn=el('salvar-btn'); btn.disabled=true; btn.textContent=`Criando ${parcelas.length}...`;
@@ -1022,7 +1151,7 @@ async function criarDespesas() {
   for (let i=0; i<parcelas.length; i++) {
     const p = parcelas[i];
     const mesId = await getMesId(p.data.getMonth(), p.data.getFullYear());
-    const obsPartes = [obs, comprovante ? `Comprovante: ${comprovante}` : '', tipo==='recorrente'?'[rec]':''].filter(Boolean);
+    const obsPartes = [obs, comprovante ? `Comprovante: ${comprovante}` : '', S.subtipo==='recorrente'?'[rec]':''].filter(Boolean);
     const obsText = obsPartes.join(' | ');
     const props = {
       Nome:{title:[{text:{content:p.nome}}]},
@@ -1396,6 +1525,8 @@ function closeModal(id) {
   if (id==='modal-despesa') {
     ['f-nome','f-valor','f-obs','f-comprovante','f-datapag'].forEach(i=>{ if(el(i)) el(i).value=''; });
     el('f-n').value='12';
+    el('f-subtipo-wrap').style.display='none';
+    S.subtipo='parcelada';
     el('f-cat').value='';
     el('f-pago').value='Não';
     el('f-conta').value='';
