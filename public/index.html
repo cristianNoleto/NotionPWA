@@ -371,6 +371,7 @@ select.form-input{cursor:pointer}
       <div class="form-label">Nome</div>
       <input type="text" class="form-input" id="f-nome" placeholder="Ex: Netflix, Notebook...">
     </div>
+
     <div class="form-row">
       <div class="form-field">
         <div class="form-label" id="f-valor-lbl">Valor (R$)</div>
@@ -381,10 +382,27 @@ select.form-input{cursor:pointer}
         <input type="number" class="form-input" id="f-n" placeholder="12" min="1" max="600" value="12">
       </div>
     </div>
-    <div class="form-field">
-      <div class="form-label">Data da 1ª cobrança</div>
-      <input type="date" class="form-input" id="f-data">
+
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">Data da despesa</div>
+        <input type="date" class="form-input" id="f-data">
+      </div>
+      <div class="form-field">
+        <div class="form-label">Status</div>
+        <select class="form-input" id="f-pago" onchange="onStatusChange()">
+          <option value="Nao">Pendente</option>
+          <option value="Sim">Pago</option>
+        </select>
+      </div>
     </div>
+
+    <!-- Data de pagamento: aparece só quando Pago -->
+    <div class="form-field" id="f-datapag-wrap" style="display:none">
+      <div class="form-label">Data do pagamento</div>
+      <input type="date" class="form-input" id="f-datapag">
+    </div>
+
     <div class="form-field">
       <div class="form-label">Categoria</div>
       <select class="form-input" id="f-cat">
@@ -407,16 +425,56 @@ select.form-input{cursor:pointer}
         <option value="30551ce4-0e6b-80cb-9709-c2aadc8c604f">Doações e Caridade</option>
       </select>
     </div>
+
     <div class="form-field">
-      <div class="form-label">Status</div>
-      <select class="form-input" id="f-pago">
-        <option value="Pendente">Pendente</option>
-        <option value="Pago">Pago</option>
+      <div class="form-label">Orçamento <span style="color:var(--muted2);font-size:.62rem">(opcional)</span></div>
+      <select class="form-input" id="f-orcamento">
+        <option value="">Nenhum</option>
+        <option value="25f51ce4-0e6b-80f2-aefd-da38fb94bc6b">Despesas com a Kay</option>
+        <option value="1c451ce4-0e6b-809b-bcea-d817a0103642">Conta Internet Celular</option>
+        <option value="1ad51ce4-0e6b-801b-bec3-fb1e2f4b9048">Plano dental</option>
+        <option value="18c51ce4-0e6b-80a9-97d2-e089a4aca893">Dízimos e Ofertas</option>
+        <option value="1ac51ce4-0e6b-8070-9d6b-c6d30b39ac7e">Investimentos/Poupança</option>
+        <option value="18c51ce4-0e6b-8196-9dee-fa6b6e50ce69">Academia</option>
+        <option value="18c51ce4-0e6b-8124-a55b-e32b3e8955f2">Multilogin e Ferramentas de trabalho</option>
+        <option value="18c51ce4-0e6b-81e4-b085-cf0b83cbe0fd">Lanche e Despesas do Trabalho</option>
+        <option value="18c51ce4-0e6b-80a3-99c2-dda18d943445">Compras</option>
+        <option value="18f51ce4-0e6b-80de-a3fe-d9f78497d915">Despesas diversas</option>
+        <option value="18c51ce4-0e6b-8008-9de3-f3e71ab11e4f">Implante Capilar</option>
+        <option value="18c51ce4-0e6b-815b-9168-f4a7c47f073e">Estudos</option>
+        <option value="18e51ce4-0e6b-8087-8e9f-c3f2b7bd7d34">Medicações e Plano de Saúde</option>
+        <option value="18e51ce4-0e6b-807f-8482-dc6673843193">Viagens</option>
+        <option value="1ea51ce4-0e6b-80b0-9d92-c2a8f7c2506e">Lazer e Festas</option>
+        <option value="30551ce4-0e6b-808c-bfad-d95747378b5e">Doações e Caridade</option>
       </select>
     </div>
+
     <div class="form-field">
-      <div class="form-label">Observação (opcional)</div>
-      <input type="text" class="form-input" id="f-obs" placeholder="Detalhes...">
+      <div class="form-label">Conta <span style="color:var(--muted2);font-size:.62rem">(opcional)</span></div>
+      <select class="form-input" id="f-conta">
+        <option value="">Selecionar...</option>
+        <option value="18c51ce4-0e6b-81b9-92ce-cb913fdd54d1">PayPal</option>
+        <option value="18c51ce4-0e6b-8131-b69f-c0f2a6bb9298">Sicoob</option>
+        <option value="18c51ce4-0e6b-81ee-9e46-ef11401e2da5">Banco do Brasil</option>
+        <option value="18c51ce4-0e6b-81de-90aa-f58cb43006fa">Banco XP</option>
+        <option value="18c51ce4-0e6b-815d-af09-c702609935b0">Banco Pan</option>
+        <option value="18c51ce4-0e6b-81af-949d-d3fa7d23b8d5">Banco Inter</option>
+        <option value="18c51ce4-0e6b-802f-b226-eef7c9023054">Banco PicPay</option>
+        <option value="18c51ce4-0e6b-8028-80f0-cf92e459cabc">Mercado Pago</option>
+        <option value="18c51ce4-0e6b-80ab-9de4-dfbd93e287e6">Nubank</option>
+        <option value="18c51ce4-0e6b-8019-b345-fed2f5b369de">C6 Bank</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <div class="form-label">Comprovante <span style="color:var(--muted2);font-size:.62rem">(link opcional)</span></div>
+      <input type="url" class="form-input" id="f-comprovante" placeholder="https://drive.google.com/...">
+      <div style="font-size:.62rem;color:var(--muted2);margin-top:.2rem">Suba a foto no Google Drive/Photos e cole o link aqui</div>
+    </div>
+
+    <div class="form-field">
+      <div class="form-label">Observação <span style="color:var(--muted2);font-size:.62rem">(opcional)</span></div>
+      <input type="text" class="form-input" id="f-obs" placeholder="Detalhes adicionais...">
     </div>
     <div id="preview-wrap" style="display:none">
       <div class="form-label" style="margin-bottom:.35rem">Preview dos lançamentos</div>
@@ -809,6 +867,19 @@ function setType(t) {
   updatePreview();
 }
 
+function onStatusChange() {
+  const pago = document.getElementById('f-pago').value;
+  const wrap = document.getElementById('f-datapag-wrap');
+  const datapag = document.getElementById('f-datapag');
+  if (pago === 'Sim') {
+    wrap.style.display = 'block';
+    datapag.value = new Date().toISOString().split('T')[0]; // preenche com hoje
+  } else {
+    wrap.style.display = 'none';
+    datapag.value = '';
+  }
+}
+
 function buildParcelas(nome, valor, n, dataInicio, tipo) {
   const base = new Date(dataInicio+'T12:00:00');
   const vp = tipo==='parcelada' ? valor/n : valor;
@@ -847,22 +918,47 @@ async function criarDespesas() {
   const nome=v('f-nome').trim(), valor=parseFloat(v('f-valor'));
   const n=parseInt(v('f-n'))||1, data=v('f-data');
   const catId=v('f-cat'), pago=v('f-pago'), obs=v('f-obs').trim();
+  const contaId=v('f-conta'), orcamentoId=v('f-orcamento');
+  const comprovante=(v('f-comprovante')||'').trim(), datapag=v('f-datapag');
   const tipo=S.type;
   if (!nome||!valor||!data) { showToast('Preencha nome, valor e data.','error'); return; }
   const count = tipo==='unica'?1:n;
   const parcelas = buildParcelas(nome,valor,count,data,tipo);
   const btn=el('salvar-btn'); btn.disabled=true; btn.textContent=`Criando ${parcelas.length}...`;
+
+  // Pré-calcula datas de pagamento para todas as parcelas
+  function calcDataPag(baseDateStr, idx) {
+    if (!baseDateStr) return null;
+    const base = new Date(baseDateStr + 'T12:00:00');
+    const dia = base.getDate();
+    const mesAlvo = base.getMonth() + idx;
+    const anoAlvo = base.getFullYear() + Math.floor(mesAlvo / 12);
+    const mesNorm = mesAlvo % 12;
+    const ultimoDia = new Date(anoAlvo, mesNorm + 1, 0).getDate();
+    const diaFinal = Math.min(dia, ultimoDia);
+    return new Date(anoAlvo, mesNorm, diaFinal).toISOString().split('T')[0];
+  }
+
   let erros=0;
-  for (const p of parcelas) {
+  for (let i=0; i<parcelas.length; i++) {
+    const p = parcelas[i];
     const mesId = await getMesId(p.data.getMonth(), p.data.getFullYear());
-    const obsText = [obs, tipo==='recorrente'?'[rec]':''].filter(Boolean).join(' ');
+    const obsPartes = [obs, comprovante ? `Comprovante: ${comprovante}` : '', tipo==='recorrente'?'[rec]':''].filter(Boolean);
+    const obsText = obsPartes.join(' | ');
     const props = {
       Nome:{title:[{text:{content:p.nome}}]},
       Total:{number:parseFloat(p.valor.toFixed(2))},
       'Data da Despesa':{date:{start:p.data.toISOString().split('T')[0]}},
       Pago:{select:{name:pago}},
     };
+    // Data de pagamento em todas as parcelas quando pago
+    if (pago==='Sim' && datapag) {
+      const dpStr = calcDataPag(datapag, i);
+      if (dpStr) props['Data de Pagamento']={date:{start:dpStr}};
+    }
     if (catId) props.Categoria={relation:[{id:catId}]};
+    if (contaId) props.Conta={relation:[{id:contaId}]};
+    if (orcamentoId) props.Orçamentos={relation:[{id:orcamentoId}]};
     if (obsText) props.Observação={rich_text:[{text:{content:obsText}}]};
     if (mesId) props.Mês={relation:[{id:mesId}]};
     try {
@@ -1115,9 +1211,15 @@ function openModal(id) {
 function closeModal(id) {
   el(id).classList.remove('open');
   if (id==='modal-despesa') {
-    ['f-nome','f-valor','f-obs'].forEach(i=>el(i).value='');
-    el('f-n').value='12'; el('f-cat').value=''; el('f-pago').value='Pendente';
-    el('preview-wrap').style.display='none'; el('limit-warn').classList.remove('show');
+    ['f-nome','f-valor','f-obs','f-comprovante','f-datapag'].forEach(i=>{ if(el(i)) el(i).value=''; });
+    el('f-n').value='12';
+    el('f-cat').value='';
+    el('f-pago').value='Nao';
+    el('f-conta').value='';
+    el('f-orcamento').value='';
+    el('f-datapag-wrap').style.display='none';
+    el('preview-wrap').style.display='none';
+    el('limit-warn').classList.remove('show');
   }
   if (id==='modal-delete') {
     el('del-search').value='';
