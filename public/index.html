@@ -8,209 +8,267 @@
 <meta name="apple-mobile-web-app-title" content="FinTrack">
 <meta name="theme-color" content="#0a0a0a">
 <title>FinTrack</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  :root {
-    --bg: #0a0a0a;
-    --surface: #111111;
-    --surface2: #1a1a1a;
-    --border: #222222;
-    --accent: #c8f04a;
-    --accent2: #f04a4a;
-    --accent3: #4af0c8;
-    --text: #f0f0f0;
-    --muted: #555555;
-    --muted2: #888888;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  body { background:var(--bg); color:var(--text); font-family:'DM Mono',monospace; min-height:100vh; overflow-x:hidden; }
+:root {
+  --bg:#0a0a0a; --surface:#111; --surface2:#1a1a1a; --border:#222;
+  --accent:#c8f04a; --accent2:#f04a4a; --accent3:#4af0c8;
+  --text:#f0f0f0; --muted:#555; --muted2:#888;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden}
 
-  /* SETUP */
-  #setup-screen { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem; gap:2rem; }
-  .setup-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:2.5rem; letter-spacing:-2px; color:var(--accent); }
-  .setup-logo span { color:var(--text); }
-  .setup-card { width:100%; max-width:420px; background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; display:flex; flex-direction:column; gap:1.5rem; }
-  .setup-card h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem; }
-  .setup-card p { font-size:0.78rem; color:var(--muted2); line-height:1.6; }
-  .setup-card a { color:var(--accent); text-decoration:none; }
-  .field-group { display:flex; flex-direction:column; gap:0.5rem; }
-  .field-group label { font-size:0.72rem; color:var(--muted2); text-transform:uppercase; letter-spacing:1px; }
-  .field-group input { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1rem; color:var(--text); font-family:'DM Mono',monospace; font-size:0.8rem; outline:none; transition:border-color 0.2s; }
-  .field-group input:focus { border-color:var(--accent); }
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex}
 
-  /* BUTTONS */
-  .btn-primary { background:var(--accent); color:#000; border:none; border-radius:8px; padding:0.9rem; font-family:'Syne',sans-serif; font-weight:700; font-size:0.9rem; cursor:pointer; letter-spacing:0.5px; transition:opacity 0.2s, transform 0.1s; }
-  .btn-primary:active { transform:scale(0.98); opacity:0.9; }
-  .btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
-  .btn-secondary { background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:0.9rem; font-family:'Syne',sans-serif; font-weight:700; font-size:0.9rem; cursor:pointer; transition:opacity 0.2s; }
+/* ── AUTH SCREEN ── */
+#auth-screen{flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:2rem}
+.auth-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:3rem;letter-spacing:-3px;color:var(--accent)}
+.auth-logo span{color:var(--text)}
+.auth-tagline{font-size:0.78rem;color:var(--muted2);text-align:center;max-width:280px;line-height:1.6}
+.auth-card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2rem;display:flex;flex-direction:column;gap:1.25rem}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--surface2);border-radius:10px;padding:3px;gap:3px}
+.auth-tab{padding:0.6rem;text-align:center;font-family:'Syne',sans-serif;font-weight:700;font-size:0.8rem;border-radius:8px;cursor:pointer;color:var(--muted2);transition:all 0.2s}
+.auth-tab.active{background:var(--accent);color:#000}
+.field{display:flex;flex-direction:column;gap:0.4rem}
+.field label{font-size:0.68rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1px}
+.field input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.75rem 1rem;color:var(--text);font-family:'DM Mono',monospace;font-size:0.85rem;outline:none;transition:border-color 0.2s;width:100%}
+.field input:focus{border-color:var(--accent)}
+.btn{border:none;border-radius:10px;padding:0.9rem;font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;transition:opacity 0.2s,transform 0.1s;width:100%}
+.btn:active{transform:scale(0.98)}
+.btn:disabled{opacity:0.4;cursor:not-allowed}
+.btn-accent{background:var(--accent);color:#000}
+.btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-danger{background:#2a0a0a;color:var(--accent2);border:1px solid var(--accent2)}
+.auth-msg{font-size:0.75rem;text-align:center;padding:0.5rem;border-radius:8px;display:none}
+.auth-msg.error{background:#1a0505;color:var(--accent2);border:1px solid var(--accent2);display:block}
+.auth-msg.success{background:#051a0a;color:var(--accent3);border:1px solid var(--accent3);display:block}
+.auth-link{font-size:0.75rem;color:var(--accent);text-align:center;cursor:pointer;text-decoration:underline}
 
-  /* APP */
-  #app { display:none; flex-direction:column; min-height:100vh; }
+/* ── SETUP TOKEN SCREEN ── */
+#setup-screen{flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:2rem}
+.setup-card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2rem;display:flex;flex-direction:column;gap:1.5rem}
+.setup-card h2{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem}
+.setup-card p{font-size:0.78rem;color:var(--muted2);line-height:1.7}
+.setup-card a{color:var(--accent)}
+.setup-steps{display:flex;flex-direction:column;gap:0.5rem}
+.step{display:flex;gap:0.75rem;align-items:flex-start;font-size:0.75rem;color:var(--muted2);line-height:1.5}
+.step-num{background:var(--accent);color:#000;font-family:'Syne',sans-serif;font-weight:800;font-size:0.65rem;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
 
-  /* HEADER */
-  .app-header { padding:1.2rem 1.5rem 1rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--bg); z-index:100; }
-  .app-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.3rem; letter-spacing:-1px; color:var(--accent); }
-  .month-nav { display:flex; align-items:center; gap:0.75rem; }
-  .month-nav button { background:var(--surface); border:1px solid var(--border); border-radius:6px; color:var(--text); width:28px; height:28px; cursor:pointer; font-size:0.9rem; display:flex; align-items:center; justify-content:center; transition:border-color 0.2s; }
-  .month-nav button:hover { border-color:var(--accent); color:var(--accent); }
-  .month-label { font-family:'Syne',sans-serif; font-weight:700; font-size:0.85rem; min-width:110px; text-align:center; }
+/* ── APP SCREEN ── */
+#app-screen{flex-direction:column}
+.app-header{padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:100}
+.app-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;letter-spacing:-1px;color:var(--accent)}
+.month-nav{display:flex;align-items:center;gap:0.6rem}
+.month-nav button{background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);width:28px;height:28px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.month-nav button:hover{border-color:var(--accent);color:var(--accent)}
+.month-label{font-family:'Syne',sans-serif;font-weight:700;font-size:0.8rem;min-width:105px;text-align:center}
 
-  /* CONTENT */
-  .content { padding:1.5rem; display:flex; flex-direction:column; gap:1.5rem; padding-bottom:7rem; }
+/* ── CONTENT ── */
+.content{padding:1.25rem;display:flex;flex-direction:column;gap:1.25rem;padding-bottom:7rem}
+.page{display:none}.page.active{display:flex;flex-direction:column;gap:1.25rem}
 
-  /* ALERT */
-  .limit-alert { background:linear-gradient(135deg,#2a0a0a,#1a0505); border:1px solid var(--accent2); border-radius:12px; padding:1rem 1.25rem; display:flex; align-items:center; gap:0.75rem; animation:pulse-border 2s infinite; }
-  @keyframes pulse-border { 0%,100%{border-color:var(--accent2);} 50%{border-color:#ff8080;} }
-  .limit-alert .alert-icon { font-size:1.4rem; }
-  .limit-alert .alert-text { font-family:'Syne',sans-serif; font-weight:700; font-size:0.85rem; color:var(--accent2); }
-  .limit-alert .alert-sub { font-size:0.72rem; color:#ff8080; margin-top:2px; }
+/* ── ALERT ── */
+.limit-alert{background:linear-gradient(135deg,#2a0a0a,#1a0505);border:1px solid var(--accent2);border-radius:12px;padding:0.9rem 1.1rem;display:flex;align-items:center;gap:0.75rem;animation:pulse-border 2s infinite}
+@keyframes pulse-border{0%,100%{border-color:var(--accent2)}50%{border-color:#ff8080}}
+.alert-icon{font-size:1.3rem}
+.alert-text{font-family:'Syne',sans-serif;font-weight:700;font-size:0.82rem;color:var(--accent2)}
+.alert-sub{font-size:0.7rem;color:#ff8080;margin-top:2px}
 
-  /* STATS */
-  .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
-  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1rem; display:flex; flex-direction:column; gap:0.3rem; }
-  .stat-label { font-size:0.68rem; color:var(--muted2); text-transform:uppercase; letter-spacing:1px; }
-  .stat-value { font-family:'Syne',sans-serif; font-weight:700; font-size:1.2rem; }
-  .stat-value.positive { color:var(--accent3); }
-  .stat-value.negative { color:var(--accent2); }
-  .stat-value.neutral { color:var(--text); }
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:0.9rem;display:flex;flex-direction:column;gap:0.25rem}
+.stat-label{font-size:0.65rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1px}
+.stat-value{font-family:'Syne',sans-serif;font-weight:700;font-size:1.15rem}
+.positive{color:var(--accent3)}.negative{color:var(--accent2)}.neutral{color:var(--text)}
 
-  /* LIMIT BAR */
-  .limit-section { display:flex; flex-direction:column; gap:0.6rem; }
-  .limit-header { display:flex; justify-content:space-between; align-items:center; }
-  .limit-title { font-size:0.72rem; color:var(--muted2); text-transform:uppercase; letter-spacing:1px; }
-  .limit-pct { font-family:'Syne',sans-serif; font-weight:700; font-size:0.8rem; }
-  .limit-bar-bg { height:6px; background:var(--surface2); border-radius:99px; overflow:hidden; }
-  .limit-bar-fill { height:100%; border-radius:99px; transition:width 0.6s cubic-bezier(0.4,0,0.2,1); }
-  .limit-sub { font-size:0.72rem; color:var(--muted2); }
+/* ── LIMIT BAR ── */
+.limit-section{display:flex;flex-direction:column;gap:0.5rem}
+.limit-header{display:flex;justify-content:space-between;align-items:center}
+.limit-title{font-size:0.68rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1px}
+.limit-pct{font-family:'Syne',sans-serif;font-weight:700;font-size:0.78rem}
+.limit-bar-bg{height:5px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.limit-bar-fill{height:100%;border-radius:99px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1)}
+.limit-sub{font-size:0.68rem;color:var(--muted2)}
 
-  /* SECTION */
-  .section-header { display:flex; justify-content:space-between; align-items:center; }
-  .section-title { font-family:'Syne',sans-serif; font-weight:700; font-size:0.9rem; }
-  .section-count { font-size:0.72rem; color:var(--muted2); background:var(--surface); border:1px solid var(--border); border-radius:99px; padding:2px 8px; }
+/* ── SECTION ── */
+.section-header{display:flex;justify-content:space-between;align-items:center}
+.section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:0.88rem}
+.section-count{font-size:0.68rem;color:var(--muted2);background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:2px 8px}
 
-  /* EXPENSE LIST */
-  .expense-list { display:flex; flex-direction:column; gap:0.5rem; }
-  .expense-item { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:0.9rem 1rem; display:flex; align-items:center; gap:0.75rem; }
-  .expense-cat-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-  .expense-info { flex:1; min-width:0; }
-  .expense-name { font-family:'Syne',sans-serif; font-weight:600; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .expense-meta { font-size:0.68rem; color:var(--muted2); margin-top:2px; }
-  .expense-value { font-family:'Syne',sans-serif; font-weight:700; font-size:0.9rem; color:var(--accent2); flex-shrink:0; }
-  .pago-badge { font-size:0.6rem; padding:2px 6px; border-radius:4px; font-family:'Syne',sans-serif; font-weight:700; flex-shrink:0; }
-  .pago-badge.pago { background:#0a2a0a; color:var(--accent3); border:1px solid var(--accent3); }
-  .pago-badge.pendente { background:#2a1a0a; color:#f0a44a; border:1px solid #f0a44a; }
+/* ── EXPENSE LIST ── */
+.expense-list{display:flex;flex-direction:column;gap:0.45rem}
+.expense-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.8rem 0.9rem;display:flex;align-items:center;gap:0.7rem;cursor:pointer;transition:border-color 0.2s}
+.expense-item:hover{border-color:var(--muted)}
+.cat-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.expense-info{flex:1;min-width:0}
+.expense-name{font-family:'Syne',sans-serif;font-weight:600;font-size:0.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.expense-meta{font-size:0.65rem;color:var(--muted2);margin-top:2px}
+.expense-value{font-family:'Syne',sans-serif;font-weight:700;font-size:0.88rem;color:var(--accent2);flex-shrink:0}
+.badge{font-size:0.58rem;padding:2px 5px;border-radius:4px;font-family:'Syne',sans-serif;font-weight:700;flex-shrink:0}
+.badge-pago{background:#0a2a0a;color:var(--accent3);border:1px solid var(--accent3)}
+.badge-pendente{background:#2a1a0a;color:#f0a44a;border:1px solid #f0a44a}
+.badge-recorrente{background:#0a1a2a;color:#4a9af0;border:1px solid #4a9af0;margin-left:2px}
 
-  /* EMPTY / LOADING */
-  .empty-state { text-align:center; padding:2rem; color:var(--muted2); font-size:0.8rem; }
-  .empty-state .empty-icon { font-size:2rem; margin-bottom:0.5rem; }
-  .loading { display:flex; align-items:center; justify-content:center; gap:0.5rem; padding:2rem; color:var(--muted2); font-size:0.8rem; }
-  .spinner { width:16px; height:16px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
-  @keyframes spin { to{transform:rotate(360deg);} }
+/* ── EMPTY / LOADING ── */
+.empty-state{text-align:center;padding:2.5rem;color:var(--muted2);font-size:0.78rem}
+.empty-icon{font-size:2rem;margin-bottom:0.5rem}
+.loading{display:flex;align-items:center;justify-content:center;gap:0.5rem;padding:2rem;color:var(--muted2);font-size:0.78rem}
+.spinner{width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  /* FAB */
-  .fab { position:fixed; bottom:5.5rem; right:1.5rem; width:56px; height:56px; background:var(--accent); border:none; border-radius:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:#000; box-shadow:0 4px 24px rgba(200,240,74,0.3); transition:transform 0.2s, box-shadow 0.2s; z-index:200; }
-  .fab:active { transform:scale(0.93); }
+/* ── FAB ── */
+.fab{position:fixed;bottom:5.5rem;right:1.25rem;width:52px;height:52px;background:var(--accent);border:none;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#000;box-shadow:0 4px 20px rgba(200,240,74,0.35);transition:transform 0.2s;z-index:200}
+.fab:active{transform:scale(0.92)}
 
-  /* BOTTOM NAV */
-  .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:var(--bg); border-top:1px solid var(--border); display:flex; padding:0.75rem 0 1rem; z-index:100; }
-  .nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; padding:0.25rem; background:none; border:none; color:var(--muted); transition:color 0.2s; }
-  .nav-item.active { color:var(--accent); }
-  .nav-icon { font-size:1.2rem; }
-  .nav-label { font-size:0.6rem; text-transform:uppercase; letter-spacing:0.5px; font-family:'Syne',sans-serif; font-weight:700; }
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--border);display:flex;padding:0.7rem 0 0.9rem;z-index:100}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;background:none;border:none;color:var(--muted);transition:color 0.2s}
+.nav-btn.active{color:var(--accent)}
+.nav-icon{font-size:1.1rem}
+.nav-label{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.5px;font-family:'Syne',sans-serif;font-weight:700}
 
-  /* MODAL */
-  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(4px); z-index:300; display:flex; align-items:flex-end; opacity:0; pointer-events:none; transition:opacity 0.3s; }
-  .modal-overlay.open { opacity:1; pointer-events:all; }
-  .modal { width:100%; background:var(--surface); border-radius:20px 20px 0 0; border-top:1px solid var(--border); padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem; max-height:92vh; overflow-y:auto; transform:translateY(100%); transition:transform 0.35s cubic-bezier(0.4,0,0.2,1); }
-  .modal-overlay.open .modal { transform:translateY(0); }
-  .modal-handle { width:36px; height:4px; background:var(--border); border-radius:99px; margin:0 auto -0.5rem; }
-  .modal-title { font-family:'Syne',sans-serif; font-weight:800; font-size:1.2rem; }
-  .modal-title span { color:var(--accent); }
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(6px);z-index:300;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity 0.3s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{width:100%;background:var(--surface);border-radius:20px 20px 0 0;border-top:1px solid var(--border);padding:1.5rem;display:flex;flex-direction:column;gap:1.1rem;max-height:94vh;overflow-y:auto;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.4,0,0.2,1)}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-handle{width:32px;height:4px;background:var(--border);border-radius:99px;margin:0 auto -0.3rem}
+.modal-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem}
+.modal-title span{color:var(--accent)}
 
-  /* FORM */
-  .form-field { display:flex; flex-direction:column; gap:0.5rem; }
-  .form-label { font-size:0.72rem; color:var(--muted2); text-transform:uppercase; letter-spacing:1px; }
-  .form-input { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1rem; color:var(--text); font-family:'DM Mono',monospace; font-size:0.85rem; outline:none; transition:border-color 0.2s; width:100%; }
-  .form-input:focus { border-color:var(--accent); }
-  select.form-input { cursor:pointer; }
-  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+/* ── FORM ── */
+.form-field{display:flex;flex-direction:column;gap:0.4rem}
+.form-label{font-size:0.68rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1px}
+.form-input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.7rem 0.9rem;color:var(--text);font-family:'DM Mono',monospace;font-size:0.82rem;outline:none;transition:border-color 0.2s;width:100%}
+.form-input:focus{border-color:var(--accent)}
+select.form-input{cursor:pointer}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:0.7rem}
 
-  /* PARCELAS PREVIEW */
-  .parcelas-preview { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.75rem; display:flex; flex-direction:column; gap:0.4rem; max-height:180px; overflow-y:auto; }
-  .parcela-row { display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; padding:0.3rem 0; border-bottom:1px solid var(--border); }
-  .parcela-row:last-child { border-bottom:none; }
-  .parcela-num { color:var(--accent); font-weight:500; }
-  .parcela-mes { color:var(--muted2); }
-  .parcela-val { color:var(--text); }
-  .parcela-warn { color:var(--accent2); font-size:0.65rem; }
+/* ── TYPE SELECTOR ── */
+.type-selector{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.4rem}
+.type-btn{padding:0.6rem 0.4rem;text-align:center;font-family:'Syne',sans-serif;font-weight:700;font-size:0.7rem;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--muted2);transition:all 0.2s}
+.type-btn.active{background:var(--accent);color:#000;border-color:var(--accent)}
 
-  /* LIMIT WARNING */
-  .limit-warning-modal { background:#1a0a0a; border:1px solid var(--accent2); border-radius:8px; padding:0.75rem 1rem; font-size:0.75rem; color:var(--accent2); display:none; }
-  .limit-warning-modal.show { display:block; }
+/* ── PARCELAS PREVIEW ── */
+.parcelas-preview{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.7rem;display:flex;flex-direction:column;gap:0.35rem;max-height:160px;overflow-y:auto}
+.parcela-row{display:flex;align-items:center;font-size:0.72rem;padding:0.25rem 0;border-bottom:1px solid var(--border);gap:0.4rem}
+.parcela-row:last-child{border-bottom:none}
+.parcela-name{flex:1;color:var(--accent);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.parcela-mes{color:var(--muted2);flex-shrink:0;font-size:0.68rem}
+.parcela-val{color:var(--text);flex-shrink:0}
+.parcela-warn{color:var(--accent2);font-size:0.65rem;flex-shrink:0}
 
-  /* SETTINGS */
-  .settings-section { display:flex; flex-direction:column; gap:0.5rem; }
-  .settings-section-title { font-size:0.68rem; color:var(--muted2); text-transform:uppercase; letter-spacing:1px; padding-left:0.25rem; }
-  .settings-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
-  .settings-item { padding:1rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); cursor:pointer; }
-  .settings-item:last-child { border-bottom:none; }
-  .settings-item-label { font-size:0.85rem; font-family:'Syne',sans-serif; font-weight:600; }
-  .settings-item-value { font-size:0.78rem; color:var(--muted2); }
-  .toggle-switch { width:40px; height:22px; background:var(--border); border-radius:99px; position:relative; transition:background 0.2s; flex-shrink:0; }
-  .toggle-switch.on { background:var(--accent); }
-  .toggle-switch::after { content:''; position:absolute; top:3px; left:3px; width:16px; height:16px; background:#000; border-radius:50%; transition:transform 0.2s; }
-  .toggle-switch.on::after { transform:translateX(18px); }
+/* ── LIMIT WARNING ── */
+.limit-warn-box{background:#1a0a0a;border:1px solid var(--accent2);border-radius:8px;padding:0.7rem 0.9rem;font-size:0.73rem;color:var(--accent2);display:none}
+.limit-warn-box.show{display:block}
 
-  /* TOAST */
-  .toast { position:fixed; top:1.5rem; left:50%; transform:translateX(-50%) translateY(-120%); background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:0.75rem 1.25rem; font-size:0.8rem; font-family:'Syne',sans-serif; font-weight:600; z-index:500; transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); white-space:nowrap; }
-  .toast.show { transform:translateX(-50%) translateY(0); }
-  .toast.success { border-color:var(--accent3); color:var(--accent3); }
-  .toast.error { border-color:var(--accent2); color:var(--accent2); }
-  .toast.warning { border-color:#f0a44a; color:#f0a44a; }
+/* ── DELETE MODAL ── */
+.delete-list{display:flex;flex-direction:column;gap:0.4rem;max-height:200px;overflow-y:auto}
+.delete-item{display:flex;align-items:center;gap:0.6rem;background:var(--surface2);border-radius:8px;padding:0.6rem 0.8rem;font-size:0.75rem}
+.delete-item input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;cursor:pointer}
+.delete-item-info{flex:1;min-width:0}
+.delete-item-name{font-family:'Syne',sans-serif;font-weight:600;font-size:0.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.delete-item-meta{font-size:0.65rem;color:var(--muted2)}
+.delete-item-val{color:var(--accent2);font-family:'Syne',sans-serif;font-weight:700;font-size:0.75rem;flex-shrink:0}
+.select-all-row{display:flex;align-items:center;gap:0.5rem;font-size:0.72rem;color:var(--muted2);cursor:pointer;padding:0.25rem 0}
 
-  /* PAGES */
-  .page { display:none; }
-  .page.active { display:block; }
+/* ── SETTINGS PAGE ── */
+.settings-section{display:flex;flex-direction:column;gap:0.4rem}
+.settings-label{font-size:0.65rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;padding-left:2px}
+.settings-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.settings-row{padding:0.9rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);cursor:pointer}
+.settings-row:last-child{border-bottom:none}
+.settings-row-label{font-family:'Syne',sans-serif;font-weight:600;font-size:0.82rem}
+.settings-row-val{font-size:0.75rem;color:var(--muted2)}
+.toggle{width:38px;height:21px;background:var(--border);border-radius:99px;position:relative;transition:background 0.2s;flex-shrink:0}
+.toggle.on{background:var(--accent)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:15px;height:15px;background:#000;border-radius:50%;transition:transform 0.2s}
+.toggle.on::after{transform:translateX(17px)}
+
+/* ── TOAST ── */
+.toast{position:fixed;top:1.25rem;left:50%;transform:translateX(-50%) translateY(-130%);background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.7rem 1.1rem;font-size:0.78rem;font-family:'Syne',sans-serif;font-weight:600;z-index:500;transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);white-space:nowrap;max-width:90vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:var(--accent3);color:var(--accent3)}
+.toast.error{border-color:var(--accent2);color:var(--accent2)}
+.toast.warning{border-color:#f0a44a;color:#f0a44a}
+.toast.info{border-color:var(--accent);color:var(--accent)}
 </style>
 </head>
 <body>
 
-<!-- SETUP -->
-<div id="setup-screen">
-  <div class="setup-logo">💸 <span>Fin</span>Track</div>
-  <div class="setup-card">
-    <h2>Configuração inicial</h2>
-    <p>Cole o seu <strong>Notion Token</strong> abaixo (começa com <code>ntn_</code>). <a href="https://www.notion.so/my-integrations" target="_blank">Ver integrações →</a><br><br>⚡ <strong>Você faz isso só uma vez.</strong> O token fica salvo no dispositivo — na próxima vez entra direto.</p>
-    <div class="field-group">
-      <label>Notion Token</label>
-      <input type="password" id="token-input" placeholder="ntn_..." autocomplete="off">
+<!-- ══ AUTH SCREEN ══ -->
+<div class="screen" id="auth-screen">
+  <div class="auth-logo">Fin<span>Track</span></div>
+  <p class="auth-tagline">Controle financeiro inteligente conectado ao seu Notion</p>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Entrar</div>
+      <div class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Criar conta</div>
     </div>
-    <div class="field-group">
-      <label>Limite mensal de gastos (R$)</label>
-      <input type="number" id="limit-input" placeholder="2500" value="2500">
+
+    <!-- LOGIN -->
+    <div id="form-login">
+      <div style="display:flex;flex-direction:column;gap:0.9rem">
+        <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="seu@email.com"></div>
+        <div class="field"><label>Senha</label><input type="password" id="login-pass" placeholder="••••••••"></div>
+        <div class="auth-msg" id="login-msg"></div>
+        <button class="btn btn-accent" id="login-btn" onclick="doLogin()">Entrar</button>
+        <div class="auth-link" onclick="doForgotPassword()">Esqueci minha senha</div>
+      </div>
     </div>
-    <button class="btn-primary" id="save-setup-btn">Conectar ao Notion</button>
-    <p id="setup-error" style="color:var(--accent2);font-size:0.75rem;display:none;"></p>
+
+    <!-- SIGNUP -->
+    <div id="form-signup" style="display:none">
+      <div style="display:flex;flex-direction:column;gap:0.9rem">
+        <div class="field"><label>Email</label><input type="email" id="signup-email" placeholder="seu@email.com"></div>
+        <div class="field"><label>Senha</label><input type="password" id="signup-pass" placeholder="mínimo 6 caracteres"></div>
+        <div class="field"><label>Confirmar senha</label><input type="password" id="signup-pass2" placeholder="repita a senha"></div>
+        <div class="auth-msg" id="signup-msg"></div>
+        <button class="btn btn-accent" id="signup-btn" onclick="doSignup()">Criar conta</button>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- APP -->
-<div id="app">
+<!-- ══ SETUP TOKEN SCREEN ══ -->
+<div class="screen" id="setup-screen">
+  <div class="setup-card">
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;color:var(--accent)">💸 Quase lá!</div>
+    <h2>Conecte seu Notion</h2>
+    <p>Para o app funcionar, você precisa criar uma integração no Notion e colar o token abaixo.</p>
+    <div class="setup-steps">
+      <div class="step"><div class="step-num">1</div><span>Acesse <a href="https://notion.so/my-integrations" target="_blank">notion.so/my-integrations</a></span></div>
+      <div class="step"><div class="step-num">2</div><span>Clique em <strong>"New integration"</strong>, dê um nome e salve</span></div>
+      <div class="step"><div class="step-num">3</div><span>Copie o <strong>Internal Integration Token</strong></span></div>
+      <div class="step"><div class="step-num">4</div><span>Nos seus databases do Notion, clique em ··· → <strong>Connections</strong> → adicione sua integração</span></div>
+    </div>
+    <div class="field"><label>Notion Token</label><input type="password" id="setup-token" placeholder="ntn_..."></div>
+    <div class="field"><label>Limite mensal de gastos (R$)</label><input type="number" id="setup-limit" value="2500" placeholder="2500"></div>
+    <div class="auth-msg" id="setup-msg"></div>
+    <button class="btn btn-accent" id="setup-btn" onclick="doSetup()">Salvar e começar</button>
+    <button class="btn btn-ghost" onclick="doLogout()">Sair</button>
+  </div>
+</div>
+
+<!-- ══ APP SCREEN ══ -->
+<div class="screen" id="app-screen">
   <header class="app-header">
     <div class="app-logo">FinTrack</div>
     <div class="month-nav">
       <button id="prev-month">‹</button>
-      <div class="month-label" id="month-label">— / ——</div>
+      <div class="month-label" id="month-label"></div>
       <button id="next-month">›</button>
     </div>
   </header>
 
   <div class="content">
 
-    <!-- DASHBOARD -->
+    <!-- DASHBOARD PAGE -->
     <div class="page active" id="page-dashboard">
-      <div id="limit-alert" class="limit-alert" style="display:none;">
+      <div id="limit-alert" class="limit-alert" style="display:none">
         <div class="alert-icon">⚠️</div>
         <div>
           <div class="alert-text">Limite ultrapassado!</div>
@@ -230,8 +288,8 @@
           <div class="limit-title">Limite mensal</div>
           <div class="limit-pct" id="limit-pct">0%</div>
         </div>
-        <div class="limit-bar-bg"><div class="limit-bar-fill" id="limit-bar" style="width:0%;background:var(--accent3);"></div></div>
-        <div class="limit-sub" id="limit-sub">R$ 0 de R$ 2.500</div>
+        <div class="limit-bar-bg"><div class="limit-bar-fill" id="limit-bar" style="width:0%"></div></div>
+        <div class="limit-sub" id="limit-sub"></div>
       </div>
 
       <div class="section-header">
@@ -244,45 +302,59 @@
       </div>
     </div>
 
-    <!-- SETTINGS -->
+    <!-- SETTINGS PAGE -->
     <div class="page" id="page-settings">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;margin-bottom:1rem;">Configurações</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem">Configurações</div>
 
       <div class="settings-section">
-        <div class="settings-section-title">Alertas</div>
+        <div class="settings-label">Conta</div>
         <div class="settings-card">
-          <div class="settings-item">
-            <div>
-              <div class="settings-item-label">Limite mensal</div>
-              <div class="settings-item-value" id="current-limit-display">R$ 2.500</div>
-            </div>
-            <input type="number" id="limit-setting-input" class="form-input" style="width:110px;text-align:right;" placeholder="2500">
+          <div class="settings-row" style="cursor:default">
+            <div class="settings-row-label">Email</div>
+            <div class="settings-row-val" id="settings-email">—</div>
           </div>
-          <div class="settings-item" id="save-limit-btn" style="justify-content:center;">
-            <div class="settings-item-label" style="color:var(--accent);">Salvar limite</div>
+          <div class="settings-row" onclick="showChangeToken()">
+            <div class="settings-row-label">Token Notion</div>
+            <div class="settings-row-val">Alterar →</div>
           </div>
         </div>
       </div>
 
-      <div class="settings-section" style="margin-top:1rem;">
-        <div class="settings-section-title">Notificações push</div>
+      <div class="settings-section">
+        <div class="settings-label">Limite mensal</div>
         <div class="settings-card">
-          <div class="settings-item" id="notif-toggle-row">
+          <div class="settings-row" style="cursor:default">
             <div>
-              <div class="settings-item-label">Ativar notificações</div>
-              <div class="settings-item-value">Avisa quando o limite é ultrapassado</div>
+              <div class="settings-row-label">Limite atual</div>
+              <div class="settings-row-val" id="settings-limit-display">R$ 2.500</div>
             </div>
-            <div class="toggle-switch" id="notif-toggle"></div>
+            <input type="number" id="settings-limit-input" class="form-input" style="width:110px;text-align:right" placeholder="2500">
+          </div>
+          <div class="settings-row" onclick="saveLimit()" style="justify-content:center">
+            <div class="settings-row-label" style="color:var(--accent)">Salvar limite</div>
           </div>
         </div>
       </div>
 
-      <div class="settings-section" style="margin-top:1rem;">
-        <div class="settings-section-title">Conta</div>
+      <div class="settings-section">
+        <div class="settings-label">Notificações</div>
         <div class="settings-card">
-          <div class="settings-item" id="logout-btn">
-            <div class="settings-item-label" style="color:var(--accent2);">Desconectar</div>
-            <div class="settings-item-value">→</div>
+          <div class="settings-row" id="notif-row" onclick="toggleNotif()">
+            <div>
+              <div class="settings-row-label">Push notifications</div>
+              <div class="settings-row-val">Avisa quando o limite estoura</div>
+            </div>
+            <div class="toggle" id="notif-toggle"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-label">Sessão</div>
+        <div class="settings-card">
+          <div class="settings-row" onclick="doLogout()">
+            <div class="settings-row-label" style="color:var(--accent2)">Sair da conta</div>
+            <div class="settings-row-val">→</div>
           </div>
         </div>
       </div>
@@ -290,33 +362,51 @@
 
   </div>
 
-  <button class="fab" id="fab-btn">+</button>
+  <button class="fab" id="fab-btn" onclick="openModal('modal-despesa')">+</button>
 
   <nav class="bottom-nav">
-    <button class="nav-item active" data-page="dashboard"><div class="nav-icon">◈</div><div class="nav-label">Início</div></button>
-    <button class="nav-item" data-page="settings"><div class="nav-icon">⊛</div><div class="nav-label">Config</div></button>
+    <button class="nav-btn active" data-page="dashboard"><div class="nav-icon">◈</div><div class="nav-label">Início</div></button>
+    <button class="nav-btn" data-page="settings"><div class="nav-icon">⊛</div><div class="nav-label">Config</div></button>
   </nav>
 </div>
 
-<!-- MODAL NOVA DESPESA -->
+<!-- ══ MODAL: NOVA DESPESA ══ -->
 <div class="modal-overlay" id="modal-despesa">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Nova <span>despesa</span></div>
 
     <div class="form-field">
+      <div class="form-label">Tipo de lançamento</div>
+      <div class="type-selector">
+        <div class="type-btn active" data-type="unica" onclick="setType('unica')">💳 Única</div>
+        <div class="type-btn" data-type="parcelada" onclick="setType('parcelada')">📦 Parcelada</div>
+        <div class="type-btn" data-type="recorrente" onclick="setType('recorrente')">🔁 Recorrente</div>
+      </div>
+    </div>
+
+    <div class="form-field">
       <div class="form-label">Nome da despesa</div>
-      <input type="text" class="form-input" id="f-nome" placeholder="Ex: Netflix, Parcela notebook...">
+      <input type="text" class="form-input" id="f-nome" placeholder="Ex: Netflix, Notebook...">
     </div>
 
     <div class="form-row">
       <div class="form-field">
-        <div class="form-label">Valor total (R$)</div>
+        <div class="form-label">Valor <span id="f-valor-label">(total R$)</span></div>
         <input type="number" class="form-input" id="f-valor" placeholder="0,00" step="0.01">
       </div>
-      <div class="form-field">
-        <div class="form-label">Parcelas</div>
-        <input type="number" class="form-input" id="f-parcelas" placeholder="1" min="1" max="60" value="1">
+      <div class="form-field" id="f-parcelas-wrap">
+        <div class="form-label" id="f-parcelas-label">Parcelas</div>
+        <input type="number" class="form-input" id="f-parcelas" placeholder="12" min="1" max="600" value="1">
+      </div>
+    </div>
+
+    <!-- Recorrente: meses fixos ou indefinido -->
+    <div class="form-field" id="f-recorrente-wrap" style="display:none">
+      <div class="form-label">Duração</div>
+      <div class="type-selector" style="grid-template-columns:1fr 1fr">
+        <div class="type-btn active" data-dur="fixo" onclick="setDuracao('fixo')">Quantidade de meses</div>
+        <div class="type-btn" data-dur="indefinido" onclick="setDuracao('indefinido')">Indefinido (99 anos)</div>
       </div>
     </div>
 
@@ -358,112 +448,235 @@
 
     <div class="form-field">
       <div class="form-label">Observação (opcional)</div>
-      <input type="text" class="form-input" id="f-obs" placeholder="Detalhes adicionais...">
+      <input type="text" class="form-input" id="f-obs" placeholder="Detalhes...">
     </div>
 
-    <div id="parcelas-preview-section" style="display:none;">
-      <div class="form-label" style="margin-bottom:0.5rem;">Preview das parcelas</div>
-      <div class="parcelas-preview" id="parcelas-preview" style="font-size:0.72rem;"></div>
+    <div id="parcelas-preview-wrap" style="display:none">
+      <div class="form-label" style="margin-bottom:0.4rem">Preview dos lançamentos</div>
+      <div class="parcelas-preview" id="parcelas-preview"></div>
     </div>
 
-    <div class="limit-warning-modal" id="limit-warning-modal">
-      ⚠️ Esta despesa vai ultrapassar o limite de <span id="lw-limit"></span> no mês atual!
+    <div class="limit-warn-box" id="limit-warn">⚠️ Esta despesa vai ultrapassar o limite de <span id="lw-val"></span> no mês atual!</div>
+
+    <button class="btn btn-accent" id="salvar-btn" onclick="criarDespesas()">Criar no Notion</button>
+    <button class="btn btn-ghost" onclick="closeModal('modal-despesa')">Cancelar</button>
+  </div>
+</div>
+
+<!-- ══ MODAL: EXCLUIR EM LOTE ══ -->
+<div class="modal-overlay" id="modal-delete">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Excluir <span>lançamentos</span></div>
+    <p style="font-size:0.75rem;color:var(--muted2)">Busque por nome e selecione quais lançamentos excluir do Notion.</p>
+
+    <div class="form-field">
+      <div class="form-label">Buscar por nome</div>
+      <input type="text" class="form-input" id="delete-search" placeholder="Ex: Notebook..." oninput="searchToDelete()">
     </div>
 
-    <button class="btn-primary" id="salvar-despesa-btn">Criar no Notion</button>
-    <button class="btn-secondary" id="cancelar-modal-btn">Cancelar</button>
+    <div id="delete-results">
+      <div class="empty-state"><div class="empty-icon">🔍</div>Digite um nome para buscar</div>
+    </div>
+
+    <button class="btn btn-danger" id="confirm-delete-btn" onclick="confirmDelete()" style="display:none">Excluir selecionados</button>
+    <button class="btn btn-ghost" onclick="closeModal('modal-delete')">Cancelar</button>
+  </div>
+</div>
+
+<!-- ══ MODAL: ALTERAR TOKEN ══ -->
+<div class="modal-overlay" id="modal-token">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Alterar <span>token</span></div>
+    <div class="form-field">
+      <div class="form-label">Novo Notion Token</div>
+      <input type="password" class="form-input" id="new-token-input" placeholder="ntn_...">
+    </div>
+    <button class="btn btn-accent" onclick="saveNewToken()">Salvar token</button>
+    <button class="btn btn-ghost" onclick="closeModal('modal-token')">Cancelar</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════════════════════════
-// CONFIG
-// ═══════════════════════════════════
-// IMPORTANTE: após publicar no Vercel, substitua esta URL pelo seu domínio
-// Ex: 'https://meu-fintrack.vercel.app'
-// Em desenvolvimento local, use '' (string vazia)
-const BASE_URL = '';
+// ══════════════════════════════════════════
+// SUPABASE
+// ══════════════════════════════════════════
+const { createClient } = supabase;
+const sb = createClient(
+  'https://urhhtthkfenkyfxfdffv.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyaGh0dGhrZmVua3lmeGZkZmZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwNDkzMTEsImV4cCI6MjA5MjYyNTMxMX0.mNdGpwsPJiCzdTFustZHlyx6ihk-kXdI2Rqu8LkNswU'
+);
 
-const DB = {
+// ══════════════════════════════════════════
+// CONSTANTS
+// ══════════════════════════════════════════
+const DB_IDS = {
   despesas: '18c51ce4-0e6b-81a4-8db1-d390329583f8',
   ganhos:   '18c51ce4-0e6b-817c-8922-d1862b7d62d1',
   meses:    '18c51ce4-0e6b-812e-ac09-f71bc80aac36',
 };
-
 const MESES_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-
-const MESES_MAP = {
-  2025: {
-    'Janeiro':   '18c51ce4-0e6b-81f7-88e7-e6f37f2e05aa',
-    'Fevereiro': '18c51ce4-0e6b-81ad-a5a2-dee5657b9f32',
-    'Março':     '18c51ce4-0e6b-814e-a6c8-c3df92986d3f',
-    'Abril':     '18c51ce4-0e6b-8116-970e-c6a6d62909e3',
-    'Maio':      '18c51ce4-0e6b-8129-b618-e0d8c1aeda43',
-    'Junho':     '18c51ce4-0e6b-81c3-9cec-e42488549f56',
-    'Julho':     '18c51ce4-0e6b-818c-a460-cfc055516533',
-    'Agosto':    '18c51ce4-0e6b-81e8-8502-fd938e02c4f3',
-    'Setembro':  '18c51ce4-0e6b-81b0-93ff-f1d29f48532a',
-    'Outubro':   '18c51ce4-0e6b-8113-85ef-e3cfe34a5a5d',
-    'Novembro':  '18c51ce4-0e6b-81bf-8918-d2af6d8f233e',
-    'Dezembro':  '18c51ce4-0e6b-8127-b09e-f8ebe31dd4ff',
-  },
-  2026: {
-    'Janeiro':   '18c51ce4-0e6b-81b7-98fc-cfb63cdab7a6',
-    'Fevereiro': '18c51ce4-0e6b-81c4-9d99-d07f092c846e',
-    'Março':     '18c51ce4-0e6b-8196-b318-d6eb35e7d999',
-    'Abril':     '18c51ce4-0e6b-81fc-9a99-c493fa2a6bc7',
-    'Maio':      '18c51ce4-0e6b-813b-bae7-cd1aa3d1d57b',
-    'Junho':     '18c51ce4-0e6b-8117-8054-e0a52763b977',
-    'Julho':     '18c51ce4-0e6b-81d2-aa83-c7745a7c7f68',
-    'Agosto':    '18c51ce4-0e6b-811f-ae9a-e6c4f7829803',
-    'Setembro':  '18c51ce4-0e6b-816d-999e-f3f979a79e3b',
-    'Outubro':   '18c51ce4-0e6b-81df-8eb8-ee2a261810e8',
-    'Novembro':  '18c51ce4-0e6b-81d5-a9ce-d5745353fc0c',
-    'Dezembro':  '18c51ce4-0e6b-8157-b944-d8269a2f467e',
-  }
-};
-
 const CAT_COLORS = {
-  '25f51ce4-0e6b-80d8-82b8-d9afa484fd84': '#e91e8c',
-  '1ea51ce4-0e6b-802f-9a09-f8c4b62631e5': '#9c27b0',
-  '18c51ce4-0e6b-81c3-aa6e-faee7ed17655': '#ff9800',
-  '18c51ce4-0e6b-81cc-a380-cf421fad1abb': '#2196f3',
-  '18c51ce4-0e6b-817e-a7c9-dc8306c3c028': '#00bcd4',
-  '18c51ce4-0e6b-81d1-8309-ffe486b019e1': '#607d8b',
-  '18c51ce4-0e6b-8185-9361-f2075f2026c4': '#4caf50',
-  '18c51ce4-0e6b-8125-8d77-f3f689e95a45': '#c8f04a',
-  '18c51ce4-0e6b-8103-b07a-db91628af561': '#8bc34a',
-  '18c51ce4-0e6b-81e7-aff9-c1db6220f800': '#f04a4a',
-  '18c51ce4-0e6b-81f3-bc0e-c78c3afb3f36': '#3f51b5',
-  '18c51ce4-0e6b-804b-9b46-dab3bb7fdced': '#ff5722',
-  '18c51ce4-0e6b-8044-b731-d82eb1bcc2b7': '#e91e63',
-  '18c51ce4-0e6b-80e4-b07f-e99c767cd979': '#795548',
-  '18c51ce4-0e6b-8121-9da4-c6570ae420bb': '#009688',
-  '30551ce4-0e6b-80cb-9709-c2aadc8c604f': '#ffc107',
+  '25f51ce4-0e6b-80d8-82b8-d9afa484fd84':'#e91e8c',
+  '1ea51ce4-0e6b-802f-9a09-f8c4b62631e5':'#9c27b0',
+  '18c51ce4-0e6b-81c3-aa6e-faee7ed17655':'#ff9800',
+  '18c51ce4-0e6b-81cc-a380-cf421fad1abb':'#2196f3',
+  '18c51ce4-0e6b-817e-a7c9-dc8306c3c028':'#00bcd4',
+  '18c51ce4-0e6b-81d1-8309-ffe486b019e1':'#607d8b',
+  '18c51ce4-0e6b-8185-9361-f2075f2026c4':'#4caf50',
+  '18c51ce4-0e6b-8125-8d77-f3f689e95a45':'#c8f04a',
+  '18c51ce4-0e6b-8103-b07a-db91628af561':'#8bc34a',
+  '18c51ce4-0e6b-81e7-aff9-c1db6220f800':'#f04a4a',
+  '18c51ce4-0e6b-81f3-bc0e-c78c3afb3f36':'#3f51b5',
+  '18c51ce4-0e6b-804b-9b46-dab3bb7fdced':'#ff5722',
+  '18c51ce4-0e6b-8044-b731-d82eb1bcc2b7':'#e91e63',
+  '18c51ce4-0e6b-80e4-b07f-e99c767cd979':'#795548',
+  '18c51ce4-0e6b-8121-9da4-c6570ae420bb':'#009688',
+  '30551ce4-0e6b-80cb-9709-c2aadc8c604f':'#ffc107',
 };
 
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
 let state = {
-  token: localStorage.getItem('fin_token') || '',
-  limit: parseFloat(localStorage.getItem('fin_limit') || '2500'),
+  user: null,
+  notionToken: '',
+  limit: 2500,
   currentMonth: new Date().getMonth(),
   currentYear: new Date().getFullYear(),
   despesas: [],
   ganhos: [],
+  mesesCache: {}, // { "2026-3": pageId }
   notifEnabled: localStorage.getItem('fin_notif') === 'true',
+  despesaType: 'unica',
+  duracaoType: 'fixo',
 };
 
-// ═══════════════════════════════════
-// API via proxy Vercel
-// ═══════════════════════════════════
+// ══════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════
+function switchTab(tab) {
+  document.getElementById('tab-login').classList.toggle('active', tab==='login');
+  document.getElementById('tab-signup').classList.toggle('active', tab==='signup');
+  document.getElementById('form-login').style.display = tab==='login' ? 'block' : 'none';
+  document.getElementById('form-signup').style.display = tab==='signup' ? 'block' : 'none';
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const btn = document.getElementById('login-btn');
+  const msg = document.getElementById('login-msg');
+  if (!email || !pass) { showMsg('login-msg', 'Preencha email e senha.', 'error'); return; }
+  btn.disabled = true; btn.textContent = 'Entrando...';
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false; btn.textContent = 'Entrar';
+  if (error) { showMsg('login-msg', traduzirErro(error.message), 'error'); return; }
+  await afterLogin();
+}
+
+async function doSignup() {
+  const email = document.getElementById('signup-email').value.trim();
+  const pass = document.getElementById('signup-pass').value;
+  const pass2 = document.getElementById('signup-pass2').value;
+  const btn = document.getElementById('signup-btn');
+  if (!email || !pass) { showMsg('signup-msg', 'Preencha todos os campos.', 'error'); return; }
+  if (pass !== pass2) { showMsg('signup-msg', 'As senhas não coincidem.', 'error'); return; }
+  if (pass.length < 6) { showMsg('signup-msg', 'Senha mínima: 6 caracteres.', 'error'); return; }
+  btn.disabled = true; btn.textContent = 'Criando...';
+  const { error } = await sb.auth.signUp({ email, password: pass });
+  btn.disabled = false; btn.textContent = 'Criar conta';
+  if (error) { showMsg('signup-msg', traduzirErro(error.message), 'error'); return; }
+  showMsg('signup-msg', '✓ Conta criada! Verifique seu email para confirmar.', 'success');
+}
+
+async function doForgotPassword() {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) { showMsg('login-msg', 'Digite seu email primeiro.', 'error'); return; }
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin
+  });
+  if (error) { showMsg('login-msg', traduzirErro(error.message), 'error'); return; }
+  showMsg('login-msg', '✓ Email de recuperação enviado!', 'success');
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  state.user = null; state.notionToken = '';
+  showScreen('auth-screen');
+}
+
+function traduzirErro(msg) {
+  if (msg.includes('Invalid login')) return 'Email ou senha incorretos.';
+  if (msg.includes('Email not confirmed')) return 'Confirme seu email antes de entrar.';
+  if (msg.includes('already registered')) return 'Este email já está cadastrado.';
+  if (msg.includes('rate limit')) return 'Muitas tentativas. Aguarde um momento.';
+  return msg;
+}
+
+async function afterLogin() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return;
+  state.user = user;
+  document.getElementById('settings-email').textContent = user.email;
+
+  // Load profile
+  const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+  if (profile?.notion_token) {
+    state.notionToken = profile.notion_token;
+    state.limit = profile.spending_limit || 2500;
+    showScreen('app-screen');
+    initApp();
+  } else {
+    showScreen('setup-screen');
+  }
+}
+
+async function doSetup() {
+  const token = document.getElementById('setup-token').value.trim();
+  const limit = parseFloat(document.getElementById('setup-limit').value) || 2500;
+  const btn = document.getElementById('setup-btn');
+  if (!token) { showMsg('setup-msg', 'Cole o token do Notion.', 'error'); return; }
+  btn.disabled = true; btn.textContent = 'Verificando...';
+
+  // Validate token via proxy
+  try {
+    const res = await notionReq('users/me');
+    if (res.object === 'error') throw new Error('Token inválido');
+  } catch {
+    showMsg('setup-msg', 'Token inválido. Verifique e tente novamente.', 'error');
+    btn.disabled = false; btn.textContent = 'Salvar e começar';
+    return;
+  }
+
+  // Save to Supabase
+  const { error } = await sb.from('profiles').upsert({
+    id: state.user.id,
+    email: state.user.email,
+    notion_token: token,
+    spending_limit: limit,
+  });
+  btn.disabled = false; btn.textContent = 'Salvar e começar';
+  if (error) { showMsg('setup-msg', 'Erro ao salvar. Tente novamente.', 'error'); return; }
+
+  state.notionToken = token;
+  state.limit = limit;
+  showScreen('app-screen');
+  initApp();
+}
+
+// ══════════════════════════════════════════
+// NOTION API
+// ══════════════════════════════════════════
 async function notionReq(path, method = 'GET', body = null) {
-  // Usa o proxy /api/notion?path=... para evitar CORS
-  const url = `${BASE_URL}/api/notion?path=${encodeURIComponent(path)}`;
+  const url = `/api/notion?path=${encodeURIComponent(path)}`;
   const opts = {
     method,
     headers: {
-      'Authorization': `Bearer ${state.token}`,
+      'Authorization': `Bearer ${state.notionToken}`,
       'Notion-Version': '2022-06-28',
       'Content-Type': 'application/json',
     }
@@ -480,33 +693,137 @@ async function queryDB(dbId, filter = null) {
   do {
     if (cursor) body.start_cursor = cursor;
     const data = await notionReq(`databases/${dbId}/query`, 'POST', body);
-    results = results.concat(data.results || []);
+    if (!data.results) break;
+    results = results.concat(data.results);
     cursor = data.next_cursor;
   } while (cursor);
   return results;
 }
 
-// ═══════════════════════════════════
-// DADOS
-// ═══════════════════════════════════
-function getMesId(month, year) {
-  return MESES_MAP[year]?.[MESES_NOMES[month]] || null;
+// ══════════════════════════════════════════
+// MESES CACHE (dinâmico — busca via API)
+// ══════════════════════════════════════════
+async function getMesId(month, year) {
+  const key = `${year}-${month}`;
+  if (state.mesesCache[key]) return state.mesesCache[key];
+
+  // Busca todos os meses do banco e popula o cache
+  if (Object.keys(state.mesesCache).length === 0) {
+    const meses = await queryDB(DB_IDS.meses);
+    for (const m of meses) {
+      const nomeMes = m.properties.Name?.title?.[0]?.plain_text?.trim() || '';
+      // Tenta pegar o ano pela relation Ano ou pelo número do mês + data
+      const numMes = m.properties['Numero do Mês']?.number;
+      // Pegar o ano buscando nas despesas relacionadas ou usando a ordem dos IDs
+      // Tentativa: buscar pelo nome "Janeiro 2025" se existir, ou usar o campo de ano
+      const anoRel = m.properties.Ano?.relation?.[0]?.id;
+      if (anoRel) {
+        // Resolve o ano pelo ID da relation
+        if (!state._anosResolved) state._anosResolved = {};
+        if (!state._anosResolved[anoRel]) {
+          // Não busca novamente, usa cache
+        }
+      }
+      // Estratégia: mapear pelo índice de meses + ordem de criação
+      const idxMes = MESES_NOMES.findIndex(n => n.toLowerCase() === nomeMes.toLowerCase());
+      if (idxMes !== -1 && numMes !== undefined) {
+        // Usa o campo Numero do Mês para identificar
+        // Precisamos do ano — buscamos a relation Ano
+        if (anoRel) {
+          // Tenta resolver ano via cache de anos
+          const anoEntry = state._anosCache?.[anoRel];
+          if (anoEntry) {
+            state.mesesCache[`${anoEntry}-${idxMes}`] = m.id;
+          }
+        }
+      }
+    }
+  }
+
+  // Se ainda não está no cache, busca especificamente
+  if (!state.mesesCache[key]) {
+    const nomeMes = MESES_NOMES[month];
+    // Busca mês com filtro de nome + ano
+    const filter = {
+      and: [
+        { property: 'Name', rich_text: { contains: nomeMes } },
+        { property: 'Numero do Mês', number: { equals: month + 1 } }
+      ]
+    };
+    const resultados = await queryDB(DB_IDS.meses, filter);
+    // Precisamos identificar qual é o do ano correto
+    // Estratégia: ordenar pelo id (mais antigo = 2024, mais novo = 2026+)
+    // Melhor: verificar pela relation de despesas existentes
+    // Para simplicidade: pegar o que tem ativo=true ou o mais recente por created_time
+    if (resultados.length === 1) {
+      state.mesesCache[key] = resultados[0].id;
+    } else if (resultados.length > 1) {
+      // Filtra pelo ano usando created_at do page
+      // Ordena por created_time desc e pega baseado no ano
+      const sorted = resultados.sort((a, b) => 
+        new Date(a.created_time) - new Date(b.created_time)
+      );
+      // Anos prováveis: 2024=index0, 2025=index1, 2026=index2...
+      const baseYear = 2024;
+      const yearOffset = year - baseYear;
+      const target = sorted[Math.min(yearOffset, sorted.length - 1)];
+      if (target) state.mesesCache[key] = target.id;
+    }
+  }
+
+  return state.mesesCache[key] || null;
 }
 
+// Pré-carrega cache de meses para o ano atual e vizinhos
+async function preloadMesesCache() {
+  const anos = [state.currentYear - 1, state.currentYear, state.currentYear + 1];
+  // Busca todos meses de uma vez
+  const todos = await queryDB(DB_IDS.meses);
+  
+  // Para resolver o ano, vamos usar a relation Ano
+  // Busca os anos
+  const anosPagesIds = [...new Set(todos.flatMap(m => 
+    m.properties.Ano?.relation?.map(r => r.id) || []
+  ))];
+  
+  // Busca nomes dos anos
+  const anosMap = {};
+  for (const aid of anosPagesIds) {
+    try {
+      const pg = await notionReq(`pages/${aid}`);
+      const nome = pg.properties?.Name?.title?.[0]?.plain_text || 
+                   pg.properties?.name?.title?.[0]?.plain_text ||
+                   pg.properties?.Ano?.title?.[0]?.plain_text || '';
+      const ano = parseInt(nome);
+      if (!isNaN(ano)) anosMap[aid] = ano;
+    } catch {}
+  }
+
+  // Popula cache
+  for (const m of todos) {
+    const nomeMes = m.properties.Name?.title?.[0]?.plain_text?.trim() || '';
+    const idxMes = MESES_NOMES.findIndex(n => n.toLowerCase() === nomeMes.replace(/\s+/g,'').toLowerCase());
+    const anoRelId = m.properties.Ano?.relation?.[0]?.id;
+    const ano = anosMap[anoRelId];
+    if (idxMes !== -1 && ano) {
+      state.mesesCache[`${ano}-${idxMes}`] = m.id;
+    }
+  }
+}
+
+// ══════════════════════════════════════════
+// LOAD DATA
+// ══════════════════════════════════════════
 async function loadMesData() {
-  const mesId = getMesId(state.currentMonth, state.currentYear);
+  const mesId = await getMesId(state.currentMonth, state.currentYear);
   if (!mesId) {
-    state.despesas = [];
-    state.ganhos = [];
     renderDespesas([]);
     renderStats([], []);
+    showToast(`Mês ${MESES_NOMES[state.currentMonth]}/${state.currentYear} não encontrado no Notion`, 'warning');
     return;
   }
 
-  // Filtro de despesas pelo mês
-  const despesasFilter = { property: 'Mês', relation: { contains: mesId } };
-
-  // Filtro de ganhos: mês + Recebido = Sim (só conta o que entrou na conta)
+  const filter = { property: 'Mês', relation: { contains: mesId } };
   const ganhosFilter = {
     and: [
       { property: 'Mês', relation: { contains: mesId } },
@@ -516,24 +833,25 @@ async function loadMesData() {
 
   try {
     const [despesas, ganhos] = await Promise.all([
-      queryDB(DB.despesas, despesasFilter),
-      queryDB(DB.ganhos, ganhosFilter),
+      queryDB(DB_IDS.despesas, filter),
+      queryDB(DB_IDS.ganhos, ganhosFilter),
     ]);
     state.despesas = despesas;
     state.ganhos = ganhos;
     renderDespesas(despesas);
     renderStats(despesas, ganhos);
   } catch(e) {
-    console.error('Erro ao carregar dados:', e);
-    renderDespesas([]);
-    renderStats([], []);
+    console.error(e);
+    showToast('Erro ao carregar dados', 'error');
   }
 }
 
-// ═══════════════════════════════════
+// ══════════════════════════════════════════
 // RENDER
-// ═══════════════════════════════════
-function fmt(v) { return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+// ══════════════════════════════════════════
+function fmt(v) {
+  return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
+}
 
 function renderStats(despesas, ganhos) {
   const td = despesas.reduce((s,d) => s + (d.properties.Total?.number||0), 0);
@@ -573,8 +891,8 @@ function renderDespesas(despesas) {
   }
   const sorted = [...despesas].sort((a,b) => {
     const da = a.properties['Data da Despesa']?.date?.start || '';
-    const db = b.properties['Data da Despesa']?.date?.start || '';
-    return db.localeCompare(da);
+    const db_= b.properties['Data da Despesa']?.date?.start || '';
+    return db_.localeCompare(da);
   });
   list.innerHTML = sorted.map(d => {
     const nome = d.properties.Nome?.title?.[0]?.plain_text || '(sem nome)';
@@ -584,14 +902,16 @@ function renderDespesas(despesas) {
     const catId = d.properties.Categoria?.relation?.[0]?.id || '';
     const cor = CAT_COLORS[catId] || 'var(--muted)';
     const dataFmt = data ? new Date(data+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : '—';
-    return `<div class="expense-item">
-      <div class="expense-cat-dot" style="background:${cor};"></div>
+    const isRecorrente = nome.includes('∞') || d.properties.Observação?.rich_text?.[0]?.plain_text?.includes('[recorrente]');
+    return `<div class="expense-item" onclick="openDeleteForItem('${d.id}','${nome.replace(/'/g,"\\'")}')">
+      <div class="cat-dot" style="background:${cor}"></div>
       <div class="expense-info">
         <div class="expense-name">${nome}</div>
         <div class="expense-meta">${dataFmt}</div>
       </div>
       <div class="expense-value">${fmt(valor)}</div>
-      <div class="pago-badge ${pago==='Pago'?'pago':'pendente'}">${pago==='Pago'?'✓':'!'}</div>
+      <div class="badge ${pago==='Pago'?'badge-pago':'badge-pendente'}">${pago==='Pago'?'✓':'!'}</div>
+      ${isRecorrente ? '<div class="badge badge-recorrente">∞</div>' : ''}
     </div>`;
   }).join('');
 }
@@ -600,22 +920,67 @@ function renderMonthLabel() {
   document.getElementById('month-label').textContent = `${MESES_NOMES[state.currentMonth]} / ${state.currentYear}`;
 }
 
-// ═══════════════════════════════════
-// PARCELAS
-// ═══════════════════════════════════
-function buildParcelas(nome, valor, n, dataInicio) {
-  const vp = valor / n;
+// ══════════════════════════════════════════
+// CRIAR DESPESAS
+// ══════════════════════════════════════════
+function setType(type) {
+  state.despesaType = type;
+  document.querySelectorAll('.type-btn[data-type]').forEach(b => b.classList.toggle('active', b.dataset.type === type));
+  
+  const parcelasWrap = document.getElementById('f-parcelas-wrap');
+  const recorrenteWrap = document.getElementById('f-recorrente-wrap');
+  const valorLabel = document.getElementById('f-valor-label');
+  const parcelasLabel = document.getElementById('f-parcelas-label');
+
+  if (type === 'unica') {
+    parcelasWrap.style.display = 'none';
+    recorrenteWrap.style.display = 'none';
+    valorLabel.textContent = '(R$)';
+  } else if (type === 'parcelada') {
+    parcelasWrap.style.display = 'block';
+    recorrenteWrap.style.display = 'none';
+    parcelasLabel.textContent = 'Nº de parcelas';
+    valorLabel.textContent = '(total R$)';
+    document.getElementById('f-parcelas').value = '12';
+  } else if (type === 'recorrente') {
+    parcelasWrap.style.display = 'block';
+    recorrenteWrap.style.display = 'block';
+    parcelasLabel.textContent = 'Qtd. meses';
+    valorLabel.textContent = '(mensal R$)';
+    document.getElementById('f-parcelas').value = '12';
+  }
+  updateParcelasPreview();
+}
+
+function setDuracao(dur) {
+  state.duracaoType = dur;
+  document.querySelectorAll('.type-btn[data-dur]').forEach(b => b.classList.toggle('active', b.dataset.dur === dur));
+  if (dur === 'indefinido') {
+    document.getElementById('f-parcelas').value = '1188'; // 99 anos
+    document.getElementById('f-parcelas-wrap').style.display = 'none';
+  } else {
+    document.getElementById('f-parcelas').value = '12';
+    document.getElementById('f-parcelas-wrap').style.display = 'block';
+  }
+  updateParcelasPreview();
+}
+
+function buildParcelas(nome, valor, n, dataInicio, tipo) {
   const base = new Date(dataInicio + 'T12:00:00');
-  return Array.from({length: n}, (_, i) => {
+  const vp = tipo === 'parcelada' ? valor / n : valor;
+  return Array.from({ length: n }, (_, i) => {
     const d = new Date(base);
     d.setMonth(d.getMonth() + i);
+    let nomeParcela;
+    if (tipo === 'unica') nomeParcela = nome;
+    else if (tipo === 'parcelada') nomeParcela = `${nome} ${i+1}/${n}`;
+    else nomeParcela = `${nome} ∞`; // recorrente
     return {
-      nome: n === 1 ? nome : `${nome} (${i+1}/${n})`,
+      nome: nomeParcela,
       valor: vp,
       data: d,
       mes: MESES_NOMES[d.getMonth()],
       ano: d.getFullYear(),
-      mesId: getMesId(d.getMonth(), d.getFullYear()),
     };
   });
 }
@@ -625,33 +990,33 @@ function updateParcelasPreview() {
   const valor = parseFloat(document.getElementById('f-valor').value) || 0;
   const n = parseInt(document.getElementById('f-parcelas').value) || 1;
   const data = document.getElementById('f-data').value;
-  if (!valor || !data) { document.getElementById('parcelas-preview-section').style.display='none'; return; }
+  const tipo = state.despesaType;
 
-  const parcelas = buildParcelas(nome||'Despesa', valor, n, data);
-
-  if (n > 1) {
-    document.getElementById('parcelas-preview-section').style.display='block';
-    document.getElementById('parcelas-preview').innerHTML = parcelas.map((p, i) => {
-      const fracao = `${i+1}/${n}`;
-      const nomeBase = nome || 'Despesa';
-      return `<div class="parcela-row">
-        <span class="parcela-num" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${nomeBase} ${fracao}</span>
-        <span class="parcela-mes" style="margin:0 0.5rem;flex-shrink:0;">${p.mes}/${p.ano}</span>
-        <span class="parcela-val" style="flex-shrink:0;">${fmt(p.valor)}</span>
-        ${!p.mesId ? '<span class="parcela-warn">⚠</span>' : ''}
-      </div>`;
-    }).join('');
-  } else {
-    document.getElementById('parcelas-preview-section').style.display='none';
+  if (!valor || !data || (tipo === 'unica')) {
+    document.getElementById('parcelas-preview-wrap').style.display = 'none';
+    return;
   }
 
+  const parcelas = buildParcelas(nome||'Despesa', valor, n, data, tipo);
+  const maxShow = Math.min(parcelas.length, 6);
+  const temMais = parcelas.length > maxShow;
+
+  document.getElementById('parcelas-preview-wrap').style.display = 'block';
+  document.getElementById('parcelas-preview').innerHTML = parcelas.slice(0, maxShow).map(p => `
+    <div class="parcela-row">
+      <span class="parcela-name">${p.nome}</span>
+      <span class="parcela-mes">${p.mes}/${p.ano}</span>
+      <span class="parcela-val">${fmt(p.valor)}</span>
+    </div>`).join('') + (temMais ? `<div style="text-align:center;font-size:0.68rem;color:var(--muted2);padding:0.3rem">+ ${parcelas.length - maxShow} lançamentos...</div>` : '');
+
+  // Limit warning
   const td = state.despesas.reduce((s,d) => s + (d.properties.Total?.number||0), 0);
-  const warning = document.getElementById('limit-warning-modal');
-  if (td + valor/n > state.limit) {
-    warning.classList.add('show');
-    document.getElementById('lw-limit').textContent = fmt(state.limit);
+  const warn = document.getElementById('limit-warn');
+  if (td + (tipo === 'parcelada' ? valor/n : valor) > state.limit) {
+    warn.classList.add('show');
+    document.getElementById('lw-val').textContent = fmt(state.limit);
   } else {
-    warning.classList.remove('show');
+    warn.classList.remove('show');
   }
 }
 
@@ -663,17 +1028,20 @@ async function criarDespesas() {
   const catId = document.getElementById('f-categoria').value;
   const pago = document.getElementById('f-pago').value;
   const obs = document.getElementById('f-obs').value.trim();
+  const tipo = state.despesaType;
 
   if (!nome || !valor || !data) { showToast('Preencha nome, valor e data.', 'error'); return; }
 
-  const btn = document.getElementById('salvar-despesa-btn');
+  const count = tipo === 'unica' ? 1 : n;
+  const parcelas = buildParcelas(nome, valor, count, data, tipo);
+
+  const btn = document.getElementById('salvar-btn');
   btn.disabled = true;
-  btn.textContent = `Criando ${n} lançamento(s)...`;
+  btn.textContent = `Criando ${parcelas.length} lançamento(s)...`;
 
-  const parcelas = buildParcelas(nome, valor, n, data);
   let erros = 0;
-
   for (const p of parcelas) {
+    const mesId = await getMesId(p.data.getMonth(), p.data.getFullYear());
     const props = {
       Nome: { title: [{ text: { content: p.nome } }] },
       Total: { number: parseFloat(p.valor.toFixed(2)) },
@@ -681,21 +1049,21 @@ async function criarDespesas() {
       Pago: { select: { name: pago } },
     };
     if (catId) props.Categoria = { relation: [{ id: catId }] };
-    if (obs) props.Observação = { rich_text: [{ text: { content: obs } }] };
-    if (p.mesId) props.Mês = { relation: [{ id: p.mesId }] };
+    const obsText = obs + (tipo === 'recorrente' ? ' [recorrente]' : '');
+    if (obsText.trim()) props.Observação = { rich_text: [{ text: { content: obsText.trim() } }] };
+    if (mesId) props.Mês = { relation: [{ id: mesId }] };
 
     try {
-      const res = await notionReq('pages', 'POST', { parent: { database_id: DB.despesas }, properties: props });
+      const res = await notionReq('pages', 'POST', { parent: { database_id: DB_IDS.despesas }, properties: props });
       if (res.object === 'error') { console.error(res); erros++; }
-    } catch(e) { erros++; }
+    } catch { erros++; }
   }
 
-  btn.disabled = false;
-  btn.textContent = 'Criar no Notion';
+  btn.disabled = false; btn.textContent = 'Criar no Notion';
 
   if (erros === 0) {
     showToast(`✓ ${parcelas.length} lançamento(s) criado(s)!`, 'success');
-    closeModal();
+    closeModal('modal-despesa');
     document.getElementById('despesas-list').innerHTML = '<div class="loading"><div class="spinner"></div> Atualizando...</div>';
     await loadMesData();
   } else {
@@ -703,165 +1071,288 @@ async function criarDespesas() {
   }
 }
 
-// ═══════════════════════════════════
-// NOTIFICAÇÕES
-// ═══════════════════════════════════
+// ══════════════════════════════════════════
+// EXCLUIR EM LOTE
+// ══════════════════════════════════════════
+let deleteResults = [];
+let deleteSearchTimer;
+
+function openDeleteForItem(id, nome) {
+  openModal('modal-delete');
+  document.getElementById('delete-search').value = nome;
+  searchToDelete();
+}
+
+async function searchToDelete() {
+  clearTimeout(deleteSearchTimer);
+  deleteSearchTimer = setTimeout(async () => {
+    const q = document.getElementById('delete-search').value.trim();
+    if (!q || q.length < 2) {
+      document.getElementById('delete-results').innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div>Digite um nome para buscar</div>';
+      document.getElementById('confirm-delete-btn').style.display = 'none';
+      return;
+    }
+
+    document.getElementById('delete-results').innerHTML = '<div class="loading"><div class="spinner"></div> Buscando...</div>';
+
+    // Busca todas as despesas com nome similar
+    const filter = { property: 'Nome', title: { contains: q } };
+    const results = await queryDB(DB_IDS.despesas, filter);
+    deleteResults = results;
+
+    if (!results.length) {
+      document.getElementById('delete-results').innerHTML = '<div class="empty-state"><div class="empty-icon">😶</div>Nenhuma despesa encontrada</div>';
+      document.getElementById('confirm-delete-btn').style.display = 'none';
+      return;
+    }
+
+    const sorted = [...results].sort((a,b) => {
+      const da = a.properties['Data da Despesa']?.date?.start || '';
+      const db_ = b.properties['Data da Despesa']?.date?.start || '';
+      return da.localeCompare(db_);
+    });
+
+    document.getElementById('confirm-delete-btn').style.display = 'block';
+    document.getElementById('delete-results').innerHTML = `
+      <label class="select-all-row">
+        <input type="checkbox" id="select-all" onchange="toggleSelectAll(this.checked)">
+        Selecionar todos (${sorted.length})
+      </label>
+      <div class="delete-list">
+        ${sorted.map(d => {
+          const nome = d.properties.Nome?.title?.[0]?.plain_text || '';
+          const valor = d.properties.Total?.number || 0;
+          const data = d.properties['Data da Despesa']?.date?.start || '';
+          const dataFmt = data ? new Date(data+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
+          return `<div class="delete-item">
+            <input type="checkbox" class="del-check" value="${d.id}" checked>
+            <div class="delete-item-info">
+              <div class="delete-item-name">${nome}</div>
+              <div class="delete-item-meta">${dataFmt}</div>
+            </div>
+            <div class="delete-item-val">${fmt(valor)}</div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  }, 400);
+}
+
+function toggleSelectAll(checked) {
+  document.querySelectorAll('.del-check').forEach(c => c.checked = checked);
+}
+
+async function confirmDelete() {
+  const selected = [...document.querySelectorAll('.del-check:checked')].map(c => c.value);
+  if (!selected.length) { showToast('Selecione ao menos um item.', 'warning'); return; }
+
+  const btn = document.getElementById('confirm-delete-btn');
+  btn.disabled = true; btn.textContent = `Excluindo ${selected.length}...`;
+
+  let erros = 0;
+  for (const id of selected) {
+    try {
+      const res = await notionReq(`pages/${id}`, 'PATCH', { archived: true });
+      if (res.object === 'error') erros++;
+    } catch { erros++; }
+  }
+
+  btn.disabled = false; btn.textContent = 'Excluir selecionados';
+
+  if (erros === 0) {
+    showToast(`✓ ${selected.length} lançamento(s) excluído(s)!`, 'success');
+    closeModal('modal-delete');
+    await loadMesData();
+  } else {
+    showToast(`${erros} erro(s) ao excluir.`, 'error');
+  }
+}
+
+// ══════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════
+async function saveLimit() {
+  const val = parseFloat(document.getElementById('settings-limit-input').value);
+  if (!val || val < 1) { showToast('Valor inválido.', 'error'); return; }
+  state.limit = val;
+  await sb.from('profiles').update({ spending_limit: val }).eq('id', state.user.id);
+  document.getElementById('settings-limit-display').textContent = fmt(val);
+  renderStats(state.despesas, state.ganhos);
+  showToast('Limite atualizado!', 'success');
+}
+
+function showChangeToken() { openModal('modal-token'); }
+
+async function saveNewToken() {
+  const token = document.getElementById('new-token-input').value.trim();
+  if (!token) return;
+  state.notionToken = token;
+  await sb.from('profiles').update({ notion_token: token }).eq('id', state.user.id);
+  closeModal('modal-token');
+  showToast('Token atualizado!', 'success');
+  state.mesesCache = {};
+  await preloadMesesCache();
+  loadMesData();
+}
+
+// ══════════════════════════════════════════
+// NOTIFICATIONS
+// ══════════════════════════════════════════
 let lastNotifTotal = 0;
 function pushNotif(total) {
   if (!state.notifEnabled || Notification.permission !== 'granted') return;
   if (Math.abs(total - lastNotifTotal) < 1) return;
   lastNotifTotal = total;
-  new Notification('FinTrack ⚠️ Limite ultrapassado', {
+  new Notification('FinTrack ⚠️', {
     body: `${MESES_NOMES[state.currentMonth]}: ${fmt(total)} (limite: ${fmt(state.limit)})`,
   });
 }
 
-// ═══════════════════════════════════
-// MODAL
-// ═══════════════════════════════════
-function openModal() {
-  document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
-  document.getElementById('modal-despesa').classList.add('open');
-}
-function closeModal() {
-  document.getElementById('modal-despesa').classList.remove('open');
-  ['f-nome','f-valor','f-obs'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('f-parcelas').value = '1';
-  document.getElementById('f-categoria').value = '';
-  document.getElementById('f-pago').value = 'Pendente';
-  document.getElementById('parcelas-preview-section').style.display = 'none';
-  document.getElementById('limit-warning-modal').classList.remove('show');
+async function toggleNotif() {
+  const toggle = document.getElementById('notif-toggle');
+  if (!state.notifEnabled) {
+    const p = await Notification.requestPermission();
+    if (p !== 'granted') { showToast('Permissão negada.', 'error'); return; }
+    state.notifEnabled = true; localStorage.setItem('fin_notif', 'true');
+    toggle.classList.add('on'); showToast('Notificações ativadas!', 'success');
+  } else {
+    state.notifEnabled = false; localStorage.setItem('fin_notif', 'false');
+    toggle.classList.remove('on'); showToast('Notificações desativadas.', 'warning');
+  }
 }
 
-// ═══════════════════════════════════
-// TOAST
-// ═══════════════════════════════════
+// ══════════════════════════════════════════
+// UI HELPERS
+// ══════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function openModal(id) {
+  if (id === 'modal-despesa') {
+    document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
+    setType('unica');
+  }
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'modal-despesa') {
+    ['f-nome','f-valor','f-obs'].forEach(i => document.getElementById(i).value = '');
+    document.getElementById('f-parcelas').value = '1';
+    document.getElementById('f-categoria').value = '';
+    document.getElementById('f-pago').value = 'Pendente';
+    document.getElementById('parcelas-preview-wrap').style.display = 'none';
+    document.getElementById('limit-warn').classList.remove('show');
+  }
+  if (id === 'modal-delete') {
+    document.getElementById('delete-search').value = '';
+    document.getElementById('delete-results').innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div>Digite um nome para buscar</div>';
+    document.getElementById('confirm-delete-btn').style.display = 'none';
+  }
+}
+
+function showMsg(id, msg, type) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = `auth-msg ${type}`;
+}
+
 let toastTimer;
 function showToast(msg, type='success') {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `toast ${type} show`;
+  t.textContent = msg; t.className = `toast ${type} show`;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-// ═══════════════════════════════════
-// SETUP / BOOT
-// ═══════════════════════════════════
-async function validateToken(token) {
-  try {
-    const url = `${BASE_URL}/api/notion?path=${encodeURIComponent('users/me')}`;
-    const res = await fetch(url, {
-      headers: { 'Authorization': `Bearer ${token}`, 'Notion-Version': '2022-06-28' }
-    });
-    const data = await res.json();
-    return data.object !== 'error' && res.ok;
-  } catch { return false; }
-}
-
-async function initSetup() {
-  const token = document.getElementById('token-input').value.trim();
-  const limit = parseFloat(document.getElementById('limit-input').value) || 2500;
-  const btn = document.getElementById('save-setup-btn');
-  const err = document.getElementById('setup-error');
-  if (!token) { err.textContent = 'Cole o token.'; err.style.display='block'; return; }
-  btn.disabled = true; btn.textContent = 'Verificando...';
-  const ok = await validateToken(token);
-  if (!ok) {
-    err.textContent = 'Token inválido ou proxy não configurado.';
-    err.style.display = 'block';
-    btn.disabled = false; btn.textContent = 'Conectar ao Notion';
-    return;
-  }
-  localStorage.setItem('fin_token', token);
-  localStorage.setItem('fin_limit', limit.toString());
-  state.token = token; state.limit = limit;
-  startApp();
-}
-
-function startApp() {
-  document.getElementById('setup-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-  renderMonthLabel();
-  updateLimitDisplay();
-  loadMesData();
-}
-
-function updateLimitDisplay() {
-  document.getElementById('current-limit-display').textContent = fmt(state.limit);
-  document.getElementById('limit-setting-input').value = state.limit;
-}
-
-// ═══════════════════════════════════
-// EVENTS
-// ═══════════════════════════════════
-document.getElementById('save-setup-btn').addEventListener('click', initSetup);
-document.getElementById('token-input').addEventListener('keydown', e => { if(e.key==='Enter') initSetup(); });
-
-document.getElementById('prev-month').addEventListener('click', () => {
-  state.currentMonth--; if(state.currentMonth<0){state.currentMonth=11;state.currentYear--;}
-  renderMonthLabel();
-  document.getElementById('despesas-list').innerHTML = '<div class="loading"><div class="spinner"></div> Carregando...</div>';
-  loadMesData();
-});
-document.getElementById('next-month').addEventListener('click', () => {
-  state.currentMonth++; if(state.currentMonth>11){state.currentMonth=0;state.currentYear++;}
-  renderMonthLabel();
-  document.getElementById('despesas-list').innerHTML = '<div class="loading"><div class="spinner"></div> Carregando...</div>';
-  loadMesData();
-});
-
-document.querySelectorAll('.nav-item').forEach(item => {
-  item.addEventListener('click', () => {
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const page = btn.dataset.page;
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(`page-${item.dataset.page}`).classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n===item));
-    document.getElementById('fab-btn').style.display = item.dataset.page==='dashboard'?'flex':'none';
+    document.getElementById(`page-${page}`).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b===btn));
+    document.getElementById('fab-btn').style.display = page === 'dashboard' ? 'flex' : 'none';
   });
 });
 
-document.getElementById('fab-btn').addEventListener('click', openModal);
-document.getElementById('cancelar-modal-btn').addEventListener('click', closeModal);
-document.getElementById('modal-despesa').addEventListener('click', e => { if(e.target.id==='modal-despesa') closeModal(); });
-['f-nome','f-valor','f-parcelas','f-data'].forEach(id => document.getElementById(id).addEventListener('input', updateParcelasPreview));
-document.getElementById('salvar-despesa-btn').addEventListener('click', criarDespesas);
-
-document.getElementById('save-limit-btn').addEventListener('click', () => {
-  const val = parseFloat(document.getElementById('limit-setting-input').value);
-  if (!val||val<1) { showToast('Valor inválido.','error'); return; }
-  state.limit = val; localStorage.setItem('fin_limit', val.toString());
-  updateLimitDisplay(); renderStats(state.despesas, state.ganhos);
-  showToast('Limite atualizado!','success');
+document.getElementById('prev-month').addEventListener('click', async () => {
+  state.currentMonth--; if(state.currentMonth<0){state.currentMonth=11;state.currentYear--;}
+  renderMonthLabel();
+  document.getElementById('despesas-list').innerHTML = '<div class="loading"><div class="spinner"></div> Carregando...</div>';
+  await loadMesData();
+});
+document.getElementById('next-month').addEventListener('click', async () => {
+  state.currentMonth++; if(state.currentMonth>11){state.currentMonth=0;state.currentYear++;}
+  renderMonthLabel();
+  document.getElementById('despesas-list').innerHTML = '<div class="loading"><div class="spinner"></div> Carregando...</div>';
+  await loadMesData();
 });
 
-document.getElementById('logout-btn').addEventListener('click', () => {
-  if(confirm('Desconectar?')) { localStorage.clear(); location.reload(); }
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if(e.target === overlay) closeModal(overlay.id); });
 });
 
-document.getElementById('notif-toggle-row').addEventListener('click', async () => {
-  const toggle = document.getElementById('notif-toggle');
-  if (!state.notifEnabled) {
-    const p = await Notification.requestPermission();
-    if (p !== 'granted') { showToast('Permissão negada.','error'); return; }
-    state.notifEnabled = true; localStorage.setItem('fin_notif','true');
-    toggle.classList.add('on'); showToast('Notificações ativadas!','success');
-  } else {
-    state.notifEnabled = false; localStorage.setItem('fin_notif','false');
-    toggle.classList.remove('on'); showToast('Notificações desativadas.','warning');
-  }
+// Live preview
+['f-nome','f-valor','f-parcelas','f-data'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateParcelasPreview);
 });
 
-if (state.notifEnabled && Notification.permission==='granted') {
+// Notif toggle state
+if (state.notifEnabled && Notification.permission === 'granted') {
   document.getElementById('notif-toggle').classList.add('on');
 }
 
-// BOOT — se token já está salvo, entra direto sem mostrar setup
-if (state.token) {
-  startApp();
-} else {
-  document.getElementById('setup-screen').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
+// Excluir btn no FAB (long press abre delete modal)
+let fabTimer;
+document.getElementById('fab-btn').addEventListener('mousedown', () => {
+  fabTimer = setTimeout(() => openModal('modal-delete'), 600);
+});
+document.getElementById('fab-btn').addEventListener('touchstart', e => {
+  fabTimer = setTimeout(() => { openModal('modal-delete'); e.preventDefault(); }, 600);
+}, { passive: false });
+['mouseup','mouseleave','touchend'].forEach(ev => {
+  document.getElementById('fab-btn').addEventListener(ev, () => clearTimeout(fabTimer));
+});
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+async function initApp() {
+  renderMonthLabel();
+  document.getElementById('settings-limit-display').textContent = fmt(state.limit);
+  document.getElementById('settings-limit-input').value = state.limit;
+
+  // Pré-carrega cache de meses dinamicamente
+  showToast('Sincronizando meses...', 'info');
+  await preloadMesesCache();
+  await loadMesData();
 }
+
+// Boot
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    state.user = session.user;
+    document.getElementById('settings-email').textContent = session.user.email;
+    const { data: profile } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+    if (profile?.notion_token) {
+      state.notionToken = profile.notion_token;
+      state.limit = profile.spending_limit || 2500;
+      showScreen('app-screen');
+      initApp();
+    } else {
+      showScreen('setup-screen');
+    }
+  } else {
+    showScreen('auth-screen');
+  }
+})();
 </script>
 </body>
 </html>
