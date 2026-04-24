@@ -11,185 +11,194 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root {
-  --bg:#0a0a0a; --surface:#111; --surface2:#1a1a1a; --border:#222;
-  --accent:#c8f04a; --accent2:#f04a4a; --accent3:#4af0c8;
-  --text:#f0f0f0; --muted:#555; --muted2:#888;
-}
+:root{--bg:#0a0a0a;--surface:#111;--surface2:#1a1a1a;--border:#222;--accent:#c8f04a;--accent2:#f04a4a;--accent3:#4af0c8;--text:#f0f0f0;--muted:#555;--muted2:#888}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden}
 
-/* ── SCREENS ── */
+/* SCREENS */
 .screen{display:none;min-height:100vh}
 .screen.active{display:flex}
 
-/* ── AUTH SCREEN ── */
-#auth-screen{flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:2rem}
+/* AUTH */
+#auth-screen{flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:1.5rem}
 .auth-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:3rem;letter-spacing:-3px;color:var(--accent)}
 .auth-logo span{color:var(--text)}
-.auth-tagline{font-size:0.78rem;color:var(--muted2);text-align:center;max-width:280px;line-height:1.6}
-.auth-card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2rem;display:flex;flex-direction:column;gap:1.25rem}
+.auth-sub{font-size:0.75rem;color:var(--muted2);text-align:center;line-height:1.6}
+.auth-card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:1.75rem;display:flex;flex-direction:column;gap:1.1rem}
 .auth-tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--surface2);border-radius:10px;padding:3px;gap:3px}
-.auth-tab{padding:0.6rem;text-align:center;font-family:'Syne',sans-serif;font-weight:700;font-size:0.8rem;border-radius:8px;cursor:pointer;color:var(--muted2);transition:all 0.2s}
+.auth-tab{padding:0.55rem;text-align:center;font-family:'Syne',sans-serif;font-weight:700;font-size:0.78rem;border-radius:8px;cursor:pointer;color:var(--muted2);transition:all .2s}
 .auth-tab.active{background:var(--accent);color:#000}
-.field{display:flex;flex-direction:column;gap:0.4rem}
-.field label{font-size:0.68rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1px}
-.field input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.75rem 1rem;color:var(--text);font-family:'DM Mono',monospace;font-size:0.85rem;outline:none;transition:border-color 0.2s;width:100%}
-.field input:focus{border-color:var(--accent)}
-.btn{border:none;border-radius:10px;padding:0.9rem;font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;transition:opacity 0.2s,transform 0.1s;width:100%}
-.btn:active{transform:scale(0.98)}
-.btn:disabled{opacity:0.4;cursor:not-allowed}
+.f{display:flex;flex-direction:column;gap:0.35rem}
+.f label{font-size:0.65rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1px}
+.f input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.7rem 0.9rem;color:var(--text);font-family:'DM Mono',monospace;font-size:0.82rem;outline:none;transition:border-color .2s;width:100%}
+.f input:focus{border-color:var(--accent)}
+.btn{border:none;border-radius:10px;padding:0.85rem;font-family:'Syne',sans-serif;font-weight:700;font-size:0.88rem;cursor:pointer;transition:opacity .2s,transform .1s;width:100%;letter-spacing:.3px}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
 .btn-accent{background:var(--accent);color:#000}
 .btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
-.btn-danger{background:#2a0a0a;color:var(--accent2);border:1px solid var(--accent2)}
-.auth-msg{font-size:0.75rem;text-align:center;padding:0.5rem;border-radius:8px;display:none}
+.btn-danger{background:#1a0505;color:var(--accent2);border:1px solid var(--accent2)}
+.btn-warn{background:#1a1005;color:#f0a44a;border:1px solid #f0a44a}
+.auth-msg{font-size:0.73rem;text-align:center;padding:0.5rem 0.75rem;border-radius:8px;display:none}
 .auth-msg.error{background:#1a0505;color:var(--accent2);border:1px solid var(--accent2);display:block}
 .auth-msg.success{background:#051a0a;color:var(--accent3);border:1px solid var(--accent3);display:block}
-.auth-link{font-size:0.75rem;color:var(--accent);text-align:center;cursor:pointer;text-decoration:underline}
+.auth-link{font-size:0.73rem;color:var(--accent);text-align:center;cursor:pointer;text-decoration:underline}
 
-/* ── SETUP TOKEN SCREEN ── */
+/* SETUP */
 #setup-screen{flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:2rem}
-.setup-card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2rem;display:flex;flex-direction:column;gap:1.5rem}
-.setup-card h2{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem}
-.setup-card p{font-size:0.78rem;color:var(--muted2);line-height:1.7}
+.setup-card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2rem;display:flex;flex-direction:column;gap:1.3rem}
+.setup-card h2{font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem}
+.setup-card p,.setup-card a{font-size:0.76rem;color:var(--muted2);line-height:1.7}
 .setup-card a{color:var(--accent)}
-.setup-steps{display:flex;flex-direction:column;gap:0.5rem}
-.step{display:flex;gap:0.75rem;align-items:flex-start;font-size:0.75rem;color:var(--muted2);line-height:1.5}
-.step-num{background:var(--accent);color:#000;font-family:'Syne',sans-serif;font-weight:800;font-size:0.65rem;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step{display:flex;gap:0.7rem;align-items:flex-start;font-size:0.73rem;color:var(--muted2);line-height:1.5}
+.step-num{background:var(--accent);color:#000;font-family:'Syne',sans-serif;font-weight:800;font-size:0.62rem;border-radius:50%;width:17px;height:17px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
 
-/* ── APP SCREEN ── */
+/* APP */
 #app-screen{flex-direction:column}
-.app-header{padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:100}
-.app-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;letter-spacing:-1px;color:var(--accent)}
-.month-nav{display:flex;align-items:center;gap:0.6rem}
-.month-nav button{background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);width:28px;height:28px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
-.month-nav button:hover{border-color:var(--accent);color:var(--accent)}
-.month-label{font-family:'Syne',sans-serif;font-weight:700;font-size:0.8rem;min-width:105px;text-align:center}
+.app-header{padding:.9rem 1.25rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:100}
+.app-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;letter-spacing:-1px;color:var(--accent)}
+.month-nav{display:flex;align-items:center;gap:.5rem}
+.mnav-btn{background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);width:26px;height:26px;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.mnav-btn:hover{border-color:var(--accent);color:var(--accent)}
+.month-label{font-family:'Syne',sans-serif;font-weight:700;font-size:.78rem;min-width:105px;text-align:center}
+.content{padding:1.25rem;display:flex;flex-direction:column;gap:1.1rem;padding-bottom:7rem}
+.page{display:none}.page.active{display:flex;flex-direction:column;gap:1.1rem}
 
-/* ── CONTENT ── */
-.content{padding:1.25rem;display:flex;flex-direction:column;gap:1.25rem;padding-bottom:7rem}
-.page{display:none}.page.active{display:flex;flex-direction:column;gap:1.25rem}
+/* ALERT */
+.limit-alert{background:linear-gradient(135deg,#2a0a0a,#180505);border:1px solid var(--accent2);border-radius:12px;padding:.85rem 1rem;display:flex;align-items:center;gap:.7rem;animation:pulseBorder 2s infinite}
+@keyframes pulseBorder{0%,100%{border-color:var(--accent2)}50%{border-color:#ff8080}}
+.alert-text{font-family:'Syne',sans-serif;font-weight:700;font-size:.8rem;color:var(--accent2)}
+.alert-sub{font-size:.68rem;color:#ff8080;margin-top:2px}
 
-/* ── ALERT ── */
-.limit-alert{background:linear-gradient(135deg,#2a0a0a,#1a0505);border:1px solid var(--accent2);border-radius:12px;padding:0.9rem 1.1rem;display:flex;align-items:center;gap:0.75rem;animation:pulse-border 2s infinite}
-@keyframes pulse-border{0%,100%{border-color:var(--accent2)}50%{border-color:#ff8080}}
-.alert-icon{font-size:1.3rem}
-.alert-text{font-family:'Syne',sans-serif;font-weight:700;font-size:0.82rem;color:var(--accent2)}
-.alert-sub{font-size:0.7rem;color:#ff8080;margin-top:2px}
-
-/* ── STATS ── */
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:0.9rem;display:flex;flex-direction:column;gap:0.25rem}
-.stat-label{font-size:0.65rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1px}
-.stat-value{font-family:'Syne',sans-serif;font-weight:700;font-size:1.15rem}
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:.85rem;display:flex;flex-direction:column;gap:.2rem}
+.stat-label{font-size:.62rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1px}
+.stat-value{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem}
 .positive{color:var(--accent3)}.negative{color:var(--accent2)}.neutral{color:var(--text)}
 
-/* ── LIMIT BAR ── */
-.limit-section{display:flex;flex-direction:column;gap:0.5rem}
+/* LIMIT BAR */
+.limit-section{display:flex;flex-direction:column;gap:.45rem}
 .limit-header{display:flex;justify-content:space-between;align-items:center}
-.limit-title{font-size:0.68rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1px}
-.limit-pct{font-family:'Syne',sans-serif;font-weight:700;font-size:0.78rem}
-.limit-bar-bg{height:5px;background:var(--surface2);border-radius:99px;overflow:hidden}
-.limit-bar-fill{height:100%;border-radius:99px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1)}
-.limit-sub{font-size:0.68rem;color:var(--muted2)}
+.limit-title{font-size:.65rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1px}
+.limit-pct{font-family:'Syne',sans-serif;font-weight:700;font-size:.75rem}
+.bar-bg{height:5px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.limit-sub{font-size:.65rem;color:var(--muted2)}
 
-/* ── SECTION ── */
+/* SECTION */
 .section-header{display:flex;justify-content:space-between;align-items:center}
-.section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:0.88rem}
-.section-count{font-size:0.68rem;color:var(--muted2);background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:2px 8px}
+.section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem}
+.section-badge{font-size:.65rem;color:var(--muted2);background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:2px 8px}
 
-/* ── EXPENSE LIST ── */
-.expense-list{display:flex;flex-direction:column;gap:0.45rem}
-.expense-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.8rem 0.9rem;display:flex;align-items:center;gap:0.7rem;cursor:pointer;transition:border-color 0.2s}
-.expense-item:hover{border-color:var(--muted)}
+/* EXPENSE LIST */
+.expense-list{display:flex;flex-direction:column;gap:.4rem}
+.expense-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.75rem .9rem;display:flex;align-items:center;gap:.65rem;cursor:pointer;transition:border-color .15s}
+.expense-item:active{border-color:var(--accent)}
 .cat-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.expense-info{flex:1;min-width:0}
-.expense-name{font-family:'Syne',sans-serif;font-weight:600;font-size:0.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.expense-meta{font-size:0.65rem;color:var(--muted2);margin-top:2px}
-.expense-value{font-family:'Syne',sans-serif;font-weight:700;font-size:0.88rem;color:var(--accent2);flex-shrink:0}
-.badge{font-size:0.58rem;padding:2px 5px;border-radius:4px;font-family:'Syne',sans-serif;font-weight:700;flex-shrink:0}
-.badge-pago{background:#0a2a0a;color:var(--accent3);border:1px solid var(--accent3)}
-.badge-pendente{background:#2a1a0a;color:#f0a44a;border:1px solid #f0a44a}
-.badge-recorrente{background:#0a1a2a;color:#4a9af0;border:1px solid #4a9af0;margin-left:2px}
+.exp-info{flex:1;min-width:0}
+.exp-name{font-family:'Syne',sans-serif;font-weight:600;font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exp-meta{font-size:.62rem;color:var(--muted2);margin-top:2px}
+.exp-val{font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;color:var(--accent2);flex-shrink:0}
+.badge{font-size:.56rem;padding:2px 5px;border-radius:4px;font-family:'Syne',sans-serif;font-weight:700;flex-shrink:0}
+.b-pago{background:#0a2a0a;color:var(--accent3);border:1px solid var(--accent3)}
+.b-pendente{background:#2a1a0a;color:#f0a44a;border:1px solid #f0a44a}
+.b-rec{background:#0a142a;color:#4a9af0;border:1px solid #4a9af0}
 
-/* ── EMPTY / LOADING ── */
-.empty-state{text-align:center;padding:2.5rem;color:var(--muted2);font-size:0.78rem}
-.empty-icon{font-size:2rem;margin-bottom:0.5rem}
-.loading{display:flex;align-items:center;justify-content:center;gap:0.5rem;padding:2rem;color:var(--muted2);font-size:0.78rem}
-.spinner{width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite}
+/* EMPTY / LOADING */
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--muted2);font-size:.76rem}
+.empty-icon{font-size:1.8rem;margin-bottom:.4rem}
+.loading{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:2rem;color:var(--muted2);font-size:.76rem}
+.spinner{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── FAB ── */
-.fab{position:fixed;bottom:5.5rem;right:1.25rem;width:52px;height:52px;background:var(--accent);border:none;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#000;box-shadow:0 4px 20px rgba(200,240,74,0.35);transition:transform 0.2s;z-index:200}
-.fab:active{transform:scale(0.92)}
+/* FABs */
+.fab-group{position:fixed;bottom:5.5rem;right:1.25rem;display:flex;flex-direction:column;gap:.6rem;z-index:200}
+.fab{width:50px;height:50px;border:none;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.3rem;transition:transform .2s,box-shadow .2s}
+.fab:active{transform:scale(.92)}
+.fab-add{background:var(--accent);color:#000;box-shadow:0 4px 20px rgba(200,240,74,.3)}
+.fab-delete{background:var(--surface);color:var(--accent2);border:1px solid var(--accent2);box-shadow:0 4px 16px rgba(240,74,74,.15)}
 
-/* ── BOTTOM NAV ── */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--border);display:flex;padding:0.7rem 0 0.9rem;z-index:100}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;background:none;border:none;color:var(--muted);transition:color 0.2s}
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--border);display:flex;padding:.65rem 0 .85rem;z-index:100}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;background:none;border:none;color:var(--muted);transition:color .2s}
 .nav-btn.active{color:var(--accent)}
-.nav-icon{font-size:1.1rem}
-.nav-label{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.5px;font-family:'Syne',sans-serif;font-weight:700}
+.nav-icon{font-size:1.05rem}
+.nav-label{font-size:.56rem;text-transform:uppercase;letter-spacing:.5px;font-family:'Syne',sans-serif;font-weight:700}
 
-/* ── MODAL ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(6px);z-index:300;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity 0.3s}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(6px);z-index:300;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
 .modal-overlay.open{opacity:1;pointer-events:all}
-.modal{width:100%;background:var(--surface);border-radius:20px 20px 0 0;border-top:1px solid var(--border);padding:1.5rem;display:flex;flex-direction:column;gap:1.1rem;max-height:94vh;overflow-y:auto;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.4,0,0.2,1)}
+.modal{width:100%;background:var(--surface);border-radius:20px 20px 0 0;border-top:1px solid var(--border);padding:1.4rem;display:flex;flex-direction:column;gap:1rem;max-height:94vh;overflow-y:auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)}
 .modal-overlay.open .modal{transform:translateY(0)}
-.modal-handle{width:32px;height:4px;background:var(--border);border-radius:99px;margin:0 auto -0.3rem}
-.modal-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem}
+.modal-handle{width:30px;height:4px;background:var(--border);border-radius:99px;margin:0 auto -.2rem}
+.modal-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem}
 .modal-title span{color:var(--accent)}
+.modal-sub{font-size:.73rem;color:var(--muted2);line-height:1.5}
 
-/* ── FORM ── */
-.form-field{display:flex;flex-direction:column;gap:0.4rem}
-.form-label{font-size:0.68rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1px}
-.form-input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.7rem 0.9rem;color:var(--text);font-family:'DM Mono',monospace;font-size:0.82rem;outline:none;transition:border-color 0.2s;width:100%}
+/* FORM */
+.form-field{display:flex;flex-direction:column;gap:.35rem}
+.form-label{font-size:.65rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1px}
+.form-input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.68rem .88rem;color:var(--text);font-family:'DM Mono',monospace;font-size:.8rem;outline:none;transition:border-color .2s;width:100%}
 .form-input:focus{border-color:var(--accent)}
 select.form-input{cursor:pointer}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:0.7rem}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.65rem}
 
-/* ── TYPE SELECTOR ── */
-.type-selector{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.4rem}
-.type-btn{padding:0.6rem 0.4rem;text-align:center;font-family:'Syne',sans-serif;font-weight:700;font-size:0.7rem;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--muted2);transition:all 0.2s}
+/* TYPE SELECTOR */
+.type-sel{display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem}
+.type-btn{padding:.55rem .3rem;text-align:center;font-family:'Syne',sans-serif;font-weight:700;font-size:.67rem;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--muted2);transition:all .2s;line-height:1.4}
 .type-btn.active{background:var(--accent);color:#000;border-color:var(--accent)}
 
-/* ── PARCELAS PREVIEW ── */
-.parcelas-preview{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.7rem;display:flex;flex-direction:column;gap:0.35rem;max-height:160px;overflow-y:auto}
-.parcela-row{display:flex;align-items:center;font-size:0.72rem;padding:0.25rem 0;border-bottom:1px solid var(--border);gap:0.4rem}
-.parcela-row:last-child{border-bottom:none}
-.parcela-name{flex:1;color:var(--accent);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.parcela-mes{color:var(--muted2);flex-shrink:0;font-size:0.68rem}
-.parcela-val{color:var(--text);flex-shrink:0}
-.parcela-warn{color:var(--accent2);font-size:0.65rem;flex-shrink:0}
+/* PREVIEW */
+.preview-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.65rem;display:flex;flex-direction:column;gap:.3rem;max-height:150px;overflow-y:auto}
+.prev-row{display:flex;align-items:center;font-size:.7rem;padding:.22rem 0;border-bottom:1px solid var(--border);gap:.35rem}
+.prev-row:last-child{border-bottom:none}
+.prev-name{flex:1;color:var(--accent);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.prev-mes{color:var(--muted2);flex-shrink:0;font-size:.65rem}
+.prev-val{color:var(--text);flex-shrink:0}
 
-/* ── LIMIT WARNING ── */
-.limit-warn-box{background:#1a0a0a;border:1px solid var(--accent2);border-radius:8px;padding:0.7rem 0.9rem;font-size:0.73rem;color:var(--accent2);display:none}
-.limit-warn-box.show{display:block}
+/* WARN BOX */
+.warn-box{background:#1a0a0a;border:1px solid var(--accent2);border-radius:8px;padding:.65rem .85rem;font-size:.71rem;color:var(--accent2);display:none}
+.warn-box.show{display:block}
 
-/* ── DELETE MODAL ── */
-.delete-list{display:flex;flex-direction:column;gap:0.4rem;max-height:200px;overflow-y:auto}
-.delete-item{display:flex;align-items:center;gap:0.6rem;background:var(--surface2);border-radius:8px;padding:0.6rem 0.8rem;font-size:0.75rem}
-.delete-item input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;cursor:pointer}
-.delete-item-info{flex:1;min-width:0}
-.delete-item-name{font-family:'Syne',sans-serif;font-weight:600;font-size:0.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.delete-item-meta{font-size:0.65rem;color:var(--muted2)}
-.delete-item-val{color:var(--accent2);font-family:'Syne',sans-serif;font-weight:700;font-size:0.75rem;flex-shrink:0}
-.select-all-row{display:flex;align-items:center;gap:0.5rem;font-size:0.72rem;color:var(--muted2);cursor:pointer;padding:0.25rem 0}
+/* EXPENSE ACTION MODAL */
+.action-list{display:flex;flex-direction:column;gap:.5rem}
+.action-item{padding:.9rem 1rem;background:var(--surface2);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:border-color .15s}
+.action-item:active{border-color:var(--accent)}
+.action-item-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem}
+.action-item-sub{font-size:.68rem;color:var(--muted2);margin-top:3px}
+.action-danger .action-item-title{color:var(--accent2)}
+.action-warn .action-item-title{color:#f0a44a}
 
-/* ── SETTINGS PAGE ── */
-.settings-section{display:flex;flex-direction:column;gap:0.4rem}
-.settings-label{font-size:0.65rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;padding-left:2px}
+/* EDIT MODAL */
+.edit-section-title{font-size:.68rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem}
+
+/* DELETE LIST */
+.del-list{display:flex;flex-direction:column;gap:.35rem;max-height:220px;overflow-y:auto}
+.del-item{display:flex;align-items:center;gap:.55rem;background:var(--surface2);border-radius:8px;padding:.55rem .75rem}
+.del-item input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;cursor:pointer;flex-shrink:0}
+.del-item-info{flex:1;min-width:0}
+.del-item-name{font-family:'Syne',sans-serif;font-weight:600;font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.del-item-meta{font-size:.62rem;color:var(--muted2)}
+.del-item-val{color:var(--accent2);font-family:'Syne',sans-serif;font-weight:700;font-size:.72rem;flex-shrink:0}
+.sel-all{display:flex;align-items:center;gap:.45rem;font-size:.7rem;color:var(--muted2);cursor:pointer;padding:.2rem 0}
+.sel-all input{accent-color:var(--accent)}
+
+/* SETTINGS */
+.settings-section{display:flex;flex-direction:column;gap:.35rem}
+.settings-label{font-size:.62rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;padding-left:2px}
 .settings-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.settings-row{padding:0.9rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);cursor:pointer}
+.settings-row{padding:.85rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);cursor:pointer}
 .settings-row:last-child{border-bottom:none}
-.settings-row-label{font-family:'Syne',sans-serif;font-weight:600;font-size:0.82rem}
-.settings-row-val{font-size:0.75rem;color:var(--muted2)}
-.toggle{width:38px;height:21px;background:var(--border);border-radius:99px;position:relative;transition:background 0.2s;flex-shrink:0}
+.settings-row-label{font-family:'Syne',sans-serif;font-weight:600;font-size:.8rem}
+.settings-row-val{font-size:.72rem;color:var(--muted2)}
+.toggle{width:37px;height:20px;background:var(--border);border-radius:99px;position:relative;transition:background .2s;flex-shrink:0}
 .toggle.on{background:var(--accent)}
-.toggle::after{content:'';position:absolute;top:3px;left:3px;width:15px;height:15px;background:#000;border-radius:50%;transition:transform 0.2s}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;background:#000;border-radius:50%;transition:transform .2s}
 .toggle.on::after{transform:translateX(17px)}
 
-/* ── TOAST ── */
-.toast{position:fixed;top:1.25rem;left:50%;transform:translateX(-50%) translateY(-130%);background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.7rem 1.1rem;font-size:0.78rem;font-family:'Syne',sans-serif;font-weight:600;z-index:500;transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);white-space:nowrap;max-width:90vw;text-align:center}
+/* TOAST */
+.toast{position:fixed;top:1.2rem;left:50%;transform:translateX(-50%) translateY(-130%);background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;font-size:.76rem;font-family:'Syne',sans-serif;font-weight:600;z-index:500;transition:transform .3s cubic-bezier(.4,0,.2,1);white-space:nowrap;max-width:90vw;text-align:center}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.success{border-color:var(--accent3);color:var(--accent3)}
 .toast.error{border-color:var(--accent2);color:var(--accent2)}
@@ -199,170 +208,145 @@ select.form-input{cursor:pointer}
 </head>
 <body>
 
-<!-- ══ AUTH SCREEN ══ -->
+<!-- AUTH -->
 <div class="screen" id="auth-screen">
   <div class="auth-logo">Fin<span>Track</span></div>
-  <p class="auth-tagline">Controle financeiro inteligente conectado ao seu Notion</p>
+  <p class="auth-sub">Controle financeiro conectado ao seu Notion</p>
   <div class="auth-card">
     <div class="auth-tabs">
-      <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Entrar</div>
-      <div class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Criar conta</div>
+      <div class="auth-tab active" onclick="switchTab('login')">Entrar</div>
+      <div class="auth-tab" onclick="switchTab('signup')">Criar conta</div>
     </div>
-
-    <!-- LOGIN -->
-    <div id="form-login">
-      <div style="display:flex;flex-direction:column;gap:0.9rem">
-        <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="seu@email.com"></div>
-        <div class="field"><label>Senha</label><input type="password" id="login-pass" placeholder="••••••••"></div>
-        <div class="auth-msg" id="login-msg"></div>
-        <button class="btn btn-accent" id="login-btn" onclick="doLogin()">Entrar</button>
-        <div class="auth-link" onclick="doForgotPassword()">Esqueci minha senha</div>
-      </div>
+    <div id="form-login" style="display:flex;flex-direction:column;gap:.9rem">
+      <div class="f"><label>Email</label><input type="email" id="login-email" placeholder="seu@email.com"></div>
+      <div class="f"><label>Senha</label><input type="password" id="login-pass" placeholder="••••••••"></div>
+      <div class="auth-msg" id="login-msg"></div>
+      <button class="btn btn-accent" onclick="doLogin()">Entrar</button>
+      <div class="auth-link" onclick="doForgot()">Esqueci minha senha</div>
     </div>
-
-    <!-- SIGNUP -->
-    <div id="form-signup" style="display:none">
-      <div style="display:flex;flex-direction:column;gap:0.9rem">
-        <div class="field"><label>Email</label><input type="email" id="signup-email" placeholder="seu@email.com"></div>
-        <div class="field"><label>Senha</label><input type="password" id="signup-pass" placeholder="mínimo 6 caracteres"></div>
-        <div class="field"><label>Confirmar senha</label><input type="password" id="signup-pass2" placeholder="repita a senha"></div>
-        <div class="auth-msg" id="signup-msg"></div>
-        <button class="btn btn-accent" id="signup-btn" onclick="doSignup()">Criar conta</button>
-      </div>
+    <div id="form-signup" style="display:none;flex-direction:column;gap:.9rem">
+      <div class="f"><label>Email</label><input type="email" id="signup-email" placeholder="seu@email.com"></div>
+      <div class="f"><label>Senha</label><input type="password" id="signup-pass" placeholder="mínimo 6 caracteres"></div>
+      <div class="f"><label>Confirmar senha</label><input type="password" id="signup-pass2" placeholder="repita a senha"></div>
+      <div class="auth-msg" id="signup-msg"></div>
+      <button class="btn btn-accent" onclick="doSignup()">Criar conta</button>
     </div>
   </div>
 </div>
 
-<!-- ══ SETUP TOKEN SCREEN ══ -->
+<!-- SETUP -->
 <div class="screen" id="setup-screen">
   <div class="setup-card">
-    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;color:var(--accent)">💸 Quase lá!</div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;color:var(--accent)">💸 Quase lá!</div>
     <h2>Conecte seu Notion</h2>
-    <p>Para o app funcionar, você precisa criar uma integração no Notion e colar o token abaixo.</p>
-    <div class="setup-steps">
+    <div style="display:flex;flex-direction:column;gap:.5rem">
       <div class="step"><div class="step-num">1</div><span>Acesse <a href="https://notion.so/my-integrations" target="_blank">notion.so/my-integrations</a></span></div>
-      <div class="step"><div class="step-num">2</div><span>Clique em <strong>"New integration"</strong>, dê um nome e salve</span></div>
-      <div class="step"><div class="step-num">3</div><span>Copie o <strong>Internal Integration Token</strong></span></div>
-      <div class="step"><div class="step-num">4</div><span>Nos seus databases do Notion, clique em ··· → <strong>Connections</strong> → adicione sua integração</span></div>
+      <div class="step"><div class="step-num">2</div><span>Crie uma integração e copie o <strong>Token</strong></span></div>
+      <div class="step"><div class="step-num">3</div><span>Nos databases: ··· → <strong>Connections</strong> → adicione sua integração</span></div>
     </div>
-    <div class="field"><label>Notion Token</label><input type="password" id="setup-token" placeholder="ntn_..."></div>
-    <div class="field"><label>Limite mensal de gastos (R$)</label><input type="number" id="setup-limit" value="2500" placeholder="2500"></div>
+    <div class="f"><label>Notion Token</label><input type="password" id="setup-token" placeholder="ntn_..."></div>
+    <div class="f"><label>Limite mensal (R$)</label><input type="number" id="setup-limit" value="2500"></div>
     <div class="auth-msg" id="setup-msg"></div>
-    <button class="btn btn-accent" id="setup-btn" onclick="doSetup()">Salvar e começar</button>
+    <button class="btn btn-accent" onclick="doSetup()">Salvar e começar</button>
     <button class="btn btn-ghost" onclick="doLogout()">Sair</button>
   </div>
 </div>
 
-<!-- ══ APP SCREEN ══ -->
+<!-- APP -->
 <div class="screen" id="app-screen">
   <header class="app-header">
     <div class="app-logo">FinTrack</div>
     <div class="month-nav">
-      <button id="prev-month">‹</button>
+      <button class="mnav-btn" id="prev-month">‹</button>
       <div class="month-label" id="month-label"></div>
-      <button id="next-month">›</button>
+      <button class="mnav-btn" id="next-month">›</button>
     </div>
   </header>
 
   <div class="content">
 
-    <!-- DASHBOARD PAGE -->
+    <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
       <div id="limit-alert" class="limit-alert" style="display:none">
-        <div class="alert-icon">⚠️</div>
+        <div style="font-size:1.2rem">⚠️</div>
         <div>
           <div class="alert-text">Limite ultrapassado!</div>
           <div class="alert-sub" id="limit-alert-sub"></div>
         </div>
       </div>
-
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-label">Gastos</div><div class="stat-value negative" id="stat-despesas">—</div></div>
         <div class="stat-card"><div class="stat-label">Ganhos</div><div class="stat-value positive" id="stat-ganhos">—</div></div>
         <div class="stat-card"><div class="stat-label">Saldo</div><div class="stat-value neutral" id="stat-saldo">—</div></div>
         <div class="stat-card"><div class="stat-label">Lançamentos</div><div class="stat-value neutral" id="stat-itens">—</div></div>
       </div>
-
       <div class="limit-section">
         <div class="limit-header">
           <div class="limit-title">Limite mensal</div>
           <div class="limit-pct" id="limit-pct">0%</div>
         </div>
-        <div class="limit-bar-bg"><div class="limit-bar-fill" id="limit-bar" style="width:0%"></div></div>
+        <div class="bar-bg"><div class="bar-fill" id="limit-bar" style="width:0%"></div></div>
         <div class="limit-sub" id="limit-sub"></div>
       </div>
-
       <div class="section-header">
         <div class="section-title">Despesas do mês</div>
-        <div class="section-count" id="despesas-count">0</div>
+        <div class="section-badge" id="despesas-count">0</div>
       </div>
-
       <div id="despesas-list" class="expense-list">
         <div class="loading"><div class="spinner"></div> Carregando...</div>
       </div>
     </div>
 
-    <!-- SETTINGS PAGE -->
+    <!-- SETTINGS -->
     <div class="page" id="page-settings">
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem">Configurações</div>
-
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem">Configurações</div>
       <div class="settings-section">
         <div class="settings-label">Conta</div>
         <div class="settings-card">
-          <div class="settings-row" style="cursor:default">
-            <div class="settings-row-label">Email</div>
-            <div class="settings-row-val" id="settings-email">—</div>
-          </div>
-          <div class="settings-row" onclick="showChangeToken()">
-            <div class="settings-row-label">Token Notion</div>
-            <div class="settings-row-val">Alterar →</div>
-          </div>
+          <div class="settings-row" style="cursor:default"><div class="settings-row-label">Email</div><div class="settings-row-val" id="settings-email">—</div></div>
+          <div class="settings-row" onclick="openModal('modal-token')"><div class="settings-row-label">Token Notion</div><div class="settings-row-val">Alterar →</div></div>
         </div>
       </div>
-
       <div class="settings-section">
         <div class="settings-label">Limite mensal</div>
         <div class="settings-card">
           <div class="settings-row" style="cursor:default">
-            <div>
-              <div class="settings-row-label">Limite atual</div>
-              <div class="settings-row-val" id="settings-limit-display">R$ 2.500</div>
-            </div>
-            <input type="number" id="settings-limit-input" class="form-input" style="width:110px;text-align:right" placeholder="2500">
+            <div><div class="settings-row-label">Limite atual</div><div class="settings-row-val" id="settings-limit-display">R$ 2.500</div></div>
+            <input type="number" id="settings-limit-input" class="form-input" style="width:100px;text-align:right" placeholder="2500">
           </div>
-          <div class="settings-row" onclick="saveLimit()" style="justify-content:center">
-            <div class="settings-row-label" style="color:var(--accent)">Salvar limite</div>
-          </div>
+          <div class="settings-row" onclick="saveLimit()" style="justify-content:center"><div class="settings-row-label" style="color:var(--accent)">Salvar limite</div></div>
         </div>
       </div>
-
       <div class="settings-section">
         <div class="settings-label">Notificações</div>
         <div class="settings-card">
-          <div class="settings-row" id="notif-row" onclick="toggleNotif()">
-            <div>
-              <div class="settings-row-label">Push notifications</div>
-              <div class="settings-row-val">Avisa quando o limite estoura</div>
-            </div>
+          <div class="settings-row" onclick="toggleNotif()">
+            <div><div class="settings-row-label">Push notifications</div><div class="settings-row-val">Avisa quando o limite estoura</div></div>
             <div class="toggle" id="notif-toggle"></div>
           </div>
         </div>
       </div>
-
       <div class="settings-section">
         <div class="settings-label">Sessão</div>
         <div class="settings-card">
-          <div class="settings-row" onclick="doLogout()">
-            <div class="settings-row-label" style="color:var(--accent2)">Sair da conta</div>
-            <div class="settings-row-val">→</div>
-          </div>
+          <div class="settings-row" onclick="doLogout()"><div class="settings-row-label" style="color:var(--accent2)">Sair da conta</div><div class="settings-row-val">→</div></div>
         </div>
       </div>
     </div>
 
   </div>
 
-  <button class="fab" id="fab-btn" onclick="openModal('modal-despesa')">+</button>
+  <!-- FABs -->
+  <div class="fab-group" id="fab-group">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem">
+      <span style="font-size:.55rem;color:var(--accent2);font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.5px">EXCLUIR</span>
+      <button class="fab fab-delete" onclick="openModal('modal-delete')">🗑</button>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem">
+      <span style="font-size:.55rem;color:var(--accent);font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.5px">ADICIONAR</span>
+      <button class="fab fab-add" onclick="openModal('modal-despesa')">+</button>
+    </div>
+  </div>
 
   <nav class="bottom-nav">
     <button class="nav-btn active" data-page="dashboard"><div class="nav-icon">◈</div><div class="nav-label">Início</div></button>
@@ -370,54 +354,40 @@ select.form-input{cursor:pointer}
   </nav>
 </div>
 
-<!-- ══ MODAL: NOVA DESPESA ══ -->
+<!-- MODAL: NOVA DESPESA -->
 <div class="modal-overlay" id="modal-despesa">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Nova <span>despesa</span></div>
-
     <div class="form-field">
-      <div class="form-label">Tipo de lançamento</div>
-      <div class="type-selector">
-        <div class="type-btn active" data-type="unica" onclick="setType('unica')">💳 Única</div>
-        <div class="type-btn" data-type="parcelada" onclick="setType('parcelada')">📦 Parcelada</div>
-        <div class="type-btn" data-type="recorrente" onclick="setType('recorrente')">🔁 Recorrente</div>
+      <div class="form-label">Tipo</div>
+      <div class="type-sel">
+        <div class="type-btn active" data-type="unica" onclick="setType('unica')">💳<br>Única</div>
+        <div class="type-btn" data-type="parcelada" onclick="setType('parcelada')">📦<br>Parcelada</div>
+        <div class="type-btn" data-type="recorrente" onclick="setType('recorrente')">🔁<br>Recorrente</div>
       </div>
     </div>
-
     <div class="form-field">
-      <div class="form-label">Nome da despesa</div>
+      <div class="form-label">Nome</div>
       <input type="text" class="form-input" id="f-nome" placeholder="Ex: Netflix, Notebook...">
     </div>
-
     <div class="form-row">
       <div class="form-field">
-        <div class="form-label">Valor <span id="f-valor-label">(total R$)</span></div>
+        <div class="form-label" id="f-valor-lbl">Valor (R$)</div>
         <input type="number" class="form-input" id="f-valor" placeholder="0,00" step="0.01">
       </div>
-      <div class="form-field" id="f-parcelas-wrap">
-        <div class="form-label" id="f-parcelas-label">Parcelas</div>
-        <input type="number" class="form-input" id="f-parcelas" placeholder="12" min="1" max="600" value="1">
+      <div class="form-field" id="f-n-wrap" style="display:none">
+        <div class="form-label" id="f-n-lbl">Parcelas</div>
+        <input type="number" class="form-input" id="f-n" placeholder="12" min="1" max="600" value="12">
       </div>
     </div>
-
-    <!-- Recorrente: meses fixos ou indefinido -->
-    <div class="form-field" id="f-recorrente-wrap" style="display:none">
-      <div class="form-label">Duração</div>
-      <div class="type-selector" style="grid-template-columns:1fr 1fr">
-        <div class="type-btn active" data-dur="fixo" onclick="setDuracao('fixo')">Quantidade de meses</div>
-        <div class="type-btn" data-dur="indefinido" onclick="setDuracao('indefinido')">Indefinido (99 anos)</div>
-      </div>
-    </div>
-
     <div class="form-field">
       <div class="form-label">Data da 1ª cobrança</div>
       <input type="date" class="form-input" id="f-data">
     </div>
-
     <div class="form-field">
       <div class="form-label">Categoria</div>
-      <select class="form-input" id="f-categoria">
+      <select class="form-input" id="f-cat">
         <option value="">Selecionar...</option>
         <option value="25f51ce4-0e6b-80d8-82b8-d9afa484fd84">Relacionamento</option>
         <option value="1ea51ce4-0e6b-802f-9a09-f8c4b62631e5">Lazer e Festas</option>
@@ -437,7 +407,6 @@ select.form-input{cursor:pointer}
         <option value="30551ce4-0e6b-80cb-9709-c2aadc8c604f">Doações e Caridade</option>
       </select>
     </div>
-
     <div class="form-field">
       <div class="form-label">Status</div>
       <select class="form-input" id="f-pago">
@@ -445,55 +414,99 @@ select.form-input{cursor:pointer}
         <option value="Pago">Pago</option>
       </select>
     </div>
-
     <div class="form-field">
       <div class="form-label">Observação (opcional)</div>
       <input type="text" class="form-input" id="f-obs" placeholder="Detalhes...">
     </div>
-
-    <div id="parcelas-preview-wrap" style="display:none">
-      <div class="form-label" style="margin-bottom:0.4rem">Preview dos lançamentos</div>
-      <div class="parcelas-preview" id="parcelas-preview"></div>
+    <div id="preview-wrap" style="display:none">
+      <div class="form-label" style="margin-bottom:.35rem">Preview dos lançamentos</div>
+      <div class="preview-box" id="preview-box"></div>
     </div>
-
-    <div class="limit-warn-box" id="limit-warn">⚠️ Esta despesa vai ultrapassar o limite de <span id="lw-val"></span> no mês atual!</div>
-
+    <div class="warn-box" id="limit-warn">⚠️ Esta despesa vai ultrapassar o limite de <span id="lw-val"></span> no mês atual!</div>
     <button class="btn btn-accent" id="salvar-btn" onclick="criarDespesas()">Criar no Notion</button>
     <button class="btn btn-ghost" onclick="closeModal('modal-despesa')">Cancelar</button>
   </div>
 </div>
 
-<!-- ══ MODAL: EXCLUIR EM LOTE ══ -->
+<!-- MODAL: AÇÕES DA DESPESA (ao clicar) -->
+<div class="modal-overlay" id="modal-actions">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="action-title">Despesa</div>
+    <div class="modal-sub" id="action-sub"></div>
+    <div class="action-list">
+      <div class="action-item" onclick="openEditThis()">
+        <div class="action-item-title">✏️ Editar este lançamento</div>
+        <div class="action-item-sub">Altera apenas esta parcela específica</div>
+      </div>
+      <div class="action-item" onclick="openEditNext()">
+        <div class="action-item-title">✏️ Editar este e os próximos</div>
+        <div class="action-item-sub">Altera todos os lançamentos futuros com o mesmo nome base</div>
+      </div>
+      <div class="action-item action-warn" onclick="openDeleteFromItem()">
+        <div class="action-item-title">🗑 Excluir lançamentos</div>
+        <div class="action-item-sub">Escolhe quais parcelas excluir do Notion</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost" onclick="closeModal('modal-actions')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL: EDITAR DESPESA -->
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Editar <span id="edit-scope-label">lançamento</span></div>
+    <div class="modal-sub" id="edit-sub"></div>
+    <div class="form-field">
+      <div class="form-label">Nome</div>
+      <input type="text" class="form-input" id="edit-nome">
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">Valor (R$)</div>
+        <input type="number" class="form-input" id="edit-valor" step="0.01">
+      </div>
+      <div class="form-field">
+        <div class="form-label">Status</div>
+        <select class="form-input" id="edit-pago">
+          <option value="Pendente">Pendente</option>
+          <option value="Pago">Pago</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-field">
+      <div class="form-label">Observação</div>
+      <input type="text" class="form-input" id="edit-obs" placeholder="Observação...">
+    </div>
+    <button class="btn btn-accent" id="edit-save-btn" onclick="saveEdit()">Salvar alterações</button>
+    <button class="btn btn-ghost" onclick="closeModal('modal-edit')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL: EXCLUIR EM LOTE -->
 <div class="modal-overlay" id="modal-delete">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Excluir <span>lançamentos</span></div>
-    <p style="font-size:0.75rem;color:var(--muted2)">Busque por nome e selecione quais lançamentos excluir do Notion.</p>
-
+    <div class="modal-sub">Busque pelo nome e selecione quais excluir do Notion.</div>
     <div class="form-field">
       <div class="form-label">Buscar por nome</div>
-      <input type="text" class="form-input" id="delete-search" placeholder="Ex: Notebook..." oninput="searchToDelete()">
+      <input type="text" class="form-input" id="del-search" placeholder="Ex: Notebook..." oninput="searchDelete()">
     </div>
-
-    <div id="delete-results">
-      <div class="empty-state"><div class="empty-icon">🔍</div>Digite um nome para buscar</div>
-    </div>
-
-    <button class="btn btn-danger" id="confirm-delete-btn" onclick="confirmDelete()" style="display:none">Excluir selecionados</button>
+    <div id="del-results"><div class="empty"><div class="empty-icon">🔍</div>Digite um nome para buscar</div></div>
+    <button class="btn btn-danger" id="del-confirm-btn" onclick="confirmDelete()" style="display:none">Excluir selecionados</button>
     <button class="btn btn-ghost" onclick="closeModal('modal-delete')">Cancelar</button>
   </div>
 </div>
 
-<!-- ══ MODAL: ALTERAR TOKEN ══ -->
+<!-- MODAL: ALTERAR TOKEN -->
 <div class="modal-overlay" id="modal-token">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Alterar <span>token</span></div>
-    <div class="form-field">
-      <div class="form-label">Novo Notion Token</div>
-      <input type="password" class="form-input" id="new-token-input" placeholder="ntn_...">
-    </div>
-    <button class="btn btn-accent" onclick="saveNewToken()">Salvar token</button>
+    <div class="f"><label>Novo Notion Token</label><input type="password" class="form-input" id="new-token" placeholder="ntn_..."></div>
+    <button class="btn btn-accent" onclick="saveToken()">Salvar</button>
     <button class="btn btn-ghost" onclick="closeModal('modal-token')">Cancelar</button>
   </div>
 </div>
@@ -501,857 +514,660 @@ select.form-input{cursor:pointer}
 <div class="toast" id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 // SUPABASE
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 const { createClient } = supabase;
 const sb = createClient(
   'https://urhhtthkfenkyfxfdffv.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyaGh0dGhrZmVua3lmeGZkZmZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwNDkzMTEsImV4cCI6MjA5MjYyNTMxMX0.mNdGpwsPJiCzdTFustZHlyx6ihk-kXdI2Rqu8LkNswU'
 );
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 // CONSTANTS
-// ══════════════════════════════════════════
-const DB_IDS = {
+// ═══════════════════════════════════════
+const DB = {
   despesas: '18c51ce4-0e6b-81a4-8db1-d390329583f8',
   ganhos:   '18c51ce4-0e6b-817c-8922-d1862b7d62d1',
   meses:    '18c51ce4-0e6b-812e-ac09-f71bc80aac36',
 };
-const MESES_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const CAT_COLORS = {
-  '25f51ce4-0e6b-80d8-82b8-d9afa484fd84':'#e91e8c',
-  '1ea51ce4-0e6b-802f-9a09-f8c4b62631e5':'#9c27b0',
-  '18c51ce4-0e6b-81c3-aa6e-faee7ed17655':'#ff9800',
-  '18c51ce4-0e6b-81cc-a380-cf421fad1abb':'#2196f3',
-  '18c51ce4-0e6b-817e-a7c9-dc8306c3c028':'#00bcd4',
-  '18c51ce4-0e6b-81d1-8309-ffe486b019e1':'#607d8b',
-  '18c51ce4-0e6b-8185-9361-f2075f2026c4':'#4caf50',
-  '18c51ce4-0e6b-8125-8d77-f3f689e95a45':'#c8f04a',
-  '18c51ce4-0e6b-8103-b07a-db91628af561':'#8bc34a',
-  '18c51ce4-0e6b-81e7-aff9-c1db6220f800':'#f04a4a',
-  '18c51ce4-0e6b-81f3-bc0e-c78c3afb3f36':'#3f51b5',
-  '18c51ce4-0e6b-804b-9b46-dab3bb7fdced':'#ff5722',
-  '18c51ce4-0e6b-8044-b731-d82eb1bcc2b7':'#e91e63',
-  '18c51ce4-0e6b-80e4-b07f-e99c767cd979':'#795548',
-  '18c51ce4-0e6b-8121-9da4-c6570ae420bb':'#009688',
-  '30551ce4-0e6b-80cb-9709-c2aadc8c604f':'#ffc107',
+  '25f51ce4-0e6b-80d8-82b8-d9afa484fd84':'#e91e8c','1ea51ce4-0e6b-802f-9a09-f8c4b62631e5':'#9c27b0',
+  '18c51ce4-0e6b-81c3-aa6e-faee7ed17655':'#ff9800','18c51ce4-0e6b-81cc-a380-cf421fad1abb':'#2196f3',
+  '18c51ce4-0e6b-817e-a7c9-dc8306c3c028':'#00bcd4','18c51ce4-0e6b-81d1-8309-ffe486b019e1':'#607d8b',
+  '18c51ce4-0e6b-8185-9361-f2075f2026c4':'#4caf50','18c51ce4-0e6b-8125-8d77-f3f689e95a45':'#c8f04a',
+  '18c51ce4-0e6b-8103-b07a-db91628af561':'#8bc34a','18c51ce4-0e6b-81e7-aff9-c1db6220f800':'#f04a4a',
+  '18c51ce4-0e6b-81f3-bc0e-c78c3afb3f36':'#3f51b5','18c51ce4-0e6b-804b-9b46-dab3bb7fdced':'#ff5722',
+  '18c51ce4-0e6b-8044-b731-d82eb1bcc2b7':'#e91e63','18c51ce4-0e6b-80e4-b07f-e99c767cd979':'#795548',
+  '18c51ce4-0e6b-8121-9da4-c6570ae420bb':'#009688','30551ce4-0e6b-80cb-9709-c2aadc8c604f':'#ffc107',
 };
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 // STATE
-// ══════════════════════════════════════════
-let state = {
-  user: null,
-  notionToken: '',
-  limit: 2500,
-  currentMonth: new Date().getMonth(),
-  currentYear: new Date().getFullYear(),
-  despesas: [],
-  ganhos: [],
-  mesesCache: {}, // { "2026-3": pageId }
-  notifEnabled: localStorage.getItem('fin_notif') === 'true',
-  despesaType: 'unica',
-  duracaoType: 'fixo',
+// ═══════════════════════════════════════
+let S = {
+  user: null, token: '', limit: 2500,
+  month: new Date().getMonth(), year: new Date().getFullYear(),
+  despesas: [], ganhos: [],
+  mesesCache: {},   // "year-month" → pageId
+  notif: localStorage.getItem('fin_notif') === 'true',
+  type: 'unica',    // tipo de despesa no form
+  // contexto da despesa clicada
+  activeItem: null, // { id, nome, valor, pago, obs, data, dataStr }
+  editScope: 'this', // 'this' | 'next'
 };
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 // AUTH
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 function switchTab(tab) {
-  document.getElementById('tab-login').classList.toggle('active', tab==='login');
-  document.getElementById('tab-signup').classList.toggle('active', tab==='signup');
-  document.getElementById('form-login').style.display = tab==='login' ? 'block' : 'none';
-  document.getElementById('form-signup').style.display = tab==='signup' ? 'block' : 'none';
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='signup')));
+  document.getElementById('form-login').style.display = tab==='login' ? 'flex' : 'none';
+  document.getElementById('form-signup').style.display = tab==='signup' ? 'flex' : 'none';
 }
-
 async function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-pass').value;
-  const btn = document.getElementById('login-btn');
-  const msg = document.getElementById('login-msg');
-  if (!email || !pass) { showMsg('login-msg', 'Preencha email e senha.', 'error'); return; }
-  btn.disabled = true; btn.textContent = 'Entrando...';
+  const email = v('login-email'), pass = v('login-pass');
+  if (!email||!pass) { msg('login-msg','Preencha email e senha.','error'); return; }
+  setBtn('login-btn','Entrando...',true);
   const { error } = await sb.auth.signInWithPassword({ email, password: pass });
-  btn.disabled = false; btn.textContent = 'Entrar';
-  if (error) { showMsg('login-msg', traduzirErro(error.message), 'error'); return; }
+  setBtn('login-btn','Entrar',false);
+  if (error) { msg('login-msg', trErr(error.message), 'error'); return; }
   await afterLogin();
 }
-
 async function doSignup() {
-  const email = document.getElementById('signup-email').value.trim();
-  const pass = document.getElementById('signup-pass').value;
-  const pass2 = document.getElementById('signup-pass2').value;
-  const btn = document.getElementById('signup-btn');
-  if (!email || !pass) { showMsg('signup-msg', 'Preencha todos os campos.', 'error'); return; }
-  if (pass !== pass2) { showMsg('signup-msg', 'As senhas não coincidem.', 'error'); return; }
-  if (pass.length < 6) { showMsg('signup-msg', 'Senha mínima: 6 caracteres.', 'error'); return; }
-  btn.disabled = true; btn.textContent = 'Criando...';
+  const email = v('signup-email'), pass = v('signup-pass'), pass2 = v('signup-pass2');
+  if (!email||!pass) { msg('signup-msg','Preencha todos os campos.','error'); return; }
+  if (pass!==pass2) { msg('signup-msg','Senhas não coincidem.','error'); return; }
+  if (pass.length<6) { msg('signup-msg','Mínimo 6 caracteres.','error'); return; }
+  setBtn('signup-btn','Criando...',true);
   const { error } = await sb.auth.signUp({ email, password: pass });
-  btn.disabled = false; btn.textContent = 'Criar conta';
-  if (error) { showMsg('signup-msg', traduzirErro(error.message), 'error'); return; }
-  showMsg('signup-msg', '✓ Conta criada! Verifique seu email para confirmar.', 'success');
+  setBtn('signup-btn','Criar conta',false);
+  if (error) { msg('signup-msg', trErr(error.message), 'error'); return; }
+  msg('signup-msg','✓ Verifique seu email para confirmar.','success');
 }
-
-async function doForgotPassword() {
-  const email = document.getElementById('login-email').value.trim();
-  if (!email) { showMsg('login-msg', 'Digite seu email primeiro.', 'error'); return; }
-  const { error } = await sb.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin
-  });
-  if (error) { showMsg('login-msg', traduzirErro(error.message), 'error'); return; }
-  showMsg('login-msg', '✓ Email de recuperação enviado!', 'success');
+async function doForgot() {
+  const email = v('login-email');
+  if (!email) { msg('login-msg','Digite seu email primeiro.','error'); return; }
+  await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin });
+  msg('login-msg','✓ Email de recuperação enviado!','success');
 }
-
-async function doLogout() {
-  await sb.auth.signOut();
-  state.user = null; state.notionToken = '';
-  showScreen('auth-screen');
+async function doLogout() { await sb.auth.signOut(); showScreen('auth-screen'); }
+function trErr(m) {
+  if (m.includes('Invalid login')) return 'Email ou senha incorretos.';
+  if (m.includes('Email not confirmed')) return 'Confirme seu email primeiro.';
+  if (m.includes('already registered')) return 'Email já cadastrado.';
+  return m;
 }
-
-function traduzirErro(msg) {
-  if (msg.includes('Invalid login')) return 'Email ou senha incorretos.';
-  if (msg.includes('Email not confirmed')) return 'Confirme seu email antes de entrar.';
-  if (msg.includes('already registered')) return 'Este email já está cadastrado.';
-  if (msg.includes('rate limit')) return 'Muitas tentativas. Aguarde um momento.';
-  return msg;
-}
-
 async function afterLogin() {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return;
-  state.user = user;
-  document.getElementById('settings-email').textContent = user.email;
-
-  // Load profile
-  const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
-  if (profile?.notion_token) {
-    state.notionToken = profile.notion_token;
-    state.limit = profile.spending_limit || 2500;
-    showScreen('app-screen');
-    initApp();
-  } else {
-    showScreen('setup-screen');
-  }
+  S.user = user;
+  el('settings-email').textContent = user.email;
+  const { data: prof } = await sb.from('profiles').select('*').eq('id', user.id).single();
+  if (prof?.notion_token) {
+    S.token = prof.notion_token;
+    S.limit = prof.spending_limit || 2500;
+    showScreen('app-screen'); initApp();
+  } else { showScreen('setup-screen'); }
 }
-
 async function doSetup() {
-  const token = document.getElementById('setup-token').value.trim();
-  const limit = parseFloat(document.getElementById('setup-limit').value) || 2500;
-  const btn = document.getElementById('setup-btn');
-  if (!token) { showMsg('setup-msg', 'Cole o token do Notion.', 'error'); return; }
-  btn.disabled = true; btn.textContent = 'Verificando...';
-
-  // Validate token via proxy
-  try {
-    const res = await notionReq('users/me');
-    if (res.object === 'error') throw new Error('Token inválido');
-  } catch {
-    showMsg('setup-msg', 'Token inválido. Verifique e tente novamente.', 'error');
-    btn.disabled = false; btn.textContent = 'Salvar e começar';
-    return;
+  const token = v('setup-token'), limit = parseFloat(v('setup-limit'))||2500;
+  if (!token) { msg('setup-msg','Cole o token.','error'); return; }
+  setBtn('setup-btn','Verificando...',true);
+  S.token = token;
+  const test = await nReq('users/me');
+  if (test.object==='error') {
+    msg('setup-msg','Token inválido.','error');
+    setBtn('setup-btn','Salvar e começar',false); return;
   }
-
-  // Save to Supabase
-  const { error } = await sb.from('profiles').upsert({
-    id: state.user.id,
-    email: state.user.email,
-    notion_token: token,
-    spending_limit: limit,
-  });
-  btn.disabled = false; btn.textContent = 'Salvar e começar';
-  if (error) { showMsg('setup-msg', 'Erro ao salvar. Tente novamente.', 'error'); return; }
-
-  state.notionToken = token;
-  state.limit = limit;
-  showScreen('app-screen');
-  initApp();
+  await sb.from('profiles').upsert({ id:S.user.id, email:S.user.email, notion_token:token, spending_limit:limit });
+  S.limit = limit;
+  setBtn('setup-btn','Salvar e começar',false);
+  showScreen('app-screen'); initApp();
 }
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 // NOTION API
-// ══════════════════════════════════════════
-async function notionReq(path, method = 'GET', body = null) {
+// ═══════════════════════════════════════
+async function nReq(path, method='GET', body=null) {
   const url = `/api/notion?path=${encodeURIComponent(path)}`;
-  const opts = {
-    method,
-    headers: {
-      'Authorization': `Bearer ${state.notionToken}`,
-      'Notion-Version': '2022-06-28',
-      'Content-Type': 'application/json',
-    }
-  };
+  const opts = { method, headers: { 'Authorization':`Bearer ${S.token}`, 'Notion-Version':'2022-06-28', 'Content-Type':'application/json' } };
   if (body) opts.body = JSON.stringify(body);
-  const res = await fetch(url, opts);
-  return res.json();
+  const r = await fetch(url, opts);
+  return r.json();
 }
-
-async function queryDB(dbId, filter = null) {
-  const body = { page_size: 100 };
+async function qDB(dbId, filter=null) {
+  const body = { page_size:100 };
   if (filter) body.filter = filter;
-  let results = [], cursor = null;
+  let results=[], cursor=null;
   do {
     if (cursor) body.start_cursor = cursor;
-    const data = await notionReq(`databases/${dbId}/query`, 'POST', body);
-    if (!data.results) break;
-    results = results.concat(data.results);
-    cursor = data.next_cursor;
-  } while (cursor);
+    const d = await nReq(`databases/${dbId}/query`, 'POST', body);
+    if (!d.results) break;
+    results = results.concat(d.results);
+    cursor = d.next_cursor;
+  } while(cursor);
   return results;
 }
 
-// ══════════════════════════════════════════
-// MESES CACHE (dinâmico — busca via API)
-// ══════════════════════════════════════════
-async function getMesId(month, year) {
-  const key = `${year}-${month}`;
-  if (state.mesesCache[key]) return state.mesesCache[key];
-
-  // Busca todos os meses do banco e popula o cache
-  if (Object.keys(state.mesesCache).length === 0) {
-    const meses = await queryDB(DB_IDS.meses);
-    for (const m of meses) {
-      const nomeMes = m.properties.Name?.title?.[0]?.plain_text?.trim() || '';
-      // Tenta pegar o ano pela relation Ano ou pelo número do mês + data
-      const numMes = m.properties['Numero do Mês']?.number;
-      // Pegar o ano buscando nas despesas relacionadas ou usando a ordem dos IDs
-      // Tentativa: buscar pelo nome "Janeiro 2025" se existir, ou usar o campo de ano
-      const anoRel = m.properties.Ano?.relation?.[0]?.id;
-      if (anoRel) {
-        // Resolve o ano pelo ID da relation
-        if (!state._anosResolved) state._anosResolved = {};
-        if (!state._anosResolved[anoRel]) {
-          // Não busca novamente, usa cache
-        }
-      }
-      // Estratégia: mapear pelo índice de meses + ordem de criação
-      const idxMes = MESES_NOMES.findIndex(n => n.toLowerCase() === nomeMes.toLowerCase());
-      if (idxMes !== -1 && numMes !== undefined) {
-        // Usa o campo Numero do Mês para identificar
-        // Precisamos do ano — buscamos a relation Ano
-        if (anoRel) {
-          // Tenta resolver ano via cache de anos
-          const anoEntry = state._anosCache?.[anoRel];
-          if (anoEntry) {
-            state.mesesCache[`${anoEntry}-${idxMes}`] = m.id;
-          }
-        }
-      }
-    }
-  }
-
-  // Se ainda não está no cache, busca especificamente
-  if (!state.mesesCache[key]) {
-    const nomeMes = MESES_NOMES[month];
-    // Busca mês com filtro de nome + ano
-    const filter = {
-      and: [
-        { property: 'Name', rich_text: { contains: nomeMes } },
-        { property: 'Numero do Mês', number: { equals: month + 1 } }
-      ]
-    };
-    const resultados = await queryDB(DB_IDS.meses, filter);
-    // Precisamos identificar qual é o do ano correto
-    // Estratégia: ordenar pelo id (mais antigo = 2024, mais novo = 2026+)
-    // Melhor: verificar pela relation de despesas existentes
-    // Para simplicidade: pegar o que tem ativo=true ou o mais recente por created_time
-    if (resultados.length === 1) {
-      state.mesesCache[key] = resultados[0].id;
-    } else if (resultados.length > 1) {
-      // Filtra pelo ano usando created_at do page
-      // Ordena por created_time desc e pega baseado no ano
-      const sorted = resultados.sort((a, b) => 
-        new Date(a.created_time) - new Date(b.created_time)
-      );
-      // Anos prováveis: 2024=index0, 2025=index1, 2026=index2...
-      const baseYear = 2024;
-      const yearOffset = year - baseYear;
-      const target = sorted[Math.min(yearOffset, sorted.length - 1)];
-      if (target) state.mesesCache[key] = target.id;
-    }
-  }
-
-  return state.mesesCache[key] || null;
-}
-
-// Pré-carrega cache de meses para o ano atual e vizinhos
-async function preloadMesesCache() {
-  const anos = [state.currentYear - 1, state.currentYear, state.currentYear + 1];
-  // Busca todos meses de uma vez
-  const todos = await queryDB(DB_IDS.meses);
-  
-  // Para resolver o ano, vamos usar a relation Ano
-  // Busca os anos
-  const anosPagesIds = [...new Set(todos.flatMap(m => 
-    m.properties.Ano?.relation?.map(r => r.id) || []
-  ))];
-  
-  // Busca nomes dos anos
+// ═══════════════════════════════════════
+// MESES CACHE (dinâmico)
+// ═══════════════════════════════════════
+async function preloadMeses() {
+  const todos = await qDB(DB.meses);
+  // Coleta IDs das pages de Ano
+  const anoIds = [...new Set(todos.flatMap(m => m.properties.Ano?.relation?.map(r=>r.id)||[]))];
   const anosMap = {};
-  for (const aid of anosPagesIds) {
+  await Promise.all(anoIds.map(async aid => {
     try {
-      const pg = await notionReq(`pages/${aid}`);
-      const nome = pg.properties?.Name?.title?.[0]?.plain_text || 
-                   pg.properties?.name?.title?.[0]?.plain_text ||
-                   pg.properties?.Ano?.title?.[0]?.plain_text || '';
+      const pg = await nReq(`pages/${aid}`);
+      const nome = Object.values(pg.properties||{}).find(p=>p.type==='title')?.title?.[0]?.plain_text || '';
       const ano = parseInt(nome);
       if (!isNaN(ano)) anosMap[aid] = ano;
     } catch {}
-  }
-
-  // Popula cache
+  }));
   for (const m of todos) {
     const nomeMes = m.properties.Name?.title?.[0]?.plain_text?.trim() || '';
-    const idxMes = MESES_NOMES.findIndex(n => n.toLowerCase() === nomeMes.replace(/\s+/g,'').toLowerCase());
-    const anoRelId = m.properties.Ano?.relation?.[0]?.id;
-    const ano = anosMap[anoRelId];
-    if (idxMes !== -1 && ano) {
-      state.mesesCache[`${ano}-${idxMes}`] = m.id;
-    }
+    const idx = MESES.findIndex(n => n.toLowerCase() === nomeMes.toLowerCase());
+    const anoId = m.properties.Ano?.relation?.[0]?.id;
+    const ano = anosMap[anoId];
+    if (idx !== -1 && ano) S.mesesCache[`${ano}-${idx}`] = m.id;
   }
 }
+async function getMesId(month, year) {
+  const key = `${year}-${month}`;
+  if (S.mesesCache[key]) return S.mesesCache[key];
+  // fallback: busca específica
+  const r = await qDB(DB.meses, { property:'Numero do Mês', number:{ equals: month+1 } });
+  if (r.length === 1) { S.mesesCache[key] = r[0].id; return r[0].id; }
+  // múltiplos: pega o mais recente por created_time baseado no ano
+  if (r.length > 1) {
+    const sorted = r.sort((a,b)=>new Date(a.created_time)-new Date(b.created_time));
+    const base = Object.keys(S.mesesCache).map(k=>parseInt(k)).filter(Boolean).sort()[0] || 2025;
+    const idx = Math.max(0, Math.min(year - base, sorted.length-1));
+    S.mesesCache[key] = sorted[idx].id;
+    return sorted[idx].id;
+  }
+  return null;
+}
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 // LOAD DATA
-// ══════════════════════════════════════════
-async function loadMesData() {
-  const mesId = await getMesId(state.currentMonth, state.currentYear);
-  if (!mesId) {
-    renderDespesas([]);
-    renderStats([], []);
-    showToast(`Mês ${MESES_NOMES[state.currentMonth]}/${state.currentYear} não encontrado no Notion`, 'warning');
-    return;
-  }
-
-  const filter = { property: 'Mês', relation: { contains: mesId } };
-  const ganhosFilter = {
-    and: [
-      { property: 'Mês', relation: { contains: mesId } },
-      { property: 'Recebido', select: { equals: 'Sim' } }
-    ]
-  };
-
+// ═══════════════════════════════════════
+async function loadMes() {
+  const mesId = await getMesId(S.month, S.year);
+  if (!mesId) { renderDespesas([]); renderStats([],[]); showToast(`Mês não encontrado no Notion`,'warning'); return; }
+  const filter = { property:'Mês', relation:{ contains:mesId } };
+  const gFilter = { and:[{ property:'Mês', relation:{contains:mesId} },{ property:'Recebido', select:{equals:'Sim'} }] };
   try {
-    const [despesas, ganhos] = await Promise.all([
-      queryDB(DB_IDS.despesas, filter),
-      queryDB(DB_IDS.ganhos, ganhosFilter),
-    ]);
-    state.despesas = despesas;
-    state.ganhos = ganhos;
-    renderDespesas(despesas);
-    renderStats(despesas, ganhos);
-  } catch(e) {
-    console.error(e);
-    showToast('Erro ao carregar dados', 'error');
-  }
+    const [desp, ganh] = await Promise.all([qDB(DB.despesas,filter), qDB(DB.ganhos,gFilter)]);
+    S.despesas = desp; S.ganhos = ganh;
+    renderDespesas(desp); renderStats(desp, ganh);
+  } catch(e) { console.error(e); showToast('Erro ao carregar','error'); }
 }
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 // RENDER
-// ══════════════════════════════════════════
-function fmt(v) {
-  return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
+// ═══════════════════════════════════════
+function fmt(v) { return 'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+function renderStats(desp, ganh) {
+  const td = desp.reduce((s,d)=>s+(d.properties.Total?.number||0),0);
+  const tg = ganh.reduce((s,g)=>s+(g.properties.Quantidade?.number||0),0);
+  const saldo = tg-td;
+  const pct = S.limit>0 ? Math.min((td/S.limit)*100,100) : 0;
+  el('stat-despesas').textContent = fmt(td);
+  el('stat-ganhos').textContent = fmt(tg);
+  const se = el('stat-saldo'); se.textContent=fmt(saldo); se.className='stat-value '+(saldo>=0?'positive':'negative');
+  el('stat-itens').textContent = desp.length;
+  const bar = el('limit-bar');
+  bar.style.width = pct+'%';
+  bar.style.background = pct<70?'var(--accent3)':pct<90?'#f0a44a':'var(--accent2)';
+  el('limit-pct').textContent = Math.round(pct)+'%';
+  el('limit-sub').textContent = `${fmt(td)} de ${fmt(S.limit)}`;
+  const alertEl = el('limit-alert');
+  if (td>S.limit) {
+    alertEl.style.display='flex';
+    el('limit-alert-sub').textContent=`Você gastou ${fmt(td-S.limit)} a mais.`;
+    if (S.notif) pushNotif(td);
+  } else alertEl.style.display='none';
 }
 
-function renderStats(despesas, ganhos) {
-  const td = despesas.reduce((s,d) => s + (d.properties.Total?.number||0), 0);
-  const tg = ganhos.reduce((s,g) => s + (g.properties.Quantidade?.number||0), 0);
-  const saldo = tg - td;
-  const pct = state.limit > 0 ? Math.min((td/state.limit)*100, 100) : 0;
-
-  document.getElementById('stat-despesas').textContent = fmt(td);
-  document.getElementById('stat-ganhos').textContent = fmt(tg);
-  const sel = document.getElementById('stat-saldo');
-  sel.textContent = fmt(saldo);
-  sel.className = 'stat-value ' + (saldo >= 0 ? 'positive' : 'negative');
-  document.getElementById('stat-itens').textContent = despesas.length;
-
-  const bar = document.getElementById('limit-bar');
-  bar.style.width = pct + '%';
-  bar.style.background = pct < 70 ? 'var(--accent3)' : pct < 90 ? '#f0a44a' : 'var(--accent2)';
-  document.getElementById('limit-pct').textContent = Math.round(pct) + '%';
-  document.getElementById('limit-sub').textContent = `${fmt(td)} de ${fmt(state.limit)}`;
-
-  const alertEl = document.getElementById('limit-alert');
-  if (td > state.limit) {
-    alertEl.style.display = 'flex';
-    document.getElementById('limit-alert-sub').textContent = `Você gastou ${fmt(td - state.limit)} a mais que o limite.`;
-    if (state.notifEnabled) pushNotif(td);
-  } else {
-    alertEl.style.display = 'none';
-  }
-}
-
-function renderDespesas(despesas) {
-  const list = document.getElementById('despesas-list');
-  document.getElementById('despesas-count').textContent = despesas.length;
-  if (!despesas.length) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div>Nenhuma despesa neste mês</div>`;
-    return;
-  }
-  const sorted = [...despesas].sort((a,b) => {
-    const da = a.properties['Data da Despesa']?.date?.start || '';
-    const db_= b.properties['Data da Despesa']?.date?.start || '';
-    return db_.localeCompare(da);
+function renderDespesas(desp) {
+  el('despesas-count').textContent = desp.length;
+  const list = el('despesas-list');
+  if (!desp.length) { list.innerHTML='<div class="empty"><div class="empty-icon">📭</div>Nenhuma despesa neste mês</div>'; return; }
+  const sorted = [...desp].sort((a,b)=>{
+    const da=a.properties['Data da Despesa']?.date?.start||'';
+    const db=b.properties['Data da Despesa']?.date?.start||'';
+    return db.localeCompare(da);
   });
-  list.innerHTML = sorted.map(d => {
-    const nome = d.properties.Nome?.title?.[0]?.plain_text || '(sem nome)';
-    const valor = d.properties.Total?.number || 0;
-    const pago = d.properties.Pago?.select?.name || 'Pendente';
-    const data = d.properties['Data da Despesa']?.date?.start || '';
-    const catId = d.properties.Categoria?.relation?.[0]?.id || '';
-    const cor = CAT_COLORS[catId] || 'var(--muted)';
-    const dataFmt = data ? new Date(data+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : '—';
-    const isRecorrente = nome.includes('∞') || d.properties.Observação?.rich_text?.[0]?.plain_text?.includes('[recorrente]');
-    return `<div class="expense-item" onclick="openDeleteForItem('${d.id}','${nome.replace(/'/g,"\\'")}')">
+  list.innerHTML = sorted.map(d=>{
+    const nome = d.properties.Nome?.title?.[0]?.plain_text||'(sem nome)';
+    const valor = d.properties.Total?.number||0;
+    const pago = d.properties.Pago?.select?.name||'Pendente';
+    const data = d.properties['Data da Despesa']?.date?.start||'';
+    const catId = d.properties.Categoria?.relation?.[0]?.id||'';
+    const cor = CAT_COLORS[catId]||'var(--muted)';
+    const df = data ? new Date(data+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : '—';
+    const isRec = nome.endsWith('∞') || (d.properties.Observação?.rich_text?.[0]?.plain_text||'').includes('[rec]');
+    return `<div class="expense-item" onclick="openActions('${d.id}')">
       <div class="cat-dot" style="background:${cor}"></div>
-      <div class="expense-info">
-        <div class="expense-name">${nome}</div>
-        <div class="expense-meta">${dataFmt}</div>
+      <div class="exp-info">
+        <div class="exp-name">${nome}</div>
+        <div class="exp-meta">${df}</div>
       </div>
-      <div class="expense-value">${fmt(valor)}</div>
-      <div class="badge ${pago==='Pago'?'badge-pago':'badge-pendente'}">${pago==='Pago'?'✓':'!'}</div>
-      ${isRecorrente ? '<div class="badge badge-recorrente">∞</div>' : ''}
+      <div class="exp-val">${fmt(valor)}</div>
+      <div class="badge ${pago==='Pago'?'b-pago':'b-pendente'}">${pago==='Pago'?'✓':'!'}</div>
+      ${isRec?'<div class="badge b-rec">∞</div>':''}
     </div>`;
   }).join('');
 }
 
 function renderMonthLabel() {
-  document.getElementById('month-label').textContent = `${MESES_NOMES[state.currentMonth]} / ${state.currentYear}`;
+  el('month-label').textContent = `${MESES[S.month]} / ${S.year}`;
 }
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 // CRIAR DESPESAS
-// ══════════════════════════════════════════
-function setType(type) {
-  state.despesaType = type;
-  document.querySelectorAll('.type-btn[data-type]').forEach(b => b.classList.toggle('active', b.dataset.type === type));
-  
-  const parcelasWrap = document.getElementById('f-parcelas-wrap');
-  const recorrenteWrap = document.getElementById('f-recorrente-wrap');
-  const valorLabel = document.getElementById('f-valor-label');
-  const parcelasLabel = document.getElementById('f-parcelas-label');
-
-  if (type === 'unica') {
-    parcelasWrap.style.display = 'none';
-    recorrenteWrap.style.display = 'none';
-    valorLabel.textContent = '(R$)';
-  } else if (type === 'parcelada') {
-    parcelasWrap.style.display = 'block';
-    recorrenteWrap.style.display = 'none';
-    parcelasLabel.textContent = 'Nº de parcelas';
-    valorLabel.textContent = '(total R$)';
-    document.getElementById('f-parcelas').value = '12';
-  } else if (type === 'recorrente') {
-    parcelasWrap.style.display = 'block';
-    recorrenteWrap.style.display = 'block';
-    parcelasLabel.textContent = 'Qtd. meses';
-    valorLabel.textContent = '(mensal R$)';
-    document.getElementById('f-parcelas').value = '12';
-  }
-  updateParcelasPreview();
-}
-
-function setDuracao(dur) {
-  state.duracaoType = dur;
-  document.querySelectorAll('.type-btn[data-dur]').forEach(b => b.classList.toggle('active', b.dataset.dur === dur));
-  if (dur === 'indefinido') {
-    document.getElementById('f-parcelas').value = '1188'; // 99 anos
-    document.getElementById('f-parcelas-wrap').style.display = 'none';
+// ═══════════════════════════════════════
+function setType(t) {
+  S.type = t;
+  document.querySelectorAll('.type-btn[data-type]').forEach(b=>b.classList.toggle('active',b.dataset.type===t));
+  const nWrap = el('f-n-wrap');
+  const vLbl = el('f-valor-lbl');
+  const nLbl = el('f-n-lbl');
+  if (t==='unica') {
+    nWrap.style.display='none'; vLbl.textContent='Valor (R$)';
+  } else if (t==='parcelada') {
+    nWrap.style.display='block'; vLbl.textContent='Valor total (R$)'; nLbl.textContent='Nº de parcelas';
+    el('f-n').value='12';
   } else {
-    document.getElementById('f-parcelas').value = '12';
-    document.getElementById('f-parcelas-wrap').style.display = 'block';
+    nWrap.style.display='block'; vLbl.textContent='Valor mensal (R$)'; nLbl.textContent='Por quantos meses';
+    el('f-n').value='12';
   }
-  updateParcelasPreview();
+  updatePreview();
 }
 
 function buildParcelas(nome, valor, n, dataInicio, tipo) {
-  const base = new Date(dataInicio + 'T12:00:00');
-  const vp = tipo === 'parcelada' ? valor / n : valor;
-  return Array.from({ length: n }, (_, i) => {
-    const d = new Date(base);
-    d.setMonth(d.getMonth() + i);
-    let nomeParcela;
-    if (tipo === 'unica') nomeParcela = nome;
-    else if (tipo === 'parcelada') nomeParcela = `${nome} ${i+1}/${n}`;
-    else nomeParcela = `${nome} ∞`; // recorrente
-    return {
-      nome: nomeParcela,
-      valor: vp,
-      data: d,
-      mes: MESES_NOMES[d.getMonth()],
-      ano: d.getFullYear(),
-    };
+  const base = new Date(dataInicio+'T12:00:00');
+  const vp = tipo==='parcelada' ? valor/n : valor;
+  return Array.from({length:n},(_,i)=>{
+    const d = new Date(base); d.setMonth(d.getMonth()+i);
+    let nm;
+    if (tipo==='unica') nm=nome;
+    else if (tipo==='parcelada') nm=`${nome} ${i+1}/${n}`;
+    else nm=`${nome} ∞`;
+    return { nome:nm, valor:vp, data:d, mes:MESES[d.getMonth()], ano:d.getFullYear() };
   });
 }
 
-function updateParcelasPreview() {
-  const nome = document.getElementById('f-nome').value;
-  const valor = parseFloat(document.getElementById('f-valor').value) || 0;
-  const n = parseInt(document.getElementById('f-parcelas').value) || 1;
-  const data = document.getElementById('f-data').value;
-  const tipo = state.despesaType;
-
-  if (!valor || !data || (tipo === 'unica')) {
-    document.getElementById('parcelas-preview-wrap').style.display = 'none';
-    return;
-  }
-
-  const parcelas = buildParcelas(nome||'Despesa', valor, n, data, tipo);
-  const maxShow = Math.min(parcelas.length, 6);
-  const temMais = parcelas.length > maxShow;
-
-  document.getElementById('parcelas-preview-wrap').style.display = 'block';
-  document.getElementById('parcelas-preview').innerHTML = parcelas.slice(0, maxShow).map(p => `
-    <div class="parcela-row">
-      <span class="parcela-name">${p.nome}</span>
-      <span class="parcela-mes">${p.mes}/${p.ano}</span>
-      <span class="parcela-val">${fmt(p.valor)}</span>
-    </div>`).join('') + (temMais ? `<div style="text-align:center;font-size:0.68rem;color:var(--muted2);padding:0.3rem">+ ${parcelas.length - maxShow} lançamentos...</div>` : '');
-
-  // Limit warning
-  const td = state.despesas.reduce((s,d) => s + (d.properties.Total?.number||0), 0);
-  const warn = document.getElementById('limit-warn');
-  if (td + (tipo === 'parcelada' ? valor/n : valor) > state.limit) {
-    warn.classList.add('show');
-    document.getElementById('lw-val').textContent = fmt(state.limit);
-  } else {
-    warn.classList.remove('show');
-  }
+function updatePreview() {
+  const nome = v('f-nome'), valor=parseFloat(v('f-valor'))||0;
+  const n = parseInt(v('f-n'))||1, data=v('f-data'), tipo=S.type;
+  if (!valor||!data||tipo==='unica') { el('preview-wrap').style.display='none'; return; }
+  const parcelas = buildParcelas(nome||'Despesa',valor,n,data,tipo);
+  const maxShow = Math.min(parcelas.length,5);
+  el('preview-wrap').style.display='block';
+  el('preview-box').innerHTML = parcelas.slice(0,maxShow).map(p=>`
+    <div class="prev-row">
+      <span class="prev-name">${p.nome}</span>
+      <span class="prev-mes">${p.mes}/${p.ano}</span>
+      <span class="prev-val">${fmt(p.valor)}</span>
+    </div>`).join('') + (parcelas.length>maxShow?`<div style="text-align:center;font-size:.65rem;color:var(--muted2);padding:.25rem">+ ${parcelas.length-maxShow} lançamentos...</div>`:'');
+  // limit warn
+  const td = S.despesas.reduce((s,d)=>s+(d.properties.Total?.number||0),0);
+  const vp = tipo==='parcelada'?valor/n:valor;
+  const warn = el('limit-warn');
+  if (td+vp>S.limit) { warn.classList.add('show'); el('lw-val').textContent=fmt(S.limit); }
+  else warn.classList.remove('show');
 }
 
 async function criarDespesas() {
-  const nome = document.getElementById('f-nome').value.trim();
-  const valor = parseFloat(document.getElementById('f-valor').value);
-  const n = parseInt(document.getElementById('f-parcelas').value) || 1;
-  const data = document.getElementById('f-data').value;
-  const catId = document.getElementById('f-categoria').value;
-  const pago = document.getElementById('f-pago').value;
-  const obs = document.getElementById('f-obs').value.trim();
-  const tipo = state.despesaType;
-
-  if (!nome || !valor || !data) { showToast('Preencha nome, valor e data.', 'error'); return; }
-
-  const count = tipo === 'unica' ? 1 : n;
-  const parcelas = buildParcelas(nome, valor, count, data, tipo);
-
-  const btn = document.getElementById('salvar-btn');
-  btn.disabled = true;
-  btn.textContent = `Criando ${parcelas.length} lançamento(s)...`;
-
-  let erros = 0;
+  const nome=v('f-nome').trim(), valor=parseFloat(v('f-valor'));
+  const n=parseInt(v('f-n'))||1, data=v('f-data');
+  const catId=v('f-cat'), pago=v('f-pago'), obs=v('f-obs').trim();
+  const tipo=S.type;
+  if (!nome||!valor||!data) { showToast('Preencha nome, valor e data.','error'); return; }
+  const count = tipo==='unica'?1:n;
+  const parcelas = buildParcelas(nome,valor,count,data,tipo);
+  const btn=el('salvar-btn'); btn.disabled=true; btn.textContent=`Criando ${parcelas.length}...`;
+  let erros=0;
   for (const p of parcelas) {
     const mesId = await getMesId(p.data.getMonth(), p.data.getFullYear());
+    const obsText = [obs, tipo==='recorrente'?'[rec]':''].filter(Boolean).join(' ');
     const props = {
-      Nome: { title: [{ text: { content: p.nome } }] },
-      Total: { number: parseFloat(p.valor.toFixed(2)) },
-      'Data da Despesa': { date: { start: p.data.toISOString().split('T')[0] } },
-      Pago: { select: { name: pago } },
+      Nome:{title:[{text:{content:p.nome}}]},
+      Total:{number:parseFloat(p.valor.toFixed(2))},
+      'Data da Despesa':{date:{start:p.data.toISOString().split('T')[0]}},
+      Pago:{select:{name:pago}},
     };
-    if (catId) props.Categoria = { relation: [{ id: catId }] };
-    const obsText = obs + (tipo === 'recorrente' ? ' [recorrente]' : '');
-    if (obsText.trim()) props.Observação = { rich_text: [{ text: { content: obsText.trim() } }] };
-    if (mesId) props.Mês = { relation: [{ id: mesId }] };
-
+    if (catId) props.Categoria={relation:[{id:catId}]};
+    if (obsText) props.Observação={rich_text:[{text:{content:obsText}}]};
+    if (mesId) props.Mês={relation:[{id:mesId}]};
     try {
-      const res = await notionReq('pages', 'POST', { parent: { database_id: DB_IDS.despesas }, properties: props });
-      if (res.object === 'error') { console.error(res); erros++; }
+      const r = await nReq('pages','POST',{parent:{database_id:DB.despesas},properties:props});
+      if (r.object==='error') { console.error(r); erros++; }
     } catch { erros++; }
   }
-
-  btn.disabled = false; btn.textContent = 'Criar no Notion';
-
-  if (erros === 0) {
-    showToast(`✓ ${parcelas.length} lançamento(s) criado(s)!`, 'success');
+  btn.disabled=false; btn.textContent='Criar no Notion';
+  if (!erros) {
+    showToast(`✓ ${parcelas.length} lançamento(s) criado(s)!`,'success');
     closeModal('modal-despesa');
-    document.getElementById('despesas-list').innerHTML = '<div class="loading"><div class="spinner"></div> Atualizando...</div>';
-    await loadMesData();
+    el('despesas-list').innerHTML='<div class="loading"><div class="spinner"></div> Atualizando...</div>';
+    await loadMes();
+  } else showToast(`${erros} erro(s) ao criar.`,'error');
+}
+
+// ═══════════════════════════════════════
+// AÇÕES DA DESPESA (clique)
+// ═══════════════════════════════════════
+function openActions(id) {
+  const d = S.despesas.find(x=>x.id===id);
+  if (!d) return;
+  const nome = d.properties.Nome?.title?.[0]?.plain_text||'';
+  const valor = d.properties.Total?.number||0;
+  const pago = d.properties.Pago?.select?.name||'Pendente';
+  const obs = d.properties.Observação?.rich_text?.[0]?.plain_text||'';
+  const dataStr = d.properties['Data da Despesa']?.date?.start||'';
+  S.activeItem = { id, nome, valor, pago, obs, dataStr };
+  el('action-title').textContent = nome;
+  el('action-sub').textContent = `${fmt(valor)} · ${dataStr ? new Date(dataStr+'T12:00:00').toLocaleDateString('pt-BR') : '—'} · ${pago}`;
+  openModal('modal-actions');
+}
+
+// ═══════════════════════════════════════
+// EDITAR
+// ═══════════════════════════════════════
+function openEditThis() {
+  S.editScope = 'this';
+  prepareEditModal();
+}
+function openEditNext() {
+  S.editScope = 'next';
+  prepareEditModal();
+}
+function prepareEditModal() {
+  const item = S.activeItem;
+  el('edit-scope-label').textContent = S.editScope==='this' ? 'lançamento' : 'este e os próximos';
+  el('edit-sub').textContent = S.editScope==='this'
+    ? `Editando apenas: ${item.nome}`
+    : `Editando todos os lançamentos a partir de ${item.dataStr} com nome similar`;
+  el('edit-nome').value = item.nome;
+  el('edit-valor').value = item.valor;
+  el('edit-pago').value = item.pago;
+  el('edit-obs').value = item.obs;
+  closeModal('modal-actions');
+  openModal('modal-edit');
+}
+
+async function saveEdit() {
+  const nome = v('edit-nome').trim();
+  const valor = parseFloat(v('edit-valor'));
+  const pago = v('edit-pago');
+  const obs = v('edit-obs').trim();
+  if (!nome||!valor) { showToast('Preencha nome e valor.','error'); return; }
+
+  const btn=el('edit-save-btn'); btn.disabled=true; btn.textContent='Salvando...';
+
+  if (S.editScope==='this') {
+    // Edita só este
+    await editPage(S.activeItem.id, nome, valor, pago, obs);
+    showToast('✓ Lançamento atualizado!','success');
   } else {
-    showToast(`${erros} erro(s) ao criar.`, 'error');
-  }
-}
-
-// ══════════════════════════════════════════
-// EXCLUIR EM LOTE
-// ══════════════════════════════════════════
-let deleteResults = [];
-let deleteSearchTimer;
-
-function openDeleteForItem(id, nome) {
-  openModal('modal-delete');
-  document.getElementById('delete-search').value = nome;
-  searchToDelete();
-}
-
-async function searchToDelete() {
-  clearTimeout(deleteSearchTimer);
-  deleteSearchTimer = setTimeout(async () => {
-    const q = document.getElementById('delete-search').value.trim();
-    if (!q || q.length < 2) {
-      document.getElementById('delete-results').innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div>Digite um nome para buscar</div>';
-      document.getElementById('confirm-delete-btn').style.display = 'none';
-      return;
-    }
-
-    document.getElementById('delete-results').innerHTML = '<div class="loading"><div class="spinner"></div> Buscando...</div>';
-
-    // Busca todas as despesas com nome similar
-    const filter = { property: 'Nome', title: { contains: q } };
-    const results = await queryDB(DB_IDS.despesas, filter);
-    deleteResults = results;
-
-    if (!results.length) {
-      document.getElementById('delete-results').innerHTML = '<div class="empty-state"><div class="empty-icon">😶</div>Nenhuma despesa encontrada</div>';
-      document.getElementById('confirm-delete-btn').style.display = 'none';
-      return;
-    }
-
-    const sorted = [...results].sort((a,b) => {
-      const da = a.properties['Data da Despesa']?.date?.start || '';
-      const db_ = b.properties['Data da Despesa']?.date?.start || '';
-      return da.localeCompare(db_);
+    // Edita este e os próximos com mesmo nome base
+    const nomeBase = getNomeBase(S.activeItem.nome);
+    const dataRef = S.activeItem.dataStr;
+    // Busca todos com nome similar
+    const todos = await qDB(DB.despesas, { property:'Nome', title:{contains:nomeBase} });
+    const futuros = todos.filter(d => {
+      const ds = d.properties['Data da Despesa']?.date?.start||'';
+      return ds >= dataRef;
     });
+    let erros=0;
+    for (const d of futuros) {
+      // Mantém número da parcela no nome se houver
+      const nomeAtual = d.properties.Nome?.title?.[0]?.plain_text||'';
+      const sufixo = nomeAtual.replace(nomeBase,'').trim();
+      const novoNome = nome + (sufixo ? ` ${sufixo}` : '');
+      try { await editPage(d.id, novoNome, valor, pago, obs); }
+      catch { erros++; }
+    }
+    showToast(erros?`${erros} erro(s).`:`✓ ${futuros.length} lançamento(s) atualizados!`, erros?'error':'success');
+  }
 
-    document.getElementById('confirm-delete-btn').style.display = 'block';
-    document.getElementById('delete-results').innerHTML = `
-      <label class="select-all-row">
-        <input type="checkbox" id="select-all" onchange="toggleSelectAll(this.checked)">
-        Selecionar todos (${sorted.length})
-      </label>
-      <div class="delete-list">
-        ${sorted.map(d => {
-          const nome = d.properties.Nome?.title?.[0]?.plain_text || '';
-          const valor = d.properties.Total?.number || 0;
-          const data = d.properties['Data da Despesa']?.date?.start || '';
-          const dataFmt = data ? new Date(data+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
-          return `<div class="delete-item">
-            <input type="checkbox" class="del-check" value="${d.id}" checked>
-            <div class="delete-item-info">
-              <div class="delete-item-name">${nome}</div>
-              <div class="delete-item-meta">${dataFmt}</div>
-            </div>
-            <div class="delete-item-val">${fmt(valor)}</div>
-          </div>`;
-        }).join('')}
-      </div>`;
+  btn.disabled=false; btn.textContent='Salvar alterações';
+  closeModal('modal-edit');
+  el('despesas-list').innerHTML='<div class="loading"><div class="spinner"></div> Atualizando...</div>';
+  await loadMes();
+}
+
+async function editPage(id, nome, valor, pago, obs) {
+  const props = {
+    Nome:{title:[{text:{content:nome}}]},
+    Total:{number:parseFloat(valor.toFixed(2))},
+    Pago:{select:{name:pago}},
+  };
+  if (obs!==undefined) props.Observação={rich_text:[{text:{content:obs}}]};
+  return nReq(`pages/${id}`,'PATCH',{properties:props});
+}
+
+function getNomeBase(nome) {
+  // Remove sufixo de parcela "1/12" ou "∞" do nome
+  return nome.replace(/\s+\d+\/\d+$/, '').replace(/\s+∞$/, '').trim();
+}
+
+// ═══════════════════════════════════════
+// EXCLUIR EM LOTE
+// ═══════════════════════════════════════
+function openDeleteFromItem() {
+  closeModal('modal-actions');
+  openModal('modal-delete');
+  el('del-search').value = getNomeBase(S.activeItem?.nome||'');
+  if (el('del-search').value) searchDelete();
+}
+
+let delTimer;
+function searchDelete() {
+  clearTimeout(delTimer);
+  delTimer = setTimeout(async () => {
+    const q = v('del-search').trim();
+    if (!q||q.length<2) {
+      el('del-results').innerHTML='<div class="empty"><div class="empty-icon">🔍</div>Digite um nome para buscar</div>';
+      el('del-confirm-btn').style.display='none'; return;
+    }
+    el('del-results').innerHTML='<div class="loading"><div class="spinner"></div> Buscando...</div>';
+    const results = await qDB(DB.despesas,{property:'Nome',title:{contains:q}});
+    if (!results.length) {
+      el('del-results').innerHTML='<div class="empty"><div class="empty-icon">😶</div>Nenhuma despesa encontrada</div>';
+      el('del-confirm-btn').style.display='none'; return;
+    }
+    const sorted = [...results].sort((a,b)=>{
+      const da=a.properties['Data da Despesa']?.date?.start||'';
+      const db=b.properties['Data da Despesa']?.date?.start||'';
+      return da.localeCompare(db);
+    });
+    el('del-confirm-btn').style.display='block';
+    el('del-results').innerHTML=`
+      <label class="sel-all"><input type="checkbox" id="sel-all" onchange="toggleAll(this.checked)"> Selecionar todos (${sorted.length})</label>
+      <div class="del-list">${sorted.map(d=>{
+        const nome=d.properties.Nome?.title?.[0]?.plain_text||'';
+        const valor=d.properties.Total?.number||0;
+        const ds=d.properties['Data da Despesa']?.date?.start||'';
+        const df=ds?new Date(ds+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}):'—';
+        const pago=d.properties.Pago?.select?.name||'';
+        return `<div class="del-item">
+          <input type="checkbox" class="del-chk" value="${d.id}" ${pago!=='Pago'?'checked':''}>
+          <div class="del-item-info">
+            <div class="del-item-name">${nome}</div>
+            <div class="del-item-meta">${df} · ${pago}</div>
+          </div>
+          <div class="del-item-val">${fmt(valor)}</div>
+        </div>`;
+      }).join('')}</div>`;
   }, 400);
 }
 
-function toggleSelectAll(checked) {
-  document.querySelectorAll('.del-check').forEach(c => c.checked = checked);
+function toggleAll(checked) {
+  document.querySelectorAll('.del-chk').forEach(c=>c.checked=checked);
 }
 
 async function confirmDelete() {
-  const selected = [...document.querySelectorAll('.del-check:checked')].map(c => c.value);
-  if (!selected.length) { showToast('Selecione ao menos um item.', 'warning'); return; }
-
-  const btn = document.getElementById('confirm-delete-btn');
-  btn.disabled = true; btn.textContent = `Excluindo ${selected.length}...`;
-
-  let erros = 0;
-  for (const id of selected) {
+  const sel = [...document.querySelectorAll('.del-chk:checked')].map(c=>c.value);
+  if (!sel.length) { showToast('Selecione ao menos um.','warning'); return; }
+  const btn=el('del-confirm-btn'); btn.disabled=true; btn.textContent=`Excluindo ${sel.length}...`;
+  let erros=0;
+  for (const id of sel) {
     try {
-      const res = await notionReq(`pages/${id}`, 'PATCH', { archived: true });
-      if (res.object === 'error') erros++;
+      const r = await nReq(`pages/${id}`,'PATCH',{archived:true});
+      if (r.object==='error') erros++;
     } catch { erros++; }
   }
-
-  btn.disabled = false; btn.textContent = 'Excluir selecionados';
-
-  if (erros === 0) {
-    showToast(`✓ ${selected.length} lançamento(s) excluído(s)!`, 'success');
+  btn.disabled=false; btn.textContent='Excluir selecionados';
+  if (!erros) {
+    showToast(`✓ ${sel.length} excluído(s)!`,'success');
     closeModal('modal-delete');
-    await loadMesData();
-  } else {
-    showToast(`${erros} erro(s) ao excluir.`, 'error');
-  }
+    await loadMes();
+  } else showToast(`${erros} erro(s).`,'error');
 }
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 // SETTINGS
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 async function saveLimit() {
-  const val = parseFloat(document.getElementById('settings-limit-input').value);
-  if (!val || val < 1) { showToast('Valor inválido.', 'error'); return; }
-  state.limit = val;
-  await sb.from('profiles').update({ spending_limit: val }).eq('id', state.user.id);
-  document.getElementById('settings-limit-display').textContent = fmt(val);
-  renderStats(state.despesas, state.ganhos);
-  showToast('Limite atualizado!', 'success');
+  const val=parseFloat(v('settings-limit-input'));
+  if (!val||val<1) { showToast('Valor inválido.','error'); return; }
+  S.limit=val;
+  await sb.from('profiles').update({spending_limit:val}).eq('id',S.user.id);
+  el('settings-limit-display').textContent=fmt(val);
+  renderStats(S.despesas,S.ganhos);
+  showToast('Limite atualizado!','success');
 }
-
-function showChangeToken() { openModal('modal-token'); }
-
-async function saveNewToken() {
-  const token = document.getElementById('new-token-input').value.trim();
+async function saveToken() {
+  const token=v('new-token');
   if (!token) return;
-  state.notionToken = token;
-  await sb.from('profiles').update({ notion_token: token }).eq('id', state.user.id);
+  S.token=token; S.mesesCache={};
+  await sb.from('profiles').update({notion_token:token}).eq('id',S.user.id);
   closeModal('modal-token');
-  showToast('Token atualizado!', 'success');
-  state.mesesCache = {};
-  await preloadMesesCache();
-  loadMesData();
+  showToast('Token atualizado!','success');
+  await preloadMeses(); loadMes();
 }
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 // NOTIFICATIONS
-// ══════════════════════════════════════════
-let lastNotifTotal = 0;
+// ═══════════════════════════════════════
+let lastNotifTotal=0;
 function pushNotif(total) {
-  if (!state.notifEnabled || Notification.permission !== 'granted') return;
-  if (Math.abs(total - lastNotifTotal) < 1) return;
-  lastNotifTotal = total;
-  new Notification('FinTrack ⚠️', {
-    body: `${MESES_NOMES[state.currentMonth]}: ${fmt(total)} (limite: ${fmt(state.limit)})`,
-  });
+  if (!S.notif||Notification.permission!=='granted') return;
+  if (Math.abs(total-lastNotifTotal)<1) return;
+  lastNotifTotal=total;
+  new Notification('FinTrack ⚠️',{body:`${MESES[S.month]}: ${fmt(total)} (limite: ${fmt(S.limit)})`});
 }
-
 async function toggleNotif() {
-  const toggle = document.getElementById('notif-toggle');
-  if (!state.notifEnabled) {
-    const p = await Notification.requestPermission();
-    if (p !== 'granted') { showToast('Permissão negada.', 'error'); return; }
-    state.notifEnabled = true; localStorage.setItem('fin_notif', 'true');
-    toggle.classList.add('on'); showToast('Notificações ativadas!', 'success');
+  const toggle=el('notif-toggle');
+  if (!S.notif) {
+    const p=await Notification.requestPermission();
+    if (p!=='granted') { showToast('Permissão negada.','error'); return; }
+    S.notif=true; localStorage.setItem('fin_notif','true');
+    toggle.classList.add('on'); showToast('Notificações ativadas!','success');
   } else {
-    state.notifEnabled = false; localStorage.setItem('fin_notif', 'false');
-    toggle.classList.remove('on'); showToast('Notificações desativadas.', 'warning');
+    S.notif=false; localStorage.setItem('fin_notif','false');
+    toggle.classList.remove('on'); showToast('Notificações desativadas.','warning');
   }
 }
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 // UI HELPERS
-// ══════════════════════════════════════════
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+// ═══════════════════════════════════════
+const el = id => document.getElementById(id);
+const v  = id => el(id).value;
+function setBtn(id, txt, dis) { const b=el(id); if(b){b.textContent=txt; b.disabled=dis;} }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); el(id).classList.add('active'); }
+function msg(id, txt, type) { const m=el(id); m.textContent=txt; m.className=`auth-msg ${type}`; }
 
 function openModal(id) {
-  if (id === 'modal-despesa') {
-    document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
+  if (id==='modal-despesa') {
+    el('f-data').value=new Date().toISOString().split('T')[0];
     setType('unica');
   }
-  document.getElementById(id).classList.add('open');
+  el(id).classList.add('open');
 }
-
 function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-  if (id === 'modal-despesa') {
-    ['f-nome','f-valor','f-obs'].forEach(i => document.getElementById(i).value = '');
-    document.getElementById('f-parcelas').value = '1';
-    document.getElementById('f-categoria').value = '';
-    document.getElementById('f-pago').value = 'Pendente';
-    document.getElementById('parcelas-preview-wrap').style.display = 'none';
-    document.getElementById('limit-warn').classList.remove('show');
+  el(id).classList.remove('open');
+  if (id==='modal-despesa') {
+    ['f-nome','f-valor','f-obs'].forEach(i=>el(i).value='');
+    el('f-n').value='12'; el('f-cat').value=''; el('f-pago').value='Pendente';
+    el('preview-wrap').style.display='none'; el('limit-warn').classList.remove('show');
   }
-  if (id === 'modal-delete') {
-    document.getElementById('delete-search').value = '';
-    document.getElementById('delete-results').innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div>Digite um nome para buscar</div>';
-    document.getElementById('confirm-delete-btn').style.display = 'none';
+  if (id==='modal-delete') {
+    el('del-search').value='';
+    el('del-results').innerHTML='<div class="empty"><div class="empty-icon">🔍</div>Digite um nome para buscar</div>';
+    el('del-confirm-btn').style.display='none';
   }
 }
 
-function showMsg(id, msg, type) {
-  const el = document.getElementById(id);
-  el.textContent = msg;
-  el.className = `auth-msg ${type}`;
+let toastT;
+function showToast(txt, type='success') {
+  const t=el('toast'); t.textContent=txt; t.className=`toast ${type} show`;
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),3500);
 }
 
-let toastTimer;
-function showToast(msg, type='success') {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = `toast ${type} show`;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
-}
-
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 // NAVIGATION
-// ══════════════════════════════════════════
-document.querySelectorAll('.nav-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const page = btn.dataset.page;
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(`page-${page}`).classList.add('active');
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b===btn));
-    document.getElementById('fab-btn').style.display = page === 'dashboard' ? 'flex' : 'none';
+// ═══════════════════════════════════════
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const page=btn.dataset.page;
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    el(`page-${page}`).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b===btn));
+    el('fab-group').style.display = page==='dashboard'?'flex':'none';
   });
 });
 
-document.getElementById('prev-month').addEventListener('click', async () => {
-  state.currentMonth--; if(state.currentMonth<0){state.currentMonth=11;state.currentYear--;}
+el('prev-month').addEventListener('click',async()=>{
+  S.month--; if(S.month<0){S.month=11;S.year--;}
   renderMonthLabel();
-  document.getElementById('despesas-list').innerHTML = '<div class="loading"><div class="spinner"></div> Carregando...</div>';
-  await loadMesData();
+  el('despesas-list').innerHTML='<div class="loading"><div class="spinner"></div> Carregando...</div>';
+  await loadMes();
 });
-document.getElementById('next-month').addEventListener('click', async () => {
-  state.currentMonth++; if(state.currentMonth>11){state.currentMonth=0;state.currentYear++;}
+el('next-month').addEventListener('click',async()=>{
+  S.month++; if(S.month>11){S.month=0;S.year++;}
   renderMonthLabel();
-  document.getElementById('despesas-list').innerHTML = '<div class="loading"><div class="spinner"></div> Carregando...</div>';
-  await loadMesData();
+  el('despesas-list').innerHTML='<div class="loading"><div class="spinner"></div> Carregando...</div>';
+  await loadMes();
 });
 
-// Close modals on overlay click
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => { if(e.target === overlay) closeModal(overlay.id); });
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',e=>{ if(e.target===o) closeModal(o.id); });
 });
+['f-nome','f-valor','f-n','f-data'].forEach(id=>el(id)?.addEventListener('input',updatePreview));
+if (S.notif&&Notification.permission==='granted') el('notif-toggle').classList.add('on');
 
-// Live preview
-['f-nome','f-valor','f-parcelas','f-data'].forEach(id => {
-  document.getElementById(id).addEventListener('input', updateParcelasPreview);
-});
-
-// Notif toggle state
-if (state.notifEnabled && Notification.permission === 'granted') {
-  document.getElementById('notif-toggle').classList.add('on');
-}
-
-// Excluir btn no FAB (long press abre delete modal)
-let fabTimer;
-document.getElementById('fab-btn').addEventListener('mousedown', () => {
-  fabTimer = setTimeout(() => openModal('modal-delete'), 600);
-});
-document.getElementById('fab-btn').addEventListener('touchstart', e => {
-  fabTimer = setTimeout(() => { openModal('modal-delete'); e.preventDefault(); }, 600);
-}, { passive: false });
-['mouseup','mouseleave','touchend'].forEach(ev => {
-  document.getElementById('fab-btn').addEventListener(ev, () => clearTimeout(fabTimer));
-});
-
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 // INIT
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════
 async function initApp() {
   renderMonthLabel();
-  document.getElementById('settings-limit-display').textContent = fmt(state.limit);
-  document.getElementById('settings-limit-input').value = state.limit;
-
-  // Pré-carrega cache de meses dinamicamente
-  showToast('Sincronizando meses...', 'info');
-  await preloadMesesCache();
-  await loadMesData();
+  el('settings-limit-display').textContent=fmt(S.limit);
+  el('settings-limit-input').value=S.limit;
+  showToast('Sincronizando...','info');
+  await preloadMeses();
+  await loadMes();
 }
 
-// Boot
-(async () => {
-  const { data: { session } } = await sb.auth.getSession();
+(async()=>{
+  const { data:{ session } } = await sb.auth.getSession();
   if (session?.user) {
-    state.user = session.user;
-    document.getElementById('settings-email').textContent = session.user.email;
-    const { data: profile } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
-    if (profile?.notion_token) {
-      state.notionToken = profile.notion_token;
-      state.limit = profile.spending_limit || 2500;
-      showScreen('app-screen');
-      initApp();
-    } else {
-      showScreen('setup-screen');
-    }
-  } else {
-    showScreen('auth-screen');
-  }
+    S.user=session.user;
+    el('settings-email').textContent=session.user.email;
+    const { data:prof } = await sb.from('profiles').select('*').eq('id',session.user.id).single();
+    if (prof?.notion_token) {
+      S.token=prof.notion_token; S.limit=prof.spending_limit||2500;
+      showScreen('app-screen'); initApp();
+    } else showScreen('setup-screen');
+  } else showScreen('auth-screen');
 })();
 </script>
 </body>
