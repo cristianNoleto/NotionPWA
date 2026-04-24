@@ -577,14 +577,20 @@ async function doLogin() {
 }
 async function doSignup() {
   const email = v('signup-email'), pass = v('signup-pass'), pass2 = v('signup-pass2');
-  if (!email||!pass) { msg('signup-msg','Preencha todos os campos.','error'); return; }
-  if (pass!==pass2) { msg('signup-msg','Senhas não coincidem.','error'); return; }
-  if (pass.length<6) { msg('signup-msg','Mínimo 6 caracteres.','error'); return; }
-  setBtn('signup-btn','Criando...',true);
-  const { error } = await sb.auth.signUp({ email, password: pass });
-  setBtn('signup-btn','Criar conta',false);
+  msg('signup-msg','',''); // limpa msg anterior
+  if (!email) { msg('signup-msg','Digite seu email.','error'); return; }
+  if (!pass) { msg('signup-msg','Digite uma senha.','error'); return; }
+  if (pass.length<6) { msg('signup-msg','A senha precisa ter pelo menos 6 caracteres.','error'); return; }
+  if (pass!==pass2) { msg('signup-msg','As senhas não coincidem. Verifique e tente novamente.','error'); return; }
+  setBtn('signup-btn','Criando sua conta...', true);
+  const { data, error } = await sb.auth.signUp({ email, password: pass });
+  setBtn('signup-btn','Criar conta', false);
   if (error) { msg('signup-msg', trErr(error.message), 'error'); return; }
-  msg('signup-msg','✓ Verifique seu email para confirmar.','success');
+  // Supabase retorna identities vazia se o email já existe mas não foi confirmado
+  if (data?.user && data.user.identities && data.user.identities.length === 0) {
+    msg('signup-msg','Este email já possui uma conta. Tente fazer login ou recupere sua senha.','error'); return;
+  }
+  msg('signup-msg','✅ Conta criada! Enviamos um email de confirmação para ' + email + '. Verifique sua caixa de entrada (e o spam).','success');
 }
 async function doForgot() {
   const email = v('login-email');
@@ -593,11 +599,24 @@ async function doForgot() {
   msg('login-msg','✓ Email de recuperação enviado!','success');
 }
 async function doLogout() { await sb.auth.signOut(); showScreen('auth-screen'); }
-function trErr(m) {
-  if (m.includes('Invalid login')) return 'Email ou senha incorretos.';
-  if (m.includes('Email not confirmed')) return 'Confirme seu email primeiro.';
-  if (m.includes('already registered')) return 'Email já cadastrado.';
-  return m;
+function trErr(m, ctx) {
+  // Erros de login
+  if (m.includes('Invalid login credentials')) return 'Email ou senha incorretos. Verifique seus dados e tente novamente.';
+  if (m.includes('Email not confirmed')) return 'Seu email ainda não foi confirmado. Verifique sua caixa de entrada e clique no link de confirmação.';
+  // Erros de cadastro
+  if (m.includes('already registered') || m.includes('User already registered')) return 'Este email já possui uma conta. Tente fazer login ou recuperar a senha.';
+  if (m.includes('Password should be')) return 'A senha deve ter no mínimo 6 caracteres.';
+  if (m.includes('invalid email') || m.includes('Unable to validate email')) return 'Email inválido. Verifique o endereço digitado.';
+  // Erro do trigger/banco ao criar usuário
+  if (m.includes('Database error saving new user') || m.includes('database error')) return 'Erro interno ao criar conta. Isso é temporário — tente novamente em alguns segundos. Se persistir, entre em contato com o suporte.';
+  // Erros de rede
+  if (m.includes('fetch') || m.includes('network') || m.includes('Failed to fetch')) return 'Sem conexão com a internet. Verifique sua rede e tente novamente.';
+  // Rate limit
+  if (m.includes('rate limit') || m.includes('too many requests')) return 'Muitas tentativas seguidas. Aguarde alguns minutos antes de tentar novamente.';
+  // Token/sessão
+  if (m.includes('JWT') || m.includes('token')) return 'Sessão expirada. Faça login novamente.';
+  // Genérico com o erro original visível
+  return `Algo deu errado: ${m}`;
 }
 async function afterLogin() {
   const { data: { user } } = await sb.auth.getUser();
