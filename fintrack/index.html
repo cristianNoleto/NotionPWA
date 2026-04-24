@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Financeiro">
+<meta name="theme-color" content="#0a0a0a">
+<title>Financeiro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #222222;
+    --accent: #c8f04a;
+    --accent2: #f04a4a;
+    --accent3: #4af0c8;
+    --text: #f0f0f0;
+    --muted: #555555;
+    --muted2: #888888;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SETUP SCREEN ── */
+  #setup-screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    gap: 2rem;
+  }
+
+  .setup-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2.5rem;
+    letter-spacing: -2px;
+    color: var(--accent);
+  }
+
+  .setup-logo span { color: var(--text); }
+
+  .setup-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .setup-card h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text);
+  }
+
+  .setup-card p {
+    font-size: 0.78rem;
+    color: var(--muted2);
+    line-height: 1.6;
+  }
+
+  .setup-card a { color: var(--accent); text-decoration: none; }
+
+  .field-group { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .field-group label {
+    font-size: 0.72rem;
+    color: var(--muted2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .field-group input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .field-group input:focus { border-color: var(--accent); }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 0.9rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+
+  .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── MAIN APP ── */
+  #app { display: none; flex-direction: column; min-height: 100vh; }
+
+  /* ── HEADER ── */
+  .app-header {
+    padding: 1.2rem 1.5rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+
+  .app-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.3rem;
+    letter-spacing: -1px;
+    color: var(--accent);
+  }
+
+  .month-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .month-nav button {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s;
+  }
+
+  .month-nav button:hover { border-color: var(--accent); color: var(--accent); }
+
+  .month-label {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    min-width: 100px;
+    text-align: center;
+  }
+
+  /* ── CONTENT ── */
+  .content { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; padding-bottom: 7rem; }
+
+  /* ── LIMIT ALERT ── */
+  .limit-alert {
+    background: linear-gradient(135deg, #2a0a0a, #1a0505);
+    border: 1px solid var(--accent2);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: pulse-border 2s infinite;
+  }
+
+  @keyframes pulse-border {
+    0%, 100% { border-color: var(--accent2); }
+    50% { border-color: #ff8080; }
+  }
+
+  .limit-alert .alert-icon { font-size: 1.4rem; }
+
+  .limit-alert .alert-text { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--accent2); }
+  .limit-alert .alert-sub { font-size: 0.72rem; color: #ff8080; margin-top: 2px; }
+
+  /* ── DASHBOARD CARDS ── */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .stat-label { font-size: 0.68rem; color: var(--muted2); text-transform: uppercase; letter-spacing: 1px; }
+
+  .stat-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+
+  .stat-value.positive { color: var(--accent3); }
+  .stat-value.negative { color: var(--accent2); }
+  .stat-value.neutral { color: var(--text); }
+  .stat-value.warning { color: #f0a44a; }
+
+  /* ── LIMIT BAR ── */
+  .limit-section { display: flex; flex-direction: column; gap: 0.6rem; }
+
+  .limit-header { display: flex; justify-content: space-between; align-items: center; }
+
+  .limit-title { font-size: 0.72rem; color: var(--muted2); text-transform: uppercase; letter-spacing: 1px; }
+
+  .limit-pct {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+
+  .limit-bar-bg {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .limit-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .limit-sub { font-size: 0.72rem; color: var(--muted2); }
+
+  /* ── SECTION HEADERS ── */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .section-count {
+    font-size: 0.72rem;
+    color: var(--muted2);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 2px 8px;
+  }
+
+  /* ── EXPENSE LIST ── */
+  .expense-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .expense-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: border-color 0.2s;
+  }
+
+  .expense-item:active { border-color: var(--accent); }
+
+  .expense-cat-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .expense-info { flex: 1; min-width: 0; }
+
+  .expense-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.82rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .expense-meta { font-size: 0.68rem; color: var(--muted2); margin-top: 2px; }
+
+  .expense-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--accent2);
+    flex-shrink: 0;
+  }
+
+  .pago-badge {
+    font-size: 0.6rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .pago-badge.pago { background: #0a2a0a; color: var(--accent3); border: 1px solid var(--accent3); }
+  .pago-badge.pendente { background: #2a1a0a; color: #f0a44a; border: 1px solid #f0a44a; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--muted2);
+    font-size: 0.8rem;
+  }
+
+  .empty-state .empty-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+
+  /* ── LOADING ── */
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 2rem;
+    color: var(--muted2);
+    font-size: 0.8rem;
+  }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── FAB ── */
+  .fab {
+    position: fixed;
+    bottom: 5.5rem;
+    right: 1.5rem;
+    width: 56px;
+    height: 56px;
+    background: var(--accent);
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #000;
+    box-shadow: 0 4px 24px rgba(200, 240, 74, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+    z-index: 200;
+  }
+
+  .fab:active { transform: scale(0.93); box-shadow: 0 2px 12px rgba(200, 240, 74, 0.2); }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 0.75rem 0 1rem;
+    z-index: 100;
+  }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    padding: 0.25rem;
+    background: none;
+    border: none;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+
+  .nav-item.active { color: var(--accent); }
+
+  .nav-icon { font-size: 1.2rem; }
+
+  .nav-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px; font-family: 'Syne', sans-serif; font-weight: 700; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(4px);
+    z-index: 300;
+    display: flex;
+    align-items: flex-end;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    width: 100%;
+    background: var(--surface);
+    border-radius: 20px 20px 0 0;
+    border-top: 1px solid var(--border);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-height: 92vh;
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal-handle {
+    width: 36px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    margin: 0 auto -0.5rem;
+  }
+
+  .modal-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.2rem;
+  }
+
+  .modal-title span { color: var(--accent); }
+
+  /* ── FORM ── */
+  .form-field { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .form-label { font-size: 0.72rem; color: var(--muted2); text-transform: uppercase; letter-spacing: 1px; }
+
+  .form-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  .form-input:focus { border-color: var(--accent); }
+
+  select.form-input { cursor: pointer; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+  /* ── PARCELAS PREVIEW ── */
+  .parcelas-preview {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+
+  .parcela-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .parcela-row:last-child { border-bottom: none; }
+
+  .parcela-num { color: var(--accent); font-weight: 500; }
+  .parcela-mes { color: var(--muted2); }
+  .parcela-val { color: var(--text); }
+
+  /* ── LIMIT WARNING IN MODAL ── */
+  .limit-warning-modal {
+    background: #1a0a0a;
+    border: 1px solid var(--accent2);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    color: var(--accent2);
+    display: none;
+  }
+
+  .limit-warning-modal.show { display: block; }
+
+  /* ── TOGGLE ── */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+  }
+
+  .toggle-label { font-size: 0.82rem; }
+  .toggle-sub { font-size: 0.68rem; color: var(--muted2); margin-top: 2px; }
+
+  .toggle-switch {
+    width: 40px;
+    height: 22px;
+    background: var(--border);
+    border-radius: 99px;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch.on { background: var(--accent); }
+
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    background: #000;
+    border-radius: 50%;
+    transition: transform 0.2s;
+  }
+
+  .toggle-switch.on::after { transform: translateX(18px); }
+
+  /* ── SETTINGS PAGE ── */
+  .settings-section { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .settings-section-title {
+    font-size: 0.68rem;
+    color: var(--muted2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding-left: 0.25rem;
+  }
+
+  .settings-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .settings-item {
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+
+  .settings-item:last-child { border-bottom: none; }
+
+  .settings-item-label { font-size: 0.85rem; font-family: 'Syne', sans-serif; font-weight: 600; }
+  .settings-item-value { font-size: 0.78rem; color: var(--muted2); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    top: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(-120%);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.8rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    z-index: 500;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--accent3); color: var(--accent3); }
+  .toast.error { border-color: var(--accent2); color: var(--accent2); }
+  .toast.warning { border-color: #f0a44a; color: #f0a44a; }
+
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── CATEGORIA COLORS ── */
+  .cat-relacionamento { background: #e91e8c; }
+  .cat-lazer { background: #9c27b0; }
+  .cat-alimentacao { background: #ff9800; }
+  .cat-contas { background: #2196f3; }
+  .cat-compras { background: #00bcd4; }
+  .cat-transporte { background: #607d8b; }
+  .cat-viagens { background: #4caf50; }
+  .cat-poupanca { background: var(--accent); }
+  .cat-investimentos { background: #8bc34a; }
+  .cat-dividas { background: var(--accent2); }
+  .cat-educacao { background: #3f51b5; }
+  .cat-academia { background: #ff5722; }
+  .cat-autocuidado { background: #e91e63; }
+  .cat-dizimos { background: #795548; }
+  .cat-empresa { background: #009688; }
+  .cat-doacoes { background: #ffc107; }
+  .cat-default { background: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen">
+  <div class="setup-logo">₿ <span>Fin</span>Track</div>
+  <div class="setup-card">
+    <h2>Configuração inicial</h2>
+    <p>Cole o seu <strong>Integration Token</strong> do Notion abaixo. Ele começa com <code>secret_</code> ou <code>ntn_</code>. <a href="https://www.notion.so/my-integrations" target="_blank">Criar integração →</a></p>
+    <div class="field-group">
+      <label>Notion Token</label>
+      <input type="password" id="token-input" placeholder="secret_... ou ntn_..." autocomplete="off">
+    </div>
+    <div class="field-group">
+      <label>Limite mensal de gastos (R$)</label>
+      <input type="number" id="limit-input" placeholder="2500" value="2500">
+    </div>
+    <button class="btn-primary" id="save-setup-btn">Conectar ao Notion</button>
+    <p id="setup-error" style="color: var(--accent2); font-size: 0.75rem; display: none;"></p>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="app-logo">FinTrack</div>
+    <div class="month-nav">
+      <button id="prev-month">‹</button>
+      <div class="month-label" id="month-label">— / ——</div>
+      <button id="next-month">›</button>
+    </div>
+  </header>
+
+  <!-- PAGES -->
+  <div class="content">
+
+    <!-- DASHBOARD PAGE -->
+    <div class="page active" id="page-dashboard">
+
+      <div id="limit-alert" class="limit-alert" style="display:none;">
+        <div class="alert-icon">⚠️</div>
+        <div>
+          <div class="alert-text">Limite ultrapassado!</div>
+          <div class="alert-sub" id="limit-alert-sub"></div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Gastos</div>
+          <div class="stat-value negative" id="stat-despesas">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Ganhos</div>
+          <div class="stat-value positive" id="stat-ganhos">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Saldo</div>
+          <div class="stat-value neutral" id="stat-saldo">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Itens</div>
+          <div class="stat-value neutral" id="stat-itens">—</div>
+        </div>
+      </div>
+
+      <div class="limit-section">
+        <div class="limit-header">
+          <div class="limit-title">Limite mensal</div>
+          <div class="limit-pct" id="limit-pct">0%</div>
+        </div>
+        <div class="limit-bar-bg">
+          <div class="limit-bar-fill" id="limit-bar" style="width:0%; background: var(--accent3);"></div>
+        </div>
+        <div class="limit-sub" id="limit-sub">R$ 0 de R$ 2.500</div>
+      </div>
+
+      <div>
+        <div class="section-header">
+          <div class="section-title">Despesas do mês</div>
+          <div class="section-count" id="despesas-count">0</div>
+        </div>
+      </div>
+
+      <div id="despesas-list" class="expense-list">
+        <div class="loading"><div class="spinner"></div> Carregando...</div>
+      </div>
+
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div class="page" id="page-settings">
+      <div style="font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem; margin-bottom: 0.5rem;">Configurações</div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Alertas</div>
+        <div class="settings-card">
+          <div class="settings-item">
+            <div>
+              <div class="settings-item-label">Limite mensal</div>
+              <div class="settings-item-value" id="current-limit-display">R$ 2.500</div>
+            </div>
+            <input type="number" id="limit-setting-input" class="form-input" style="width: 110px; text-align: right;" placeholder="2500">
+          </div>
+          <div class="settings-item" id="save-limit-btn" style="justify-content: center;">
+            <div class="settings-item-label" style="color: var(--accent);">Salvar limite</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section" style="margin-top: 1rem;">
+        <div class="settings-section-title">Notificações push</div>
+        <div class="settings-card">
+          <div class="settings-item" id="notif-toggle-row">
+            <div>
+              <div class="settings-item-label">Ativar notificações</div>
+              <div class="settings-item-value">Avisa quando o limite é ultrapassado</div>
+            </div>
+            <div class="toggle-switch" id="notif-toggle"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section" style="margin-top: 1rem;">
+        <div class="settings-section-title">Conta</div>
+        <div class="settings-card">
+          <div class="settings-item" id="logout-btn">
+            <div class="settings-item-label" style="color: var(--accent2);">Desconectar</div>
+            <div class="settings-item-value">→</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" id="fab-btn">+</button>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-page="dashboard">
+      <div class="nav-icon">◈</div>
+      <div class="nav-label">Início</div>
+    </button>
+    <button class="nav-item" data-page="settings">
+      <div class="nav-icon">⊛</div>
+      <div class="nav-label">Config</div>
+    </button>
+  </nav>
+
+</div>
+
+<!-- MODAL: NOVA DESPESA -->
+<div class="modal-overlay" id="modal-despesa">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nova <span>despesa</span></div>
+
+    <div class="form-field">
+      <div class="form-label">Nome da despesa</div>
+      <input type="text" class="form-input" id="f-nome" placeholder="Ex: Netflix, Parcela notebook...">
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">Valor total (R$)</div>
+        <input type="number" class="form-input" id="f-valor" placeholder="0,00" step="0.01">
+      </div>
+      <div class="form-field">
+        <div class="form-label">Parcelas</div>
+        <input type="number" class="form-input" id="f-parcelas" placeholder="1" min="1" max="60" value="1">
+      </div>
+    </div>
+
+    <div class="form-field">
+      <div class="form-label">Data da 1ª cobrança</div>
+      <input type="date" class="form-input" id="f-data">
+    </div>
+
+    <div class="form-field">
+      <div class="form-label">Categoria</div>
+      <select class="form-input" id="f-categoria">
+        <option value="">Selecionar...</option>
+        <option value="25f51ce4-0e6b-80d8-82b8-d9afa484fd84">Relacionamento</option>
+        <option value="1ea51ce4-0e6b-802f-9a09-f8c4b62631e5">Lazer e Festas</option>
+        <option value="18c51ce4-0e6b-81c3-aa6e-faee7ed17655">Alimentação</option>
+        <option value="18c51ce4-0e6b-81cc-a380-cf421fad1abb">Contas e Serviços</option>
+        <option value="18c51ce4-0e6b-817e-a7c9-dc8306c3c028">Compras</option>
+        <option value="18c51ce4-0e6b-81d1-8309-ffe486b019e1">Transporte</option>
+        <option value="18c51ce4-0e6b-8185-9361-f2075f2026c4">Viagens e Férias</option>
+        <option value="18c51ce4-0e6b-8125-8d77-f3f689e95a45">Poupança</option>
+        <option value="18c51ce4-0e6b-8103-b07a-db91628af561">Investimentos</option>
+        <option value="18c51ce4-0e6b-81e7-aff9-c1db6220f800">Dívidas e Empréstimos</option>
+        <option value="18c51ce4-0e6b-81f3-bc0e-c78c3afb3f36">Educação</option>
+        <option value="18c51ce4-0e6b-804b-9b46-dab3bb7fdced">Academia</option>
+        <option value="18c51ce4-0e6b-8044-b731-d82eb1bcc2b7">Auto Cuidado</option>
+        <option value="18c51ce4-0e6b-80e4-b07f-e99c767cd979">Dízimos e Ofertas</option>
+        <option value="18c51ce4-0e6b-8121-9da4-c6570ae420bb">Empresa</option>
+        <option value="30551ce4-0e6b-80cb-9709-c2aadc8c604f">Doações e Caridade</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <div class="form-label">Status de pagamento</div>
+      <select class="form-input" id="f-pago">
+        <option value="Pendente">Pendente</option>
+        <option value="Pago">Pago</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <div class="form-label">Observação (opcional)</div>
+      <input type="text" class="form-input" id="f-obs" placeholder="Detalhes adicionais...">
+    </div>
+
+    <!-- PREVIEW PARCELAS -->
+    <div id="parcelas-preview-section" style="display:none;">
+      <div class="form-label" style="margin-bottom: 0.5rem;">Preview das parcelas</div>
+      <div class="parcelas-preview" id="parcelas-preview"></div>
+    </div>
+
+    <div class="limit-warning-modal" id="limit-warning-modal">
+      ⚠️ Esta despesa vai ultrapassar seu limite mensal de <span id="lw-limit"></span>!
+    </div>
+
+    <button class="btn-primary" id="salvar-despesa-btn">Criar despesa(s) no Notion</button>
+    <button class="btn-primary" id="cancelar-modal-btn" style="background: var(--surface2); color: var(--text); border: 1px solid var(--border);">Cancelar</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════
+// CONFIG & STATE
+// ════════════════════════════════════════
+const NOTION_PROXY = 'https://api.notion.com/v1';
+const DB = {
+  despesas: '18c51ce4-0e6b-81a4-8db1-d390329583f8',
+  ganhos:   '18c51ce4-0e6b-817c-8922-d1862b7d62d1',
+  meses:    '18c51ce4-0e6b-812e-ac09-f71bc80aac36',
+};
+
+// Mapa mês nome → IDs por ano (extraído dos dados)
+const MESES_MAP = {
+  2025: {
+    'Janeiro':   '18c51ce4-0e6b-81f7-88e7-e6f37f2e05aa',
+    'Fevereiro': '18c51ce4-0e6b-81ad-a5a2-dee5657b9f32',
+    'Março':     '18c51ce4-0e6b-814e-a6c8-c3df92986d3f',
+    'Abril':     '18c51ce4-0e6b-8116-970e-c6a6d62909e3',
+    'Maio':      '18c51ce4-0e6b-8129-b618-e0d8c1aeda43',
+    'Junho':     '18c51ce4-0e6b-81c3-9cec-e42488549f56',
+    'Julho':     '18c51ce4-0e6b-818c-a460-cfc055516533',
+    'Agosto':    '18c51ce4-0e6b-81e8-8502-fd938e02c4f3',
+    'Setembro':  '18c51ce4-0e6b-81b0-93ff-f1d29f48532a',
+    'Outubro':   '18c51ce4-0e6b-8113-85ef-e3cfe34a5a5d',
+    'Novembro':  '18c51ce4-0e6b-81bf-8918-d2af6d8f233e',
+    'Dezembro':  '18c51ce4-0e6b-8127-b09e-f8ebe31dd4ff',
+  },
+  2026: {
+    'Janeiro':   '18c51ce4-0e6b-81b7-98fc-cfb63cdab7a6',
+    'Fevereiro': '18c51ce4-0e6b-81c4-9d99-d07f092c846e',
+    'Março':     '18c51ce4-0e6b-8196-b318-d6eb35e7d999',
+    'Abril':     '18c51ce4-0e6b-81fc-9a99-c493fa2a6bc7',
+    'Maio':      '18c51ce4-0e6b-813b-bae7-cd1aa3d1d57b',
+    'Junho':     '18c51ce4-0e6b-8117-8054-e0a52763b977',
+    'Julho':     '18c51ce4-0e6b-81d2-aa83-c7745a7c7f68',
+    'Agosto':    '18c51ce4-0e6b-811f-ae9a-e6c4f7829803',
+    'Setembro':  '18c51ce4-0e6b-816d-999e-f3f979a79e3b',
+    'Outubro':   '18c51ce4-0e6b-81df-8eb8-ee2a261810e8',
+    'Novembro':  '18c51ce4-0e6b-81d5-a9ce-d5745353fc0c',
+    'Dezembro':  '18c51ce4-0e6b-8157-b944-d8269a2f467e',
+  }
+};
+
+const MESES_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+const CAT_COLORS = {
+  '25f51ce4-0e6b-80d8-82b8-d9afa484fd84': '#e91e8c',
+  '1ea51ce4-0e6b-802f-9a09-f8c4b62631e5': '#9c27b0',
+  '18c51ce4-0e6b-81c3-aa6e-faee7ed17655': '#ff9800',
+  '18c51ce4-0e6b-81cc-a380-cf421fad1abb': '#2196f3',
+  '18c51ce4-0e6b-817e-a7c9-dc8306c3c028': '#00bcd4',
+  '18c51ce4-0e6b-81d1-8309-ffe486b019e1': '#607d8b',
+  '18c51ce4-0e6b-8185-9361-f2075f2026c4': '#4caf50',
+  '18c51ce4-0e6b-8125-8d77-f3f689e95a45': '#c8f04a',
+  '18c51ce4-0e6b-8103-b07a-db91628af561': '#8bc34a',
+  '18c51ce4-0e6b-81e7-aff9-c1db6220f800': '#f04a4a',
+  '18c51ce4-0e6b-81f3-bc0e-c78c3afb3f36': '#3f51b5',
+  '18c51ce4-0e6b-804b-9b46-dab3bb7fdced': '#ff5722',
+  '18c51ce4-0e6b-8044-b731-d82eb1bcc2b7': '#e91e63',
+  '18c51ce4-0e6b-80e4-b07f-e99c767cd979': '#795548',
+  '18c51ce4-0e6b-8121-9da4-c6570ae420bb': '#009688',
+  '30551ce4-0e6b-80cb-9709-c2aadc8c604f': '#ffc107',
+};
+
+let state = {
+  token: localStorage.getItem('fin_token') || '',
+  limit: parseFloat(localStorage.getItem('fin_limit') || '2500'),
+  currentMonth: new Date().getMonth(), // 0-indexed
+  currentYear: new Date().getFullYear(),
+  despesas: [],
+  ganhos: [],
+  notifEnabled: localStorage.getItem('fin_notif') === 'true',
+};
+
+// ════════════════════════════════════════
+// NOTION API
+// ════════════════════════════════════════
+async function notionRequest(path, method = 'GET', body = null) {
+  const opts = {
+    method,
+    headers: {
+      'Authorization': `Bearer ${state.token}`,
+      'Notion-Version': '2022-06-28',
+      'Content-Type': 'application/json',
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(`${NOTION_PROXY}${path}`, opts);
+  return res.json();
+}
+
+async function queryDatabase(dbId, filter = null) {
+  const body = { page_size: 100 };
+  if (filter) body.filter = filter;
+  let results = [];
+  let cursor = null;
+  do {
+    if (cursor) body.start_cursor = cursor;
+    const data = await notionRequest(`/databases/${dbId}/query`, 'POST', body);
+    results = results.concat(data.results || []);
+    cursor = data.next_cursor;
+  } while (cursor);
+  return results;
+}
+
+// ════════════════════════════════════════
+// DATA LOADING
+// ════════════════════════════════════════
+function getMesId(month, year) {
+  const nome = MESES_NOMES[month];
+  return MESES_MAP[year]?.[nome] || null;
+}
+
+async function loadMesData() {
+  const mesId = getMesId(state.currentMonth, state.currentYear);
+  if (!mesId) {
+    renderDespesas([]);
+    renderStats([], []);
+    return;
+  }
+
+  // Load despesas relacionadas ao mês
+  const despesasFilter = {
+    property: 'Mês',
+    relation: { contains: mesId }
+  };
+
+  const ganhosFilter = {
+    property: 'Mês',
+    relation: { contains: mesId }
+  };
+
+  const [despesas, ganhos] = await Promise.all([
+    queryDatabase(DB.despesas, despesasFilter),
+    queryDatabase(DB.ganhos, ganhosFilter),
+  ]);
+
+  state.despesas = despesas;
+  state.ganhos = ganhos;
+
+  renderDespesas(despesas);
+  renderStats(despesas, ganhos);
+}
+
+// ════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════
+function fmt(val) {
+  return 'R$ ' + val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function renderStats(despesas, ganhos) {
+  const totalDespesas = despesas.reduce((s, d) => s + (d.properties.Total?.number || 0), 0);
+  const totalGanhos = ganhos.reduce((s, g) => s + (g.properties.Quantidade?.number || 0), 0);
+  const saldo = totalGanhos - totalDespesas;
+  const pct = state.limit > 0 ? Math.min((totalDespesas / state.limit) * 100, 100) : 0;
+
+  document.getElementById('stat-despesas').textContent = fmt(totalDespesas);
+  document.getElementById('stat-ganhos').textContent = fmt(totalGanhos);
+
+  const saldoEl = document.getElementById('stat-saldo');
+  saldoEl.textContent = fmt(saldo);
+  saldoEl.className = 'stat-value ' + (saldo >= 0 ? 'positive' : 'negative');
+
+  document.getElementById('stat-itens').textContent = despesas.length;
+
+  // Limit bar
+  const bar = document.getElementById('limit-bar');
+  bar.style.width = pct + '%';
+  if (pct < 70) bar.style.background = 'var(--accent3)';
+  else if (pct < 90) bar.style.background = '#f0a44a';
+  else bar.style.background = 'var(--accent2)';
+
+  document.getElementById('limit-pct').textContent = Math.round(pct) + '%';
+  document.getElementById('limit-sub').textContent = `${fmt(totalDespesas)} de ${fmt(state.limit)}`;
+
+  // Alert
+  const alertEl = document.getElementById('limit-alert');
+  if (totalDespesas > state.limit) {
+    alertEl.style.display = 'flex';
+    document.getElementById('limit-alert-sub').textContent = `Você gastou ${fmt(totalDespesas - state.limit)} a mais que o limite.`;
+    if (state.notifEnabled) sendPushNotification(totalDespesas);
+  } else {
+    alertEl.style.display = 'none';
+  }
+}
+
+function renderDespesas(despesas) {
+  const list = document.getElementById('despesas-list');
+  document.getElementById('despesas-count').textContent = despesas.length;
+
+  if (despesas.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div>Nenhuma despesa neste mês</div>`;
+    return;
+  }
+
+  // Sort by date desc
+  const sorted = [...despesas].sort((a, b) => {
+    const da = a.properties['Data da Despesa']?.date?.start || '';
+    const db = b.properties['Data da Despesa']?.date?.start || '';
+    return db.localeCompare(da);
+  });
+
+  list.innerHTML = sorted.map(d => {
+    const nome = d.properties.Nome?.title?.[0]?.plain_text || '(sem nome)';
+    const valor = d.properties.Total?.number || 0;
+    const pago = d.properties.Pago?.select?.name || 'Pendente';
+    const data = d.properties['Data da Despesa']?.date?.start || '';
+    const catId = d.properties.Categoria?.relation?.[0]?.id || '';
+    const catColor = CAT_COLORS[catId] || 'var(--muted)';
+    const dataFmt = data ? new Date(data + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : '—';
+
+    return `
+      <div class="expense-item">
+        <div class="expense-cat-dot" style="background: ${catColor};"></div>
+        <div class="expense-info">
+          <div class="expense-name">${nome}</div>
+          <div class="expense-meta">${dataFmt}</div>
+        </div>
+        <div class="expense-value">${fmt(valor)}</div>
+        <div class="pago-badge ${pago === 'Pago' ? 'pago' : 'pendente'}">${pago === 'Pago' ? '✓' : '!'}</div>
+      </div>`;
+  }).join('');
+}
+
+function renderMonthLabel() {
+  document.getElementById('month-label').textContent = `${MESES_NOMES[state.currentMonth]} / ${state.currentYear}`;
+}
+
+// ════════════════════════════════════════
+// CRIAR DESPESA PARCELADA
+// ════════════════════════════════════════
+function getParcelasPreview(nome, valor, parcelas, dataInicio) {
+  const valParcela = valor / parcelas;
+  const result = [];
+  const base = new Date(dataInicio + 'T12:00:00');
+  for (let i = 0; i < parcelas; i++) {
+    const d = new Date(base);
+    d.setMonth(d.getMonth() + i);
+    const mes = MESES_NOMES[d.getMonth()];
+    const ano = d.getFullYear();
+    const nomeParcela = parcelas === 1 ? nome : `${nome} (${i+1}/${parcelas})`;
+    result.push({ nome: nomeParcela, valor: valParcela, data: d, mes, ano, mesId: getMesId(d.getMonth(), ano) });
+  }
+  return result;
+}
+
+function updateParcelasPreview() {
+  const nome = document.getElementById('f-nome').value;
+  const valor = parseFloat(document.getElementById('f-valor').value) || 0;
+  const parcelas = parseInt(document.getElementById('f-parcelas').value) || 1;
+  const data = document.getElementById('f-data').value;
+
+  if (!valor || !data) {
+    document.getElementById('parcelas-preview-section').style.display = 'none';
+    return;
+  }
+
+  const preview = getParcelasPreview(nome || 'Despesa', valor, parcelas, data);
+  const section = document.getElementById('parcelas-preview-section');
+  const container = document.getElementById('parcelas-preview');
+
+  if (parcelas > 1) {
+    section.style.display = 'block';
+    container.innerHTML = preview.map(p => `
+      <div class="parcela-row">
+        <span class="parcela-num">${p.nome.split('(')[1]?.replace(')', '') || '1/1'}</span>
+        <span class="parcela-mes">${p.mes}/${p.ano}</span>
+        <span class="parcela-val">${fmt(p.valor)}</span>
+        ${!p.mesId ? '<span style="color: var(--accent2); font-size: 0.65rem;">⚠ mês não mapeado</span>' : ''}
+      </div>`).join('');
+  } else {
+    section.style.display = 'none';
+  }
+
+  // Warn if first month exceeds limit
+  const currentTotal = state.despesas.reduce((s, d) => s + (d.properties.Total?.number || 0), 0);
+  const warning = document.getElementById('limit-warning-modal');
+  const firstParcela = valor / parcelas;
+  if (currentTotal + firstParcela > state.limit) {
+    warning.classList.add('show');
+    document.getElementById('lw-limit').textContent = fmt(state.limit);
+  } else {
+    warning.classList.remove('show');
+  }
+}
+
+async function criarDespesas() {
+  const nome = document.getElementById('f-nome').value.trim();
+  const valor = parseFloat(document.getElementById('f-valor').value);
+  const parcelas = parseInt(document.getElementById('f-parcelas').value) || 1;
+  const data = document.getElementById('f-data').value;
+  const catId = document.getElementById('f-categoria').value;
+  const pago = document.getElementById('f-pago').value;
+  const obs = document.getElementById('f-obs').value.trim();
+
+  if (!nome || !valor || !data) {
+    showToast('Preencha nome, valor e data.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('salvar-despesa-btn');
+  btn.disabled = true;
+  btn.textContent = 'Criando no Notion...';
+
+  const parcelasData = getParcelasPreview(nome, valor, parcelas, data);
+  let erros = 0;
+
+  for (const p of parcelasData) {
+    const props = {
+      Nome: { title: [{ text: { content: p.nome } }] },
+      Total: { number: parseFloat(p.valor.toFixed(2)) },
+      'Data da Despesa': { date: { start: p.data.toISOString().split('T')[0] } },
+      Pago: { select: { name: pago } },
+    };
+
+    if (catId) props.Categoria = { relation: [{ id: catId }] };
+    if (obs) props.Observação = { rich_text: [{ text: { content: obs } }] };
+    if (p.mesId) props.Mês = { relation: [{ id: p.mesId }] };
+
+    try {
+      const res = await notionRequest('/pages', 'POST', { parent: { database_id: DB.despesas }, properties: props });
+      if (res.object === 'error') erros++;
+    } catch {
+      erros++;
+    }
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Criar despesa(s) no Notion';
+
+  if (erros === 0) {
+    showToast(`✓ ${parcelasData.length} lançamento(s) criado(s)!`, 'success');
+    closeModal();
+    await loadMesData();
+  } else {
+    showToast(`${erros} erro(s) ao criar. Verifique o token.`, 'error');
+  }
+}
+
+// ════════════════════════════════════════
+// PUSH NOTIFICATIONS
+// ════════════════════════════════════════
+async function requestNotifPermission() {
+  if (!('Notification' in window)) {
+    showToast('Notificações não suportadas neste browser.', 'warning');
+    return false;
+  }
+  const perm = await Notification.requestPermission();
+  return perm === 'granted';
+}
+
+let lastNotifTotal = 0;
+function sendPushNotification(total) {
+  if (!state.notifEnabled) return;
+  if (Math.abs(total - lastNotifTotal) < 1) return; // avoid spam
+  lastNotifTotal = total;
+  if (Notification.permission === 'granted') {
+    new Notification('FinTrack ⚠️ Limite ultrapassado', {
+      body: `Gastos em ${MESES_NOMES[state.currentMonth]}: ${fmt(total)} (limite: ${fmt(state.limit)})`,
+      icon: 'https://emojicdn.elk.sh/💸'
+    });
+  }
+}
+
+// ════════════════════════════════════════
+// MODAL
+// ════════════════════════════════════════
+function openModal() {
+  document.getElementById('modal-despesa').classList.add('open');
+  // Set today's date
+  document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
+}
+
+function closeModal() {
+  document.getElementById('modal-despesa').classList.remove('open');
+  document.getElementById('f-nome').value = '';
+  document.getElementById('f-valor').value = '';
+  document.getElementById('f-parcelas').value = '1';
+  document.getElementById('f-obs').value = '';
+  document.getElementById('f-categoria').value = '';
+  document.getElementById('f-pago').value = 'Pendente';
+  document.getElementById('parcelas-preview-section').style.display = 'none';
+  document.getElementById('limit-warning-modal').classList.remove('show');
+}
+
+// ════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════
+let toastTimer;
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ════════════════════════════════════════
+// SETUP
+// ════════════════════════════════════════
+async function validateToken(token) {
+  try {
+    const res = await fetch(`${NOTION_PROXY}/users/me`, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Notion-Version': '2022-06-28' }
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
+async function initSetup() {
+  const token = document.getElementById('token-input').value.trim();
+  const limit = parseFloat(document.getElementById('limit-input').value) || 2500;
+  const btn = document.getElementById('save-setup-btn');
+  const err = document.getElementById('setup-error');
+
+  if (!token) { err.textContent = 'Cole o token.'; err.style.display = 'block'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Verificando...';
+
+  const ok = await validateToken(token);
+  if (!ok) {
+    err.textContent = 'Token inválido. Verifique e tente novamente.';
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Conectar ao Notion';
+    return;
+  }
+
+  localStorage.setItem('fin_token', token);
+  localStorage.setItem('fin_limit', limit.toString());
+  state.token = token;
+  state.limit = limit;
+
+  startApp();
+}
+
+// ════════════════════════════════════════
+// APP INIT
+// ════════════════════════════════════════
+function startApp() {
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  renderMonthLabel();
+  updateLimitDisplay();
+  loadMesData();
+}
+
+function updateLimitDisplay() {
+  document.getElementById('current-limit-display').textContent = fmt(state.limit);
+  const inp = document.getElementById('limit-setting-input');
+  inp.value = state.limit;
+}
+
+// ════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(`page-${pageId}`).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.toggle('active', n.dataset.page === pageId);
+  });
+  // Show/hide FAB
+  document.getElementById('fab-btn').style.display = pageId === 'dashboard' ? 'flex' : 'none';
+}
+
+// ════════════════════════════════════════
+// EVENT LISTENERS
+// ════════════════════════════════════════
+document.getElementById('save-setup-btn').addEventListener('click', initSetup);
+document.getElementById('token-input').addEventListener('keydown', e => { if (e.key === 'Enter') initSetup(); });
+
+document.getElementById('prev-month').addEventListener('click', () => {
+  state.currentMonth--;
+  if (state.currentMonth < 0) { state.currentMonth = 11; state.currentYear--; }
+  renderMonthLabel();
+  document.getElementById('despesas-list').innerHTML = '<div class="loading"><div class="spinner"></div> Carregando...</div>';
+  loadMesData();
+});
+
+document.getElementById('next-month').addEventListener('click', () => {
+  state.currentMonth++;
+  if (state.currentMonth > 11) { state.currentMonth = 0; state.currentYear++; }
+  renderMonthLabel();
+  document.getElementById('despesas-list').innerHTML = '<div class="loading"><div class="spinner"></div> Carregando...</div>';
+  loadMesData();
+});
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => showPage(item.dataset.page));
+});
+
+document.getElementById('fab-btn').addEventListener('click', openModal);
+document.getElementById('cancelar-modal-btn').addEventListener('click', closeModal);
+document.getElementById('modal-despesa').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-despesa')) closeModal();
+});
+
+// Live preview
+['f-nome', 'f-valor', 'f-parcelas', 'f-data'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateParcelasPreview);
+});
+
+document.getElementById('salvar-despesa-btn').addEventListener('click', criarDespesas);
+
+// Settings
+document.getElementById('save-limit-btn').addEventListener('click', () => {
+  const val = parseFloat(document.getElementById('limit-setting-input').value);
+  if (!val || val < 1) { showToast('Valor inválido.', 'error'); return; }
+  state.limit = val;
+  localStorage.setItem('fin_limit', val.toString());
+  updateLimitDisplay();
+  renderStats(state.despesas, state.ganhos);
+  showToast('Limite atualizado!', 'success');
+});
+
+document.getElementById('logout-btn').addEventListener('click', () => {
+  if (confirm('Desconectar? O token será removido.')) {
+    localStorage.removeItem('fin_token');
+    localStorage.removeItem('fin_limit');
+    localStorage.removeItem('fin_notif');
+    location.reload();
+  }
+});
+
+document.getElementById('notif-toggle-row').addEventListener('click', async () => {
+  const toggle = document.getElementById('notif-toggle');
+  if (!state.notifEnabled) {
+    const granted = await requestNotifPermission();
+    if (!granted) { showToast('Permissão negada.', 'error'); return; }
+    state.notifEnabled = true;
+    localStorage.setItem('fin_notif', 'true');
+    toggle.classList.add('on');
+    showToast('Notificações ativadas!', 'success');
+  } else {
+    state.notifEnabled = false;
+    localStorage.setItem('fin_notif', 'false');
+    toggle.classList.remove('on');
+    showToast('Notificações desativadas.', 'warning');
+  }
+});
+
+// Sync notif toggle state on load
+if (state.notifEnabled && Notification.permission === 'granted') {
+  document.getElementById('notif-toggle').classList.add('on');
+}
+
+// ════════════════════════════════════════
+// BOOT
+// ════════════════════════════════════════
+if (state.token) {
+  startApp();
+} else {
+  document.getElementById('setup-screen').style.display = 'flex';
+}
+</script>
+</body>
+</html>
