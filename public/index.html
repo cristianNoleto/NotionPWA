@@ -391,7 +391,7 @@ select.form-input{cursor:pointer}
       <div class="form-field">
         <div class="form-label">Status</div>
         <select class="form-input" id="f-pago" onchange="onStatusChange()">
-          <option value="Nao">Pendente</option>
+          <option value="Não">Pendente</option>
           <option value="Sim">Pago</option>
         </select>
       </div>
@@ -516,10 +516,12 @@ select.form-input{cursor:pointer}
     <div class="modal-handle"></div>
     <div class="modal-title">Editar <span id="edit-scope-label">lançamento</span></div>
     <div class="modal-sub" id="edit-sub"></div>
+
     <div class="form-field">
       <div class="form-label">Nome</div>
-      <input type="text" class="form-input" id="edit-nome">
+      <input type="text" class="form-input" id="edit-nome" placeholder="Nome da despesa">
     </div>
+
     <div class="form-row">
       <div class="form-field">
         <div class="form-label">Valor (R$)</div>
@@ -527,16 +529,97 @@ select.form-input{cursor:pointer}
       </div>
       <div class="form-field">
         <div class="form-label">Status</div>
-        <select class="form-input" id="edit-pago">
-          <option value="Pendente">Pendente</option>
-          <option value="Pago">Pago</option>
+        <select class="form-input" id="edit-pago" onchange="onEditStatusChange()">
+          <option value="Não">Pendente</option>
+          <option value="Sim">Pago</option>
         </select>
       </div>
     </div>
-    <div class="form-field">
-      <div class="form-label">Observação</div>
-      <input type="text" class="form-input" id="edit-obs" placeholder="Observação...">
+
+    <div class="form-row">
+      <div class="form-field">
+        <div class="form-label">Data da despesa</div>
+        <input type="date" class="form-input" id="edit-data">
+      </div>
+      <div class="form-field" id="edit-datapag-wrap">
+        <div class="form-label">Data do pagamento</div>
+        <input type="date" class="form-input" id="edit-datapag">
+      </div>
     </div>
+
+    <div class="form-field">
+      <div class="form-label">Categoria</div>
+      <select class="form-input" id="edit-cat">
+        <option value="">Selecionar...</option>
+        <option value="25f51ce4-0e6b-80d8-82b8-d9afa484fd84">Relacionamento</option>
+        <option value="1ea51ce4-0e6b-802f-9a09-f8c4b62631e5">Lazer e Festas</option>
+        <option value="18c51ce4-0e6b-81c3-aa6e-faee7ed17655">Alimentação</option>
+        <option value="18c51ce4-0e6b-81cc-a380-cf421fad1abb">Contas e Serviços</option>
+        <option value="18c51ce4-0e6b-817e-a7c9-dc8306c3c028">Compras</option>
+        <option value="18c51ce4-0e6b-81d1-8309-ffe486b019e1">Transporte</option>
+        <option value="18c51ce4-0e6b-8185-9361-f2075f2026c4">Viagens e Férias</option>
+        <option value="18c51ce4-0e6b-8125-8d77-f3f689e95a45">Poupança</option>
+        <option value="18c51ce4-0e6b-8103-b07a-db91628af561">Investimentos</option>
+        <option value="18c51ce4-0e6b-81e7-aff9-c1db6220f800">Dívidas e Empréstimos</option>
+        <option value="18c51ce4-0e6b-81f3-bc0e-c78c3afb3f36">Educação</option>
+        <option value="18c51ce4-0e6b-804b-9b46-dab3bb7fdced">Academia</option>
+        <option value="18c51ce4-0e6b-8044-b731-d82eb1bcc2b7">Auto Cuidado</option>
+        <option value="18c51ce4-0e6b-80e4-b07f-e99c767cd979">Dízimos e Ofertas</option>
+        <option value="18c51ce4-0e6b-8121-9da4-c6570ae420bb">Empresa</option>
+        <option value="30551ce4-0e6b-80cb-9709-c2aadc8c604f">Doações e Caridade</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <div class="form-label">Orçamento <span style="color:var(--muted2);font-size:.62rem">(opcional)</span></div>
+      <select class="form-input" id="edit-orcamento">
+        <option value="">Nenhum</option>
+        <option value="25f51ce4-0e6b-80f2-aefd-da38fb94bc6b">Despesas com a Kay</option>
+        <option value="1c451ce4-0e6b-809b-bcea-d817a0103642">Conta Internet Celular</option>
+        <option value="1ad51ce4-0e6b-801b-bec3-fb1e2f4b9048">Plano dental</option>
+        <option value="18c51ce4-0e6b-80a9-97d2-e089a4aca893">Dízimos e Ofertas</option>
+        <option value="1ac51ce4-0e6b-8070-9d6b-c6d30b39ac7e">Investimentos/Poupança</option>
+        <option value="18c51ce4-0e6b-8196-9dee-fa6b6e50ce69">Academia</option>
+        <option value="18c51ce4-0e6b-8124-a55b-e32b3e8955f2">Multilogin e Ferramentas de trabalho</option>
+        <option value="18c51ce4-0e6b-81e4-b085-cf0b83cbe0fd">Lanche e Despesas do Trabalho</option>
+        <option value="18c51ce4-0e6b-80a3-99c2-dda18d943445">Compras</option>
+        <option value="18f51ce4-0e6b-80de-a3fe-d9f78497d915">Despesas diversas</option>
+        <option value="18c51ce4-0e6b-8008-9de3-f3e71ab11e4f">Implante Capilar</option>
+        <option value="18c51ce4-0e6b-815b-9168-f4a7c47f073e">Estudos</option>
+        <option value="18e51ce4-0e6b-8087-8e9f-c3f2b7bd7d34">Medicações e Plano de Saúde</option>
+        <option value="18e51ce4-0e6b-807f-8482-dc6673843193">Viagens</option>
+        <option value="1ea51ce4-0e6b-80b0-9d92-c2a8f7c2506e">Lazer e Festas</option>
+        <option value="30551ce4-0e6b-808c-bfad-d95747378b5e">Doações e Caridade</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <div class="form-label">Conta <span style="color:var(--muted2);font-size:.62rem">(opcional)</span></div>
+      <select class="form-input" id="edit-conta">
+        <option value="">Selecionar...</option>
+        <option value="18c51ce4-0e6b-81b9-92ce-cb913fdd54d1">PayPal</option>
+        <option value="18c51ce4-0e6b-8131-b69f-c0f2a6bb9298">Sicoob</option>
+        <option value="18c51ce4-0e6b-81ee-9e46-ef11401e2da5">Banco do Brasil</option>
+        <option value="18c51ce4-0e6b-81de-90aa-f58cb43006fa">Banco XP</option>
+        <option value="18c51ce4-0e6b-815d-af09-c702609935b0">Banco Pan</option>
+        <option value="18c51ce4-0e6b-81af-949d-d3fa7d23b8d5">Banco Inter</option>
+        <option value="18c51ce4-0e6b-802f-b226-eef7c9023054">Banco PicPay</option>
+        <option value="18c51ce4-0e6b-8028-80f0-cf92e459cabc">Mercado Pago</option>
+        <option value="18c51ce4-0e6b-80ab-9de4-dfbd93e287e6">Nubank</option>
+        <option value="18c51ce4-0e6b-8019-b345-fed2f5b369de">C6 Bank</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <div class="form-label">Comprovante <span style="color:var(--muted2);font-size:.62rem">(link opcional)</span></div>
+      <input type="url" class="form-input" id="edit-comprovante" placeholder="https://drive.google.com/...">
+    </div>
+
+    <div class="form-field">
+      <div class="form-label">Observação <span style="color:var(--muted2);font-size:.62rem">(opcional)</span></div>
+      <input type="text" class="form-input" id="edit-obs" placeholder="Detalhes adicionais...">
+    </div>
+
     <button class="btn btn-accent" id="edit-save-btn" onclick="saveEdit()">Salvar alterações</button>
     <button class="btn btn-ghost" onclick="closeModal('modal-edit')">Cancelar</button>
   </div>
@@ -981,14 +1064,19 @@ async function criarDespesas() {
 function openActions(id) {
   const d = S.despesas.find(x=>x.id===id);
   if (!d) return;
-  const nome = d.properties.Nome?.title?.[0]?.plain_text||'';
-  const valor = d.properties.Total?.number||0;
-  const pago = d.properties.Pago?.select?.name||'Pendente';
-  const obs = d.properties.Observação?.rich_text?.[0]?.plain_text||'';
+  const nome    = d.properties.Nome?.title?.[0]?.plain_text||'';
+  const valor   = d.properties.Total?.number||0;
+  const pago    = d.properties.Pago?.select?.name||'Não';
+  const obs     = d.properties.Observação?.rich_text?.[0]?.plain_text||'';
   const dataStr = d.properties['Data da Despesa']?.date?.start||'';
-  S.activeItem = { id, nome, valor, pago, obs, dataStr };
+  const dataPagStr = d.properties['Data de Pagamento']?.date?.start||'';
+  const catId   = d.properties.Categoria?.relation?.[0]?.id||'';
+  const contaId = d.properties.Conta?.relation?.[0]?.id||'';
+  const orcId   = d.properties.Orçamentos?.relation?.[0]?.id||'';
+  S.activeItem = { id, nome, valor, pago, obs, dataStr, dataPagStr, catId, contaId, orcId };
   el('action-title').textContent = nome;
-  el('action-sub').textContent = `${fmt(valor)} · ${dataStr ? new Date(dataStr+'T12:00:00').toLocaleDateString('pt-BR') : '—'} · ${pago}`;
+  const pagoLabel = pago==='Sim' ? 'Pago' : 'Pendente';
+  el('action-sub').textContent = `${fmt(valor)} · ${dataStr ? new Date(dataStr+'T12:00:00').toLocaleDateString('pt-BR') : '—'} · ${pagoLabel}`;
   openModal('modal-actions');
 }
 
@@ -1008,64 +1096,116 @@ function prepareEditModal() {
   el('edit-scope-label').textContent = S.editScope==='this' ? 'lançamento' : 'este e os próximos';
   el('edit-sub').textContent = S.editScope==='this'
     ? `Editando apenas: ${item.nome}`
-    : `Editando todos os lançamentos a partir de ${item.dataStr} com nome similar`;
-  el('edit-nome').value = item.nome;
-  el('edit-valor').value = item.valor;
-  el('edit-pago').value = item.pago;
-  el('edit-obs').value = item.obs;
+    : `Editando este e todos os lançamentos futuros com o mesmo nome`;
+
+  // Preenche todos os campos com dados atuais
+  el('edit-nome').value      = item.nome;
+  el('edit-valor').value     = item.valor;
+  el('edit-pago').value      = item.pago === 'Sim' ? 'Sim' : 'Não';
+  el('edit-data').value      = item.dataStr;
+  el('edit-datapag').value   = item.dataPagStr;
+  el('edit-cat').value       = item.catId;
+  el('edit-conta').value     = item.contaId;
+  el('edit-orcamento').value = item.orcId;
+
+  // Separa comprovante e obs da observação combinada
+  const obsRaw = item.obs || '';
+  const compMatch = obsRaw.match(/Comprovante:\s*(https?:\/\/\S+)/);
+  const comprovante = compMatch ? compMatch[1] : '';
+  const obsLimpa = obsRaw.replace(/\s*\|\s*Comprovante:\s*https?:\/\/\S+/, '').replace(/\s*\|\s*\[rec\]/, '').replace(/\[rec\]/, '').trim();
+  el('edit-comprovante').value = comprovante;
+  el('edit-obs').value = obsLimpa;
+
+  // Mostra/esconde data de pagamento conforme status
+  el('edit-datapag-wrap').style.display = item.pago==='Sim' ? 'block' : 'none';
+
   closeModal('modal-actions');
   openModal('modal-edit');
 }
 
-async function saveEdit() {
-  const nome = v('edit-nome').trim();
-  const valor = parseFloat(v('edit-valor'));
+function onEditStatusChange() {
   const pago = v('edit-pago');
-  const obs = v('edit-obs').trim();
+  const wrap = el('edit-datapag-wrap');
+  if (pago === 'Sim') {
+    wrap.style.display = 'block';
+    if (!v('edit-datapag')) el('edit-datapag').value = new Date().toISOString().split('T')[0];
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+async function saveEdit() {
+  const nome       = v('edit-nome').trim();
+  const valor      = parseFloat(v('edit-valor'));
+  const pago       = v('edit-pago');
+  const data       = v('edit-data');
+  const datapag    = v('edit-datapag');
+  const catId      = v('edit-cat');
+  const contaId    = v('edit-conta');
+  const orcId      = v('edit-orcamento');
+  const comprovante= v('edit-comprovante').trim();
+  const obs        = v('edit-obs').trim();
+
   if (!nome||!valor) { showToast('Preencha nome e valor.','error'); return; }
+
+  // Monta observação combinada igual ao cadastro
+  const obsPartes = [obs, comprovante ? `Comprovante: ${comprovante}` : ''].filter(Boolean);
+  const obsText = obsPartes.join(' | ');
+
+  function buildEditProps(nomeItem) {
+    const props = {
+      Nome:{title:[{text:{content:nomeItem}}]},
+      Total:{number:parseFloat(valor.toFixed(2))},
+      Pago:{select:{name:pago}},
+      Observação:{rich_text:[{text:{content:obsText}}]},
+    };
+    if (data) props['Data da Despesa']={date:{start:data}};
+    if (pago==='Sim' && datapag) props['Data de Pagamento']={date:{start:datapag}};
+    else if (pago==='Não') props['Data de Pagamento']={date:null};
+    if (catId) props.Categoria={relation:[{id:catId}]};
+    else props.Categoria={relation:[]};
+    if (contaId) props.Conta={relation:[{id:contaId}]};
+    else props.Conta={relation:[]};
+    if (orcId) props.Orçamentos={relation:[{id:orcId}]};
+    else props.Orçamentos={relation:[]};
+    return props;
+  }
 
   const btn=el('edit-save-btn'); btn.disabled=true; btn.textContent='Salvando...';
 
   if (S.editScope==='this') {
-    // Edita só este
-    await editPage(S.activeItem.id, nome, valor, pago, obs);
-    showToast('✓ Lançamento atualizado!','success');
+    try {
+      const r = await nReq(`pages/${S.activeItem.id}`,'PATCH',{properties:buildEditProps(nome)});
+      if (r.object==='error') throw new Error(r.message);
+      showToast('✓ Lançamento atualizado!','success');
+    } catch(e) {
+      showToast(`Erro ao salvar: ${e.message}`,'error');
+    }
   } else {
-    // Edita este e os próximos com mesmo nome base
     const nomeBase = getNomeBase(S.activeItem.nome);
-    const dataRef = S.activeItem.dataStr;
-    // Busca todos com nome similar
-    const todos = await qDB(DB.despesas, { property:'Nome', title:{contains:nomeBase} });
-    const futuros = todos.filter(d => {
+    const dataRef  = S.activeItem.dataStr;
+    const todos    = await qDB(DB.despesas, { property:'Nome', title:{contains:nomeBase} });
+    const futuros  = todos.filter(d => {
       const ds = d.properties['Data da Despesa']?.date?.start||'';
       return ds >= dataRef;
     });
     let erros=0;
     for (const d of futuros) {
-      // Mantém número da parcela no nome se houver
       const nomeAtual = d.properties.Nome?.title?.[0]?.plain_text||'';
       const sufixo = nomeAtual.replace(nomeBase,'').trim();
       const novoNome = nome + (sufixo ? ` ${sufixo}` : '');
-      try { await editPage(d.id, novoNome, valor, pago, obs); }
-      catch { erros++; }
+      try {
+        const r = await nReq(`pages/${d.id}`,'PATCH',{properties:buildEditProps(novoNome)});
+        if (r.object==='error') erros++;
+      } catch { erros++; }
     }
-    showToast(erros?`${erros} erro(s).`:`✓ ${futuros.length} lançamento(s) atualizados!`, erros?'error':'success');
+    showToast(erros?`${erros} erro(s).`:`✓ ${futuros.length} atualizado(s)!`, erros?'error':'success');
   }
 
   btn.disabled=false; btn.textContent='Salvar alterações';
   closeModal('modal-edit');
   el('despesas-list').innerHTML='<div class="loading"><div class="spinner"></div> Atualizando...</div>';
   await loadMes();
-}
-
-async function editPage(id, nome, valor, pago, obs) {
-  const props = {
-    Nome:{title:[{text:{content:nome}}]},
-    Total:{number:parseFloat(valor.toFixed(2))},
-    Pago:{select:{name:pago}},
-  };
-  if (obs!==undefined) props.Observação={rich_text:[{text:{content:obs}}]};
-  return nReq(`pages/${id}`,'PATCH',{properties:props});
 }
 
 function getNomeBase(nome) {
@@ -1214,7 +1354,7 @@ function closeModal(id) {
     ['f-nome','f-valor','f-obs','f-comprovante','f-datapag'].forEach(i=>{ if(el(i)) el(i).value=''; });
     el('f-n').value='12';
     el('f-cat').value='';
-    el('f-pago').value='Nao';
+    el('f-pago').value='Não';
     el('f-conta').value='';
     el('f-orcamento').value='';
     el('f-datapag-wrap').style.display='none';
