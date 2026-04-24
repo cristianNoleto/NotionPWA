@@ -1177,6 +1177,24 @@ async function initApp() {
 }
 
 (async()=>{
+  // Trata confirmação de email via link (token na URL)
+  const hash = window.location.hash;
+  if (hash && hash.includes('access_token')) {
+    // Supabase detecta automaticamente o token na URL e cria a sessão
+    const { data, error } = await sb.auth.getSession();
+    // Limpa a URL sem recarregar a página
+    history.replaceState(null, '', window.location.pathname);
+    if (error || !data.session) {
+      showScreen('auth-screen');
+      setTimeout(()=> msg('login-msg', '✅ Email confirmado! Faça login para continuar.', 'success'), 300);
+      return;
+    }
+    // Sessão criada pelo token — faz login direto
+    await afterLogin();
+    return;
+  }
+
+  // Sessão normal (já logado)
   const { data:{ session } } = await sb.auth.getSession();
   if (session?.user) {
     S.user=session.user;
