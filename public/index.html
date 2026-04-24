@@ -1152,15 +1152,18 @@ async function saveEdit() {
   const obsPartes = [obs, comprovante ? `Comprovante: ${comprovante}` : ''].filter(Boolean);
   const obsText = obsPartes.join(' | ');
 
-  function buildEditProps(nomeItem) {
+  // buildEditProps(nomeItem, dataItem, dataPagItem)
+  // dataItem: data da despesa a aplicar (string ISO ou '' para não alterar)
+  // dataPagItem: data de pagamento calculada (string ISO ou null)
+  function buildEditProps(nomeItem, dataItem, dataPagItem) {
     const props = {
       Nome:{title:[{text:{content:nomeItem}}]},
       Total:{number:parseFloat(valor.toFixed(2))},
       Pago:{select:{name:pago}},
       Observação:{rich_text:[{text:{content:obsText}}]},
     };
-    if (data) props['Data da Despesa']={date:{start:data}};
-    if (pago==='Sim' && datapag) props['Data de Pagamento']={date:{start:datapag}};
+    if (dataItem) props['Data da Despesa']={date:{start:dataItem}};
+    if (pago==='Sim' && dataPagItem) props['Data de Pagamento']={date:{start:dataPagItem}};
     else if (pago==='Não') props['Data de Pagamento']={date:null};
     if (catId) props.Categoria={relation:[{id:catId}]};
     else props.Categoria={relation:[]};
@@ -1171,31 +1174,69 @@ async function saveEdit() {
     return props;
   }
 
+  // Calcula data de pagamento para índice i (mesmo dia, mês+i, último dia se não existir)
+  function calcDataPag(baseDateStr, idx) {
+    if (!baseDateStr) return null;
+    const base = new Date(baseDateStr + 'T12:00:00');
+    const dia = base.getDate();
+    const mesAlvo = base.getMonth() + idx;
+    const anoAlvo = base.getFullYear() + Math.floor(mesAlvo / 12);
+    const mesNorm = mesAlvo % 12;
+    const ultimoDia = new Date(anoAlvo, mesNorm + 1, 0).getDate();
+    return new Date(anoAlvo, mesNorm, Math.min(dia, ultimoDia)).toISOString().split('T')[0];
+  }
+
   const btn=el('edit-save-btn'); btn.disabled=true; btn.textContent='Salvando...';
 
   if (S.editScope==='this') {
     try {
-      const r = await nReq(`pages/${S.activeItem.id}`,'PATCH',{properties:buildEditProps(nome)});
-      if (r.object==='error') throw new Error(r.message);
+      // Edição única: aplica a data digitada no form
+      const props = buildEditProps(nome, data, pago==='Sim'?datapag:null);
+      const r = await nReq(`pages/${S.activeItem.id}`,'PATCH',{properties:props});
+      if (r.object==='error') throw new Error(r.message||JSON.stringify(r));
       showToast('✓ Lançamento atualizado!','success');
     } catch(e) {
       showToast(`Erro ao salvar: ${e.message}`,'error');
     }
   } else {
-    const nomeBase = getNomeBase(S.activeItem.nome);
-    const dataRef  = S.activeItem.dataStr;
-    const todos    = await qDB(DB.despesas, { property:'Nome', title:{contains:nomeBase} });
-    const futuros  = todos.filter(d => {
+    // Edição em lote: busca pelo nome BASE (sem sufixo de parcela)
+    const nomeBase    = getNomeBase(S.activeItem.nome);
+    const novoBase    = getNomeBase(nome); // nome novo também sem sufixo
+    const dataRef     = S.activeItem.dataStr;
+    const dataPagRef  = S.activeItem.dataPagStr; // data pag da parcela editada
+
+    const todos   = await qDB(DB.despesas, { property:'Nome', title:{contains:nomeBase} });
+    const futuros = todos.filter(d => {
       const ds = d.properties['Data da Despesa']?.date?.start||'';
       return ds >= dataRef;
+    }).sort((a,b) => {
+      const da = a.properties['Data da Despesa']?.date?.start||'';
+      const db = b.properties['Data da Despesa']?.date?.start||'';
+      return da.localeCompare(db);
     });
+
     let erros=0;
-    for (const d of futuros) {
+    for (let i=0; i<futuros.length; i++) {
+      const d = futuros[i];
       const nomeAtual = d.properties.Nome?.title?.[0]?.plain_text||'';
-      const sufixo = nomeAtual.replace(nomeBase,'').trim();
-      const novoNome = nome + (sufixo ? ` ${sufixo}` : '');
+
+      // Extrai APENAS o sufixo numérico (ex: "1/2", "∞") do nome original
+      const sufixoMatch = nomeAtual.match(/(\d+\/\d+|∞)$/);
+      const sufixo = sufixoMatch ? sufixoMatch[1] : '';
+      const novoNome = sufixo ? `${novoBase} ${sufixo}` : novoBase;
+
+      // Data da despesa: NÃO altera — mantém a data original de cada parcela
+      const dataOriginal = d.properties['Data da Despesa']?.date?.start || '';
+
+      // Data de pagamento: mesmo dia da data de pagamento da parcela editada + i meses
+      let dpStr = null;
+      if (pago==='Sim' && datapag) {
+        dpStr = calcDataPag(datapag, i);
+      }
+
+      const props = buildEditProps(novoNome, dataOriginal, dpStr);
       try {
-        const r = await nReq(`pages/${d.id}`,'PATCH',{properties:buildEditProps(novoNome)});
+        const r = await nReq(`pages/${d.id}`,'PATCH',{properties:props});
         if (r.object==='error') erros++;
       } catch { erros++; }
     }
