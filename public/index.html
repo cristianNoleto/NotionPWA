@@ -138,15 +138,9 @@ body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-
 .nav-icon{font-size:1.05rem}
 .nav-label{font-size:.56rem;text-transform:uppercase;letter-spacing:.5px;font-family:'Syne',sans-serif;font-weight:700}
 .nav-center{flex:1;display:flex;justify-content:center;position:relative}
-.nav-add-btn{width:50px;height:50px;border-radius:50%;background:var(--accent);border:none;color:#000;font-size:1.6rem;font-weight:300;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:-18px;box-shadow:0 4px 16px rgba(180,255,0,.25);transition:transform .2s,box-shadow .2s;line-height:1}
-.nav-add-btn.open{transform:rotate(45deg);box-shadow:0 4px 24px rgba(180,255,0,.4)}
-/* Menu acima do + */
-.nav-add-menu{position:absolute;bottom:62px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:.5rem;align-items:center;pointer-events:none;opacity:0;transition:opacity .2s,transform .2s;transform:translateX(-50%) translateY(8px)}
-.nav-add-menu.open{opacity:1;pointer-events:all;transform:translateX(-50%) translateY(0)}
-.nav-menu-item{display:flex;align-items:center;gap:.5rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.55rem .9rem;cursor:pointer;white-space:nowrap;font-size:.78rem;font-family:'Syne',sans-serif;font-weight:700;color:var(--text);transition:border-color .15s}
-.nav-menu-item:hover{border-color:var(--accent)}
-.nav-menu-item.danger{color:var(--accent2);border-color:rgba(255,80,80,.25)}
-.nav-menu-item.danger:hover{border-color:var(--accent2)}
+/* Botão + central circular elevado */
+#nav-center-add{width:52px;height:52px;border-radius:50%;background:var(--accent);border:none;color:#000;font-size:1.7rem;font-weight:300;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:-20px;box-shadow:0 4px 18px rgba(180,255,0,.3);transition:transform .2s,background .2s;line-height:1;font-family:'Syne',sans-serif}
+#nav-center-add:active{transform:scale(.92)}
 
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(6px);z-index:300;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
@@ -384,31 +378,26 @@ select.form-input{cursor:pointer}
       </div>
     </div>
 
-  </div>
+  </div><!-- /content -->
 
-  <!-- Menu de ações (aparece ao clicar no + central) -->
+  <!-- Menu acima do + (usa JS existente) -->
   <div class="nav-actions-menu" id="nav-actions-menu">
-    <button class="nav-action-btn nav-action-del" onclick="closeActionsMenu();openModal('modal-delete')">🗑 Excluir</button>
-    <button class="nav-action-btn nav-action-add" onclick="closeActionsMenu();openModal('modal-despesa')">+ Adicionar</button>
+    <button class="nav-action-btn nav-action-del" onclick="closeActionsMenu();openModal('modal-bulk-delete')">🗑 Excluir</button>
+    <button class="nav-action-btn nav-action-add" onclick="closeActionsMenu();openModal('modal-despesa')">+ Nova despesa</button>
   </div>
 
   <nav class="bottom-nav">
-    <button class="nav-btn active" id="nav-inicio" onclick="switchPage('dashboard')">
+    <button class="nav-btn active" data-page="dashboard">
       <div class="nav-icon">◈</div><div class="nav-label">Início</div>
     </button>
     <div class="nav-center">
-      <!-- Menu acima do + -->
-      <div class="nav-add-menu" id="nav-add-menu">
-        <div class="nav-menu-item" onclick="closeAddMenu();openModal('modal-despesa')">➕ Nova despesa</div>
-        <div class="nav-menu-item danger" onclick="closeAddMenu();openModal('modal-bulk-delete')">🗑 Excluir lançamentos</div>
-      </div>
-      <button class="nav-add-btn" id="nav-add-btn" onclick="toggleAddMenu()">+</button>
+      <button class="nav-add-btn" id="nav-center-add" onclick="toggleActionsMenu()">+</button>
     </div>
-    <button class="nav-btn" id="nav-config" onclick="switchPage('settings')">
+    <button class="nav-btn" data-page="settings">
       <div class="nav-icon">⊛</div><div class="nav-label">Config</div>
     </button>
   </nav>
-</div>
+</div><!-- /app -->
 
 <!-- MODAL: NOVA DESPESA -->
 <div class="modal-overlay" id="modal-despesa">
