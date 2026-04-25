@@ -558,26 +558,10 @@ select.form-input{cursor:pointer}
     <div class="modal-title">Editar <span id="edit-scope-label">lançamento</span></div>
 
     <!-- RESUMO FINANCEIRO (só aparece para parceladas/recorrentes em lote) -->
-    <div id="edit-summary" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;display:none;flex-direction:column;gap:.4rem">
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.78rem;color:var(--accent)" id="edit-summary-tipo"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem .5rem;font-size:.72rem" id="edit-summary-grid"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem .5rem;font-size:.72rem" id="edit-summary-grid"></div>
     </div>
 
     <!-- CONVERSÃO DE TIPO (parcelada ↔ recorrente) -->
-    <div id="edit-convert-wrap" style="display:none">
-      <div class="form-label" style="margin-bottom:.35rem">Tipo da despesa</div>
-      <div class="type-sel" style="grid-template-columns:1fr 1fr">
-        <div class="type-btn" data-etype="parcelada" onclick="setEditTipo('parcelada')">📦 Parcelada<br><span style="font-size:.6rem;font-weight:400">valor total ÷ parcelas</span></div>
-        <div class="type-btn" data-etype="recorrente" onclick="setEditTipo('recorrente')">🔁 Recorrente<br><span style="font-size:.6rem;font-weight:400">mesmo valor por mês</span></div>
-      </div>
-      <!-- campo extra ao converter de recorrente→parcelada: total restante -->
-      <div id="edit-convert-total-wrap" style="display:none;margin-top:.6rem">
-        <div class="form-label">Valor total das parcelas restantes (R$)</div>
-        <input type="number" class="form-input" id="edit-convert-total" placeholder="0,00" step="0.01" oninput="onConvertTotalChange()">
-        <div style="font-size:.62rem;color:var(--muted2);margin-top:.2rem" id="edit-convert-hint"></div>
-      </div>
-    </div>
-
     <div class="form-field">
       <div class="form-label">Nome</div>
       <input type="text" class="form-input" id="edit-nome" placeholder="Nome da despesa">
@@ -585,8 +569,8 @@ select.form-input{cursor:pointer}
 
     <div class="form-row">
       <div class="form-field">
-        <div class="form-label" id="edit-valor-lbl">Valor (R$)</div>
-        <input type="number" class="form-input" id="edit-valor" step="0.01" oninput="onEditValorChange()">
+        <div class="form-label">Valor (R$)</div>
+        <input type="number" class="form-input" id="edit-valor" step="0.01">
       </div>
       <div class="form-field">
         <div class="form-label">Status</div>
@@ -597,9 +581,7 @@ select.form-input{cursor:pointer}
       </div>
     </div>
     <!-- hint de valor restante para parceladas -->
-    <div id="edit-valor-hint" style="font-size:.68rem;color:var(--muted2);margin-top:-.5rem;display:none"></div>
-
-    <div class="form-row">
+<div class="form-row">
       <div class="form-field">
         <div class="form-label">Data da despesa</div>
         <input type="date" class="form-input" id="edit-data">
@@ -1221,7 +1203,7 @@ async function criarDespesas() {
   for (let i=0; i<parcelas.length; i++) {
     const p = parcelas[i];
     const mesId = await getMesId(p.data.getMonth(), p.data.getFullYear());
-    const subtipoFinal = S.editScope==='next' ? editCtx.tipo : (S.activeItem?.nome?.endsWith('∞') ? 'recorrente' : 'unica');
+    const subtipoFinal = S.activeItem?.nome?.endsWith('∞') ? 'recorrente' : /\d+\/\d+$/.test(S.activeItem?.nome||'') ? 'parcelada' : 'unica';
     const obsPartes = [obs, comprovante ? `Comprovante: ${comprovante}` : '', subtipoFinal==='recorrente'?'[rec]':''].filter(Boolean);
     const obsText = obsPartes.join(' | ');
     const props = {
@@ -1287,95 +1269,16 @@ function openEditNext() {
   S.editScope = 'next';
   prepareEditModal();
 }
-// Estado do editor em lote
-let editCtx = {
-  tipo: 'unica',       // 'unica' | 'parcelada' | 'recorrente'
-  futuros: [],         // despesas futuras do grupo
-  pagas: [],           // despesas já pagas do grupo
-  totalOriginal: 0,
-  totalPago: 0,
-  restantes: 0,
-};
-
-async function prepareEditModal() {
+function prepareEditModal() {
   const item = S.activeItem;
   const isLote = S.editScope === 'next';
 
   el('edit-scope-label').textContent = isLote ? 'este e os próximos' : 'lançamento';
+  el('edit-sub').textContent = isLote
+    ? `Editando este e todos os lançamentos futuros com o mesmo nome`
+    : `Editando apenas: ${item.nome}`;
 
-  // Detecta tipo pelo nome
-  const nomeRec = item.nome.endsWith('∞');
-  const nomeParc = /\d+\/\d+$/.test(item.nome);
-  editCtx.tipo = nomeRec ? 'recorrente' : nomeParc ? 'parcelada' : 'unica';
-
-  // Reset UI
-  el('edit-summary').style.display = 'none';
-  el('edit-convert-wrap').style.display = 'none';
-  el('edit-valor-hint').style.display = 'none';
-  el('edit-valor-lbl').textContent = 'Valor (R$)';
-
-  if (isLote && editCtx.tipo !== 'unica') {
-    // Busca todas as despesas do grupo para calcular resumo
-    const nomeBase = getNomeBase(item.nome);
-    const isRec = editCtx.tipo === 'recorrente';
-    el('edit-summary').style.display = 'flex';
-    el('edit-summary-tipo').textContent = '⏳ Buscando dados do grupo...';
-
-    const todos = await qDB(DB.despesas, { property: 'Nome', title: { contains: nomeBase } });
-    const doMesmoTipo = todos.filter(d => {
-      const n = d.properties.Nome?.title?.[0]?.plain_text || '';
-      return isRec ? n.endsWith('∞') : /\d+\/\d+$/.test(n);
-    });
-
-    const pagos    = doMesmoTipo.filter(d => d.properties.Pago?.select?.name === 'Sim');
-    const futuros  = doMesmoTipo.filter(d => {
-      const ds = d.properties['Data da Despesa']?.date?.start || '';
-      return ds >= item.dataStr;
-    }).sort((a,b) => (a.properties['Data da Despesa']?.date?.start||'').localeCompare(b.properties['Data da Despesa']?.date?.start||''));
-
-    const totalPago     = pagos.reduce((s,d) => s + (d.properties.Total?.number||0), 0);
-    const totalRestante = futuros.reduce((s,d) => s + (d.properties.Total?.number||0), 0);
-    const totalOriginal = totalPago + totalRestante;
-
-    editCtx.futuros       = futuros;
-    editCtx.pagas         = pagos;
-    editCtx.totalOriginal = totalOriginal;
-    editCtx.totalPago     = totalPago;
-    editCtx.restantes     = futuros.length;
-
-    // Monta resumo visual
-    const tipoLabel = isRec ? '🔁 Recorrente' : '📦 Parcelada';
-    el('edit-summary-tipo').textContent = tipoLabel + ' — ' + nomeBase;
-
-    if (isRec) {
-      el('edit-summary-grid').innerHTML = `
-        <span style="color:var(--muted2)">Meses restantes</span><span style="color:var(--text);font-weight:600">${futuros.length}</span>
-        <span style="color:var(--muted2)">Valor mensal atual</span><span style="color:var(--text);font-weight:600">${fmt(item.valor)}</span>
-        <span style="color:var(--muted2)">Total restante</span><span style="color:var(--accent3);font-weight:600">${fmt(totalRestante)}</span>`;
-      el('edit-valor-lbl').textContent = 'Novo valor mensal (R$)';
-    } else {
-      // Extrai total de parcelas do sufixo ex: "3/12" → total=12
-      const sufMatch = item.nome.match(/(\d+)\/(\d+)$/);
-      const totalParcelas = sufMatch ? parseInt(sufMatch[2]) : doMesmoTipo.length;
-      const parcPagas = pagos.length;
-      el('edit-summary-grid').innerHTML = `
-        <span style="color:var(--muted2)">Total original</span><span style="color:var(--text);font-weight:600">${fmt(totalOriginal)}</span>
-        <span style="color:var(--muted2)">Parcelas pagas</span><span style="color:var(--accent3);font-weight:600">${parcPagas}/${totalParcelas} — ${fmt(totalPago)}</span>
-        <span style="color:var(--muted2)">Parcelas restantes</span><span style="color:var(--text);font-weight:600">${futuros.length} parcela(s)</span>
-        <span style="color:var(--muted2)">Restante a pagar</span><span style="color:var(--accent2);font-weight:700">${fmt(totalRestante)}</span>`;
-      el('edit-valor-lbl').textContent = 'Novo valor por parcela (R$)';
-      el('edit-valor-hint').style.display = 'block';
-      el('edit-valor-hint').textContent = `Alterando o valor, o total restante será recalculado automaticamente`;
-    }
-
-    // Mostra conversão de tipo
-    el('edit-convert-wrap').style.display = 'block';
-    document.querySelectorAll('.type-btn[data-etype]').forEach(b =>
-      b.classList.toggle('active', b.dataset.etype === editCtx.tipo)
-    );
-  }
-
-  // Preenche campos básicos
+  // Preenche todos os campos com dados atuais
   el('edit-nome').value      = getNomeBase(item.nome);
   el('edit-valor').value     = item.valor;
   el('edit-pago').value      = item.pago === 'Sim' ? 'Sim' : 'Não';
@@ -1396,40 +1299,6 @@ async function prepareEditModal() {
 
   closeModal('modal-actions');
   openModal('modal-edit');
-}
-
-function setEditTipo(tipo) {
-  editCtx.tipo = tipo;
-  document.querySelectorAll('.type-btn[data-etype]').forEach(b =>
-    b.classList.toggle('active', b.dataset.etype === tipo)
-  );
-  if (tipo === 'parcelada') {
-    el('edit-valor-lbl').textContent = 'Novo valor por parcela (R$)';
-    el('edit-convert-total-wrap').style.display = 'block';
-    el('edit-convert-hint').textContent =
-      `${editCtx.restantes} parcela(s) restante(s) — digite o valor total e o valor por parcela será calculado`;
-    onConvertTotalChange();
-  } else {
-    el('edit-valor-lbl').textContent = 'Novo valor mensal (R$)';
-    el('edit-convert-total-wrap').style.display = 'none';
-  }
-}
-
-function onConvertTotalChange() {
-  const total = parseFloat(v('edit-convert-total')) || 0;
-  const n = editCtx.restantes || 1;
-  const pp = total / n;
-  el('edit-convert-hint').textContent =
-    `${n} parcela(s) restante(s) — ${fmt(pp)} por parcela`;
-  el('edit-valor').value = pp.toFixed(2);
-}
-
-function onEditValorChange() {
-  if (editCtx.tipo !== 'parcelada' || S.editScope !== 'next') return;
-  const pp = parseFloat(v('edit-valor')) || 0;
-  const n  = editCtx.restantes || 1;
-  el('edit-valor-hint').textContent =
-    `Total restante: ${fmt(pp * n)} (${n} parcela(s) × ${fmt(pp)})`;
 }
 
 function onEditStatusChange() {
