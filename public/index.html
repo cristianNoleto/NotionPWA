@@ -758,8 +758,8 @@ let S = {
   notif: localStorage.getItem('fin_notif') === 'true',
   type: 'unica',
   subtipo: 'parcelada',
-  sortBy: 'status',  // status | data | datapag | valor | nome
-  sortDir: 'asc',   // asc | desc
+  sortBy: 'status',
+  sortDir: 'desc',  // desc = mais recente primeiro (padrão)
   // contexto da despesa clicada
   activeItem: null, // { id, nome, valor, pago, obs, data, dataStr }
   editScope: 'this', // 'this' | 'next'
@@ -881,24 +881,63 @@ async function qDB(dbId, filter=null) {
 // MESES CACHE (dinâmico)
 // ═══════════════════════════════════════
 async function preloadMeses() {
-  const todos = await qDB(DB.meses);
-  // Coleta IDs das pages de Ano
-  const anoIds = [...new Set(todos.flatMap(m => m.properties.Ano?.relation?.map(r=>r.id)||[]))];
-  const anosMap = {};
-  await Promise.all(anoIds.map(async aid => {
+  // Tenta usar cache do localStorage para carregamento instantâneo
+  const cacheKey = 'fin_mesesCache_v2';
+  const cached = localStorage.getItem(cacheKey);
+  if (cached) {
     try {
-      const pg = await nReq(`pages/${aid}`);
-      const nome = Object.values(pg.properties||{}).find(p=>p.type==='title')?.title?.[0]?.plain_text || '';
-      const ano = parseInt(nome);
-      if (!isNaN(ano)) anosMap[aid] = ano;
+      const parsed = JSON.parse(cached);
+      // Usa cache se tiver dados e tiver menos de 1 hora
+      if (parsed.ts && Date.now() - parsed.ts < 3600000 && Object.keys(parsed.data||{}).length > 0) {
+        S.mesesCache = parsed.data;
+        // Atualiza em background sem bloquear
+        refreshMesesCacheBackground(cacheKey);
+        return;
+      }
     } catch {}
-  }));
-  for (const m of todos) {
-    const nomeMes = m.properties.Name?.title?.[0]?.plain_text?.trim() || '';
-    const idx = MESES.findIndex(n => n.toLowerCase() === nomeMes.toLowerCase());
-    const anoId = m.properties.Ano?.relation?.[0]?.id;
-    const ano = anosMap[anoId];
-    if (idx !== -1 && ano) S.mesesCache[`${ano}-${idx}`] = m.id;
+  }
+  await fetchAndCacheMeses(cacheKey);
+}
+
+async function refreshMesesCacheBackground(cacheKey) {
+  try { await fetchAndCacheMeses(cacheKey); } catch {}
+}
+
+async function fetchAndCacheMeses(cacheKey) {
+  try {
+    const todos = await qDB(DB.meses);
+    const anoIds = [...new Set(todos.flatMap(m => m.properties.Ano?.relation?.map(r=>r.id)||[]))];
+    const anosMap = {};
+
+    // Busca anos em paralelo com timeout de 8s total
+    const timeout = new Promise(res => setTimeout(res, 8000));
+    await Promise.race([
+      Promise.all(anoIds.map(async aid => {
+        try {
+          const pg = await nReq(`pages/${aid}`);
+          const nome = Object.values(pg.properties||{}).find(p=>p.type==='title')?.title?.[0]?.plain_text || '';
+          const ano = parseInt(nome);
+          if (!isNaN(ano)) anosMap[aid] = ano;
+        } catch {}
+      })),
+      timeout
+    ]);
+
+    const newCache = {};
+    for (const m of todos) {
+      const nomeMes = m.properties.Name?.title?.[0]?.plain_text?.trim() || '';
+      const idx = MESES.findIndex(n => n.toLowerCase() === nomeMes.toLowerCase());
+      const anoId = m.properties.Ano?.relation?.[0]?.id;
+      const ano = anosMap[anoId];
+      if (idx !== -1 && ano) newCache[`${ano}-${idx}`] = m.id;
+    }
+
+    if (Object.keys(newCache).length > 0) {
+      S.mesesCache = newCache;
+      localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data: newCache }));
+    }
+  } catch(e) {
+    console.warn('preloadMeses error:', e);
   }
 }
 async function getMesId(month, year) {
@@ -1738,7 +1777,8 @@ async function initApp() {
   renderMonthLabel();
   el('settings-limit-display').textContent=fmt(S.limit);
   el('settings-limit-input').value=S.limit;
-  showToast('Sincronizando...','info');
+  // Inicia carregamento dos meses e dos dados em paralelo
+  // preloadMeses usa cache local — retorna rápido na maioria das vezes
   await preloadMeses();
   await loadMes();
 }
