@@ -1399,14 +1399,14 @@ async function saveEdit() {
       const nomeAtual = d.properties.Nome?.title?.[0]?.plain_text||'';
       const total = futuros.length;
 
-      // Monta nome baseado no tipo NOVO (pode ter convertido)
+      // Mantém o mesmo tipo da despesa original (∞ ou X/Y)
       let novoNome;
-      if (tipoNovo === 'recorrente') {
+      if (isRec) {
         novoNome = `${novoBase} ∞`;
-      } else if (tipoNovo === 'parcelada') {
-        novoNome = `${novoBase} ${i+1}/${total}`;
       } else {
-        novoNome = novoBase;
+        // Extrai sufixo original ex: "3/12" e reconstrói com novo base
+        const sufMatch = nomeAtual.match(/(\d+\/\d+)$/);
+        novoNome = sufMatch ? `${novoBase} ${sufMatch[1]}` : novoBase;
       }
 
       // Data da despesa: propaga o mesmo dia digitado no form para meses subsequentes
