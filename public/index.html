@@ -556,7 +556,27 @@ select.form-input{cursor:pointer}
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Editar <span id="edit-scope-label">lançamento</span></div>
-    <div class="modal-sub" id="edit-sub"></div>
+
+    <!-- RESUMO FINANCEIRO (só aparece para parceladas/recorrentes em lote) -->
+    <div id="edit-summary" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;display:none;flex-direction:column;gap:.4rem">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.78rem;color:var(--accent)" id="edit-summary-tipo"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem .5rem;font-size:.72rem" id="edit-summary-grid"></div>
+    </div>
+
+    <!-- CONVERSÃO DE TIPO (parcelada ↔ recorrente) -->
+    <div id="edit-convert-wrap" style="display:none">
+      <div class="form-label" style="margin-bottom:.35rem">Tipo da despesa</div>
+      <div class="type-sel" style="grid-template-columns:1fr 1fr">
+        <div class="type-btn" data-etype="parcelada" onclick="setEditTipo('parcelada')">📦 Parcelada<br><span style="font-size:.6rem;font-weight:400">valor total ÷ parcelas</span></div>
+        <div class="type-btn" data-etype="recorrente" onclick="setEditTipo('recorrente')">🔁 Recorrente<br><span style="font-size:.6rem;font-weight:400">mesmo valor por mês</span></div>
+      </div>
+      <!-- campo extra ao converter de recorrente→parcelada: total restante -->
+      <div id="edit-convert-total-wrap" style="display:none;margin-top:.6rem">
+        <div class="form-label">Valor total das parcelas restantes (R$)</div>
+        <input type="number" class="form-input" id="edit-convert-total" placeholder="0,00" step="0.01" oninput="onConvertTotalChange()">
+        <div style="font-size:.62rem;color:var(--muted2);margin-top:.2rem" id="edit-convert-hint"></div>
+      </div>
+    </div>
 
     <div class="form-field">
       <div class="form-label">Nome</div>
@@ -565,8 +585,8 @@ select.form-input{cursor:pointer}
 
     <div class="form-row">
       <div class="form-field">
-        <div class="form-label">Valor (R$)</div>
-        <input type="number" class="form-input" id="edit-valor" step="0.01">
+        <div class="form-label" id="edit-valor-lbl">Valor (R$)</div>
+        <input type="number" class="form-input" id="edit-valor" step="0.01" oninput="onEditValorChange()">
       </div>
       <div class="form-field">
         <div class="form-label">Status</div>
@@ -576,6 +596,8 @@ select.form-input{cursor:pointer}
         </select>
       </div>
     </div>
+    <!-- hint de valor restante para parceladas -->
+    <div id="edit-valor-hint" style="font-size:.68rem;color:var(--muted2);margin-top:-.5rem;display:none"></div>
 
     <div class="form-row">
       <div class="form-field">
@@ -939,17 +961,26 @@ function renderStats(desp, ganh) {
 }
 
 function setSort(by) {
-  S.sortBy = by;
-  document.querySelectorAll('.sort-btn[data-sort]').forEach(b=>b.classList.toggle('active',b.dataset.sort===by));
+  if (S.sortBy === by) {
+    // Já está ativo: inverte direção
+    S.sortDir = S.sortDir==='desc'?'asc':'desc';
+  } else {
+    S.sortBy = by;
+    // Padrão: mais recente primeiro (desc) exceto nome (asc)
+    S.sortDir = by==='nome' ? 'asc' : 'desc';
+  }
+  document.querySelectorAll('.sort-btn[data-sort]').forEach(b=>b.classList.toggle('active',b.dataset.sort===S.sortBy));
+  updateSortDirBtn();
   renderDespesas(S.despesas);
 }
 
-function toggleSortDir() {
-  S.sortDir = S.sortDir==='asc'?'desc':'asc';
+function updateSortDirBtn() {
   const btn = el('sort-dir-btn');
-  btn.textContent = S.sortDir==='asc'?'↑ Cresc':'↓ Decresc';
-  btn.classList.toggle('active', S.sortDir==='desc');
-  renderDespesas(S.despesas);
+  if (S.sortBy==='status') {
+    btn.textContent = S.sortDir==='desc' ? '↓ Recente' : '↑ Antiga';
+  } else {
+    btn.textContent = S.sortDir==='desc' ? '↓ Maior' : '↑ Menor';
+  }
 }
 
 function renderItem(d) {
@@ -979,23 +1010,23 @@ function renderDespesas(desp) {
   const list = el('despesas-list');
   if (!desp.length) { list.innerHTML='<div class="empty"><div class="empty-icon">📭</div>Nenhuma despesa neste mês</div>'; return; }
 
-  const mul = S.sortDir==='asc' ? 1 : -1;
-
   function sortFn(a, b) {
     const pa = a.properties.Pago?.select?.name==='Sim';
     const pb = b.properties.Pago?.select?.name==='Sim';
+    const mul = S.sortDir==='desc' ? -1 : 1;
     if (S.sortBy==='status') {
-      if (pa !== pb) return pa ? 1 : -1; // pagas sempre por último
-      // dentro do mesmo grupo: ordena por data relevante asc
-      if (pa) {
-        const da = a.properties['Data de Pagamento']?.date?.start||'';
-        const db = b.properties['Data de Pagamento']?.date?.start||'';
-        return da.localeCompare(db);
-      } else {
+      // Padrão: pagas sempre por último independente de direção
+      if (pa !== pb) return pa ? 1 : -1;
+      // Dentro do grupo pendentes: mais recente primeiro (desc)
+      if (!pa) {
         const da = a.properties['Data da Despesa']?.date?.start||'';
         const db = b.properties['Data da Despesa']?.date?.start||'';
-        return da.localeCompare(db);
+        return db.localeCompare(da) * (S.sortDir==='desc'?1:-1);
       }
+      // Dentro do grupo pagas: mais recente primeiro
+      const da = a.properties['Data de Pagamento']?.date?.start||'';
+      const db = b.properties['Data de Pagamento']?.date?.start||'';
+      return db.localeCompare(da) * (S.sortDir==='desc'?1:-1);
     }
     if (S.sortBy==='data') {
       const da = a.properties['Data da Despesa']?.date?.start||'';
@@ -1151,7 +1182,8 @@ async function criarDespesas() {
   for (let i=0; i<parcelas.length; i++) {
     const p = parcelas[i];
     const mesId = await getMesId(p.data.getMonth(), p.data.getFullYear());
-    const obsPartes = [obs, comprovante ? `Comprovante: ${comprovante}` : '', S.subtipo==='recorrente'?'[rec]':''].filter(Boolean);
+    const subtipoFinal = S.editScope==='next' ? editCtx.tipo : (S.activeItem?.nome?.endsWith('∞') ? 'recorrente' : 'unica');
+    const obsPartes = [obs, comprovante ? `Comprovante: ${comprovante}` : '', subtipoFinal==='recorrente'?'[rec]':''].filter(Boolean);
     const obsText = obsPartes.join(' | ');
     const props = {
       Nome:{title:[{text:{content:p.nome}}]},
@@ -1216,15 +1248,96 @@ function openEditNext() {
   S.editScope = 'next';
   prepareEditModal();
 }
-function prepareEditModal() {
-  const item = S.activeItem;
-  el('edit-scope-label').textContent = S.editScope==='this' ? 'lançamento' : 'este e os próximos';
-  el('edit-sub').textContent = S.editScope==='this'
-    ? `Editando apenas: ${item.nome}`
-    : `Editando este e todos os lançamentos futuros com o mesmo nome`;
+// Estado do editor em lote
+let editCtx = {
+  tipo: 'unica',       // 'unica' | 'parcelada' | 'recorrente'
+  futuros: [],         // despesas futuras do grupo
+  pagas: [],           // despesas já pagas do grupo
+  totalOriginal: 0,
+  totalPago: 0,
+  restantes: 0,
+};
 
-  // Preenche todos os campos com dados atuais
-  el('edit-nome').value      = item.nome;
+async function prepareEditModal() {
+  const item = S.activeItem;
+  const isLote = S.editScope === 'next';
+
+  el('edit-scope-label').textContent = isLote ? 'este e os próximos' : 'lançamento';
+
+  // Detecta tipo pelo nome
+  const nomeRec = item.nome.endsWith('∞');
+  const nomeParc = /\d+\/\d+$/.test(item.nome);
+  editCtx.tipo = nomeRec ? 'recorrente' : nomeParc ? 'parcelada' : 'unica';
+
+  // Reset UI
+  el('edit-summary').style.display = 'none';
+  el('edit-convert-wrap').style.display = 'none';
+  el('edit-valor-hint').style.display = 'none';
+  el('edit-valor-lbl').textContent = 'Valor (R$)';
+
+  if (isLote && editCtx.tipo !== 'unica') {
+    // Busca todas as despesas do grupo para calcular resumo
+    const nomeBase = getNomeBase(item.nome);
+    const isRec = editCtx.tipo === 'recorrente';
+    el('edit-summary').style.display = 'flex';
+    el('edit-summary-tipo').textContent = '⏳ Buscando dados do grupo...';
+
+    const todos = await qDB(DB.despesas, { property: 'Nome', title: { contains: nomeBase } });
+    const doMesmoTipo = todos.filter(d => {
+      const n = d.properties.Nome?.title?.[0]?.plain_text || '';
+      return isRec ? n.endsWith('∞') : /\d+\/\d+$/.test(n);
+    });
+
+    const pagos    = doMesmoTipo.filter(d => d.properties.Pago?.select?.name === 'Sim');
+    const futuros  = doMesmoTipo.filter(d => {
+      const ds = d.properties['Data da Despesa']?.date?.start || '';
+      return ds >= item.dataStr;
+    }).sort((a,b) => (a.properties['Data da Despesa']?.date?.start||'').localeCompare(b.properties['Data da Despesa']?.date?.start||''));
+
+    const totalPago     = pagos.reduce((s,d) => s + (d.properties.Total?.number||0), 0);
+    const totalRestante = futuros.reduce((s,d) => s + (d.properties.Total?.number||0), 0);
+    const totalOriginal = totalPago + totalRestante;
+
+    editCtx.futuros       = futuros;
+    editCtx.pagas         = pagos;
+    editCtx.totalOriginal = totalOriginal;
+    editCtx.totalPago     = totalPago;
+    editCtx.restantes     = futuros.length;
+
+    // Monta resumo visual
+    const tipoLabel = isRec ? '🔁 Recorrente' : '📦 Parcelada';
+    el('edit-summary-tipo').textContent = tipoLabel + ' — ' + nomeBase;
+
+    if (isRec) {
+      el('edit-summary-grid').innerHTML = `
+        <span style="color:var(--muted2)">Meses restantes</span><span style="color:var(--text);font-weight:600">${futuros.length}</span>
+        <span style="color:var(--muted2)">Valor mensal atual</span><span style="color:var(--text);font-weight:600">${fmt(item.valor)}</span>
+        <span style="color:var(--muted2)">Total restante</span><span style="color:var(--accent3);font-weight:600">${fmt(totalRestante)}</span>`;
+      el('edit-valor-lbl').textContent = 'Novo valor mensal (R$)';
+    } else {
+      // Extrai total de parcelas do sufixo ex: "3/12" → total=12
+      const sufMatch = item.nome.match(/(\d+)\/(\d+)$/);
+      const totalParcelas = sufMatch ? parseInt(sufMatch[2]) : doMesmoTipo.length;
+      const parcPagas = pagos.length;
+      el('edit-summary-grid').innerHTML = `
+        <span style="color:var(--muted2)">Total original</span><span style="color:var(--text);font-weight:600">${fmt(totalOriginal)}</span>
+        <span style="color:var(--muted2)">Parcelas pagas</span><span style="color:var(--accent3);font-weight:600">${parcPagas}/${totalParcelas} — ${fmt(totalPago)}</span>
+        <span style="color:var(--muted2)">Parcelas restantes</span><span style="color:var(--text);font-weight:600">${futuros.length} parcela(s)</span>
+        <span style="color:var(--muted2)">Restante a pagar</span><span style="color:var(--accent2);font-weight:700">${fmt(totalRestante)}</span>`;
+      el('edit-valor-lbl').textContent = 'Novo valor por parcela (R$)';
+      el('edit-valor-hint').style.display = 'block';
+      el('edit-valor-hint').textContent = `Alterando o valor, o total restante será recalculado automaticamente`;
+    }
+
+    // Mostra conversão de tipo
+    el('edit-convert-wrap').style.display = 'block';
+    document.querySelectorAll('.type-btn[data-etype]').forEach(b =>
+      b.classList.toggle('active', b.dataset.etype === editCtx.tipo)
+    );
+  }
+
+  // Preenche campos básicos
+  el('edit-nome').value      = getNomeBase(item.nome);
   el('edit-valor').value     = item.valor;
   el('edit-pago').value      = item.pago === 'Sim' ? 'Sim' : 'Não';
   el('edit-data').value      = item.dataStr;
@@ -1232,20 +1345,52 @@ function prepareEditModal() {
   el('edit-cat').value       = item.catId;
   el('edit-conta').value     = item.contaId;
   el('edit-orcamento').value = item.orcId;
+  el('edit-datapag-wrap').style.display = item.pago === 'Sim' ? 'block' : 'none';
 
-  // Separa comprovante e obs da observação combinada
+  // Separa comprovante e obs
   const obsRaw = item.obs || '';
   const compMatch = obsRaw.match(/Comprovante:\s*(https?:\/\/\S+)/);
-  const comprovante = compMatch ? compMatch[1] : '';
-  const obsLimpa = obsRaw.replace(/\s*\|\s*Comprovante:\s*https?:\/\/\S+/, '').replace(/\s*\|\s*\[rec\]/, '').replace(/\[rec\]/, '').trim();
-  el('edit-comprovante').value = comprovante;
-  el('edit-obs').value = obsLimpa;
-
-  // Mostra/esconde data de pagamento conforme status
-  el('edit-datapag-wrap').style.display = item.pago==='Sim' ? 'block' : 'none';
+  el('edit-comprovante').value = compMatch ? compMatch[1] : '';
+  el('edit-obs').value = obsRaw
+    .replace(/\s*\|\s*Comprovante:\s*https?:\/\/\S+/, '')
+    .replace(/\s*\|\s*\[rec\]/, '').replace(/\[rec\]/, '').trim();
 
   closeModal('modal-actions');
   openModal('modal-edit');
+}
+
+function setEditTipo(tipo) {
+  editCtx.tipo = tipo;
+  document.querySelectorAll('.type-btn[data-etype]').forEach(b =>
+    b.classList.toggle('active', b.dataset.etype === tipo)
+  );
+  if (tipo === 'parcelada') {
+    el('edit-valor-lbl').textContent = 'Novo valor por parcela (R$)';
+    el('edit-convert-total-wrap').style.display = 'block';
+    el('edit-convert-hint').textContent =
+      `${editCtx.restantes} parcela(s) restante(s) — digite o valor total e o valor por parcela será calculado`;
+    onConvertTotalChange();
+  } else {
+    el('edit-valor-lbl').textContent = 'Novo valor mensal (R$)';
+    el('edit-convert-total-wrap').style.display = 'none';
+  }
+}
+
+function onConvertTotalChange() {
+  const total = parseFloat(v('edit-convert-total')) || 0;
+  const n = editCtx.restantes || 1;
+  const pp = total / n;
+  el('edit-convert-hint').textContent =
+    `${n} parcela(s) restante(s) — ${fmt(pp)} por parcela`;
+  el('edit-valor').value = pp.toFixed(2);
+}
+
+function onEditValorChange() {
+  if (editCtx.tipo !== 'parcelada' || S.editScope !== 'next') return;
+  const pp = parseFloat(v('edit-valor')) || 0;
+  const n  = editCtx.restantes || 1;
+  el('edit-valor-hint').textContent =
+    `Total restante: ${fmt(pp * n)} (${n} parcela(s) × ${fmt(pp)})`;
 }
 
 function onEditStatusChange() {
@@ -1348,11 +1493,17 @@ async function saveEdit() {
     for (let i=0; i<futuros.length; i++) {
       const d = futuros[i];
       const nomeAtual = d.properties.Nome?.title?.[0]?.plain_text||'';
+      const total = futuros.length;
 
-      // Extrai APENAS o sufixo numérico (ex: "1/2", "∞") do nome original
-      const sufixoMatch = nomeAtual.match(/(\d+\/\d+|∞)$/);
-      const sufixo = sufixoMatch ? sufixoMatch[1] : '';
-      const novoNome = sufixo ? `${novoBase} ${sufixo}` : novoBase;
+      // Monta nome baseado no tipo NOVO (pode ter convertido)
+      let novoNome;
+      if (tipoNovo === 'recorrente') {
+        novoNome = `${novoBase} ∞`;
+      } else if (tipoNovo === 'parcelada') {
+        novoNome = `${novoBase} ${i+1}/${total}`;
+      } else {
+        novoNome = novoBase;
+      }
 
       // Data da despesa: propaga o mesmo dia digitado no form para meses subsequentes
       const dataOriginal = calcDataPag(data, i);  // data do form + i meses, mesmo dia
