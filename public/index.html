@@ -1010,7 +1010,7 @@ function renderItem(d) {
   const df      = data ? new Date(data+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : '—';
   const dfPag   = dataPag ? new Date(dataPag+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : null;
   const isRec   = nome.endsWith('∞');
-  const metaLabel = pago && dfPag ? `✓ Pago em ${dfPag}` : `⏳ A pagar · ${df}`;
+  const metaLabel = pago ? (dfPag ? `✓ Pago em ${dfPag}` : `✓ Pago`) : `⏳ A pagar · Despesa criada em ${df}`;
   return `<div class="expense-item" onclick="openActions('${d.id}')">
     <div class="exp-info">
       <div class="exp-name">${nome}</div>
