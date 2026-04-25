@@ -210,14 +210,15 @@ select.form-input{cursor:pointer}
 .toggle.on::after{transform:translateX(17px)}
 
 /* SORT BAR */
-.sort-bar{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
-.sort-btn{font-size:.62rem;padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--muted2);cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;white-space:nowrap;transition:all .15s}
+.sort-bar{display:flex;align-items:center;gap:.35rem;flex-wrap:wrap}
+.sort-btn{display:flex;align-items:center;gap:.3rem;font-size:.62rem;padding:4px 9px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--muted2);cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;white-space:nowrap;transition:all .15s;user-select:none}
+.sort-btn:hover{border-color:var(--muted);color:var(--text)}
 .sort-btn.active{background:var(--accent);color:#000;border-color:var(--accent)}
-.sort-dir{font-size:.7rem;padding:3px 7px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--muted2);cursor:pointer;transition:all .15s}
-.sort-dir.active{border-color:var(--accent);color:var(--accent)}
-.exp-val.paid{color:var(--accent3)}
-.exp-val.unpaid{color:var(--accent2)}
-.exp-datapag{font-size:.6rem;color:var(--accent3);margin-top:1px}
+.sort-btn .sort-arrow{font-size:.7rem;transition:transform .2s}
+.exp-val.paid{color:var(--accent3);cursor:help;position:relative}
+.exp-val.unpaid{color:var(--accent2);cursor:help;position:relative}
+.val-tooltip{position:absolute;right:0;top:-28px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:.6rem;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:10;font-family:'DM Mono',monospace}
+.exp-val:hover .val-tooltip{opacity:1}
 .divider-pagas{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:.5rem .25rem .15rem;font-family:'Syne',sans-serif;font-weight:700;border-top:1px solid var(--border);margin-top:.25rem}
 
 /* TOAST */
@@ -319,11 +320,11 @@ select.form-input{cursor:pointer}
 
       <!-- SORT BAR -->
       <div class="sort-bar" id="sort-bar">
-        <div class="sort-chip active" data-sort="status" onclick="setSort('status')">Pagas por último <span class="sort-arrow" id="arr-status">↑</span></div>
-        <div class="sort-chip" data-sort="data" onclick="setSort('data')">Data despesa <span class="sort-arrow" id="arr-data">↑</span></div>
-        <div class="sort-chip" data-sort="datapag" onclick="setSort('datapag')">Data pagamento <span class="sort-arrow" id="arr-datapag">↑</span></div>
-        <div class="sort-chip" data-sort="valor" onclick="setSort('valor')">Valor <span class="sort-arrow" id="arr-valor">↑</span></div>
-        <div class="sort-chip" data-sort="nome" onclick="setSort('nome')">Nome <span class="sort-arrow" id="arr-nome">↑</span></div>
+        <div class="sort-btn active" data-sort="status" onclick="setSort('status')">Padrão <span class="sort-arrow">↓</span></div>
+        <div class="sort-btn" data-sort="data" onclick="setSort('data')">Data <span class="sort-arrow">↓</span></div>
+        <div class="sort-btn" data-sort="datapag" onclick="setSort('datapag')">Pgto <span class="sort-arrow">↓</span></div>
+        <div class="sort-btn" data-sort="valor" onclick="setSort('valor')">Valor <span class="sort-arrow">↓</span></div>
+        <div class="sort-btn" data-sort="nome" onclick="setSort('nome')">Nome <span class="sort-arrow">↓</span></div>
       </div>
 
       <div id="despesas-list" class="expense-list">
@@ -1006,18 +1007,19 @@ function renderItem(d) {
   const pago    = d.properties.Pago?.select?.name==='Sim';
   const data    = d.properties['Data da Despesa']?.date?.start||'';
   const dataPag = d.properties['Data de Pagamento']?.date?.start||'';
-  const catId   = d.properties.Categoria?.relation?.[0]?.id||'';
-  const cor     = CAT_COLORS[catId]||'var(--muted)';
   const df      = data ? new Date(data+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : '—';
   const dfPag   = dataPag ? new Date(dataPag+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : null;
   const isRec   = nome.endsWith('∞');
+  const metaLabel = pago && dfPag ? `✓ Pago em ${dfPag}` : `⏳ A pagar · ${df}`;
   return `<div class="expense-item" onclick="openActions('${d.id}')">
-    <div class="cat-dot" style="background:${cor}"></div>
     <div class="exp-info">
       <div class="exp-name">${nome}</div>
-      <div class="exp-meta">${pago && dfPag ? `✓ Pago em ${dfPag}` : `Despesa: ${df}`}</div>
+      <div class="exp-meta">${metaLabel}</div>
     </div>
-    <div class="exp-val ${pago?'paid':'unpaid'}">${fmt(valor)}</div>
+    <div class="exp-val ${pago?'paid':'unpaid'}" style="position:relative">
+      ${fmt(valor)}
+      <div class="val-tooltip">${pago ? '✓ Já pago' : '⏳ Aguardando pagamento'}</div>
+    </div>
     ${isRec?'<div class="badge b-rec">∞</div>':''}
   </div>`;
 }
