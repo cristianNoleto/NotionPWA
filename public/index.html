@@ -293,6 +293,11 @@ select.form-input{cursor:pointer}
     </div>
   </header>
 
+  <div class="tab-switcher" id="tab-switcher">
+    <button class="tab-sw-btn active" data-tab="dashboard" onclick="switchAppTab('dashboard')">📊 Dashboard</button>
+    <button class="tab-sw-btn" data-tab="despesas" onclick="switchAppTab('despesas')">💳 Despesas</button>
+    <button class="tab-sw-btn" data-tab="ganhos" onclick="switchAppTab('ganhos')">💰 Ganhos</button>
+  </div>
   <div class="content">
 
     <!-- DASHBOARD -->
@@ -419,11 +424,6 @@ select.form-input{cursor:pointer}
   </div>
 
   <!-- TAB SWITCHER -->
-  <div class="tab-switcher">
-    <button class="tab-sw-btn active" data-tab="dashboard" onclick="switchAppTab('dashboard')">📊 Dashboard</button>
-    <button class="tab-sw-btn" data-tab="despesas" onclick="switchAppTab('despesas')">💳 Despesas</button>
-    <button class="tab-sw-btn" data-tab="ganhos" onclick="switchAppTab('ganhos')">💰 Ganhos</button>
-  </div>
 
   <!-- Menu de ações (aparece ao clicar no + central) -->
   <div class="nav-actions-menu" id="nav-actions-menu">
@@ -1619,6 +1619,11 @@ async function saveToken() {
   closeModal('modal-token');
   showToast('Token atualizado!','success');
   await preloadMeses(); loadMes();
+
+  // Nav buttons
+  document.querySelectorAll('.nav-btn[data-nav]').forEach(btn=>{
+    btn.addEventListener('click',()=>switchNav(btn.dataset.nav));
+  });
 }
 
 // ═══════════════════════════════════════
@@ -1692,15 +1697,7 @@ function showToast(txt, type='success') {
 // ═══════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════
-document.querySelectorAll('.nav-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const page=btn.dataset.page;
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    el(`page-${page}`).classList.add('active');
-    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b===btn));
-    closeActionsMenu();
-  });
-});
+// nav handled by switchNav()
 
 function toggleActionsMenu() {
   const menu = el('nav-actions-menu');
