@@ -61,7 +61,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-
 .mnav-btn{background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);width:26px;height:26px;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .mnav-btn:hover{border-color:var(--accent);color:var(--accent)}
 .month-label{font-family:'Syne',sans-serif;font-weight:700;font-size:.78rem;min-width:105px;text-align:center}
-.content{padding:1.25rem;padding-bottom:7rem}
+.content{padding:1.25rem;display:flex;flex-direction:column;gap:1.1rem;padding-bottom:7rem}
 .page{display:none}.page.active{display:flex;flex-direction:column;gap:1.1rem}
 
 /* ALERT */
@@ -234,7 +234,7 @@ select.form-input{cursor:pointer}
 .toast.error{border-color:var(--accent2);color:var(--accent2)}
 .toast.warning{border-color:#f0a44a;color:#f0a44a}
 .toast.info{border-color:var(--accent);color:var(--accent)}
-.tab-page{display:none !important}.tab-page.active{display:flex !important;flex-direction:column;gap:1.1rem}</style>
+</style>
 </head>
 <body>
 
@@ -293,15 +293,10 @@ select.form-input{cursor:pointer}
     </div>
   </header>
 
-  <div class="tab-switcher" id="tab-switcher">
-    <button class="tab-sw-btn active" data-tab="dashboard" onclick="switchAppTab('dashboard')">📊 Dashboard</button>
-    <button class="tab-sw-btn" data-tab="despesas" onclick="switchAppTab('despesas')">💳 Despesas</button>
-    <button class="tab-sw-btn" data-tab="ganhos" onclick="switchAppTab('ganhos')">💰 Ganhos</button>
-  </div>
   <div class="content">
 
     <!-- DASHBOARD -->
-    <div class="tab-page active" id="tab-dashboard">
+    <div class="page active" id="page-dashboard">
       <div id="limit-alert" class="limit-alert" style="display:none">
         <div style="font-size:1.2rem">⚠️</div>
         <div>
@@ -311,9 +306,9 @@ select.form-input{cursor:pointer}
       </div>
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-label">Gastos</div><div class="stat-value negative" id="stat-despesas">—</div></div>
-        <div class="stat-card"><div class="stat-label">Ganhos recebidos</div><div class="stat-value positive" id="stat-ganhos">—</div></div>
+        <div class="stat-card"><div class="stat-label">Ganhos</div><div class="stat-value positive" id="stat-ganhos">—</div></div>
         <div class="stat-card"><div class="stat-label">Saldo</div><div class="stat-value neutral" id="stat-saldo">—</div></div>
-        <div class="stat-card"><div class="stat-label">A pagar ainda</div><div class="stat-value" style="color:#f0a44a" id="stat-apagar">—</div><div class="stat-sub" id="stat-apagar-sub"></div></div>
+        <div class="stat-card"><div class="stat-label">Lançamentos</div><div class="stat-value neutral" id="stat-itens">—</div></div>
       </div>
       <div class="limit-section">
         <div class="limit-header">
@@ -323,31 +318,9 @@ select.form-input{cursor:pointer}
         <div class="bar-bg"><div class="bar-fill" id="limit-bar" style="width:0%"></div></div>
         <div class="limit-sub" id="limit-sub"></div>
       </div>
-      <!-- INSIGHTS -->
-      <div class="dash-section">
-        <div class="dash-title">Insights do mês</div>
-        <div class="insight-grid">
-          <div class="insight-card"><div class="insight-label">Maior gasto</div><div class="insight-value" id="insight-maior-val">—</div><div class="insight-sub" id="insight-maior-nome"></div></div>
-          <div class="insight-card"><div class="insight-label">Dias restantes</div><div class="insight-value" id="insight-dias">—</div><div class="insight-sub" id="insight-projecao"></div></div>
-          <div class="insight-card"><div class="insight-label">Vs mês anterior</div><div class="insight-value" id="insight-cmp-val">—</div><div class="insight-sub" id="insight-cmp-sub"></div></div>
-          <div class="insight-card"><div class="insight-label">Média por dia</div><div class="insight-value" id="insight-media">—</div><div class="insight-sub" id="insight-media-sub"></div></div>
-        </div>
-      </div>
-      <!-- GASTOS POR CATEGORIA -->
-      <div class="dash-section">
-        <div class="dash-title">Gastos por categoria</div>
-        <div id="cat-bars"><div class="loading"><div class="spinner"></div> Calculando...</div></div>
-      </div>
-    </div>
-
-    <!-- ══ DESPESAS TAB ══ -->
-    <div class="tab-page" id="tab-despesas">
-
-      <!-- Search -->
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input type="text" class="search-input" id="desp-search" placeholder="Buscar despesa..." oninput="filterDespesas()">
-        <span class="search-clear" id="desp-search-clear" onclick="clearDespSearch()">✕</span>
+      <div class="section-header">
+        <div class="section-title">Despesas do mês</div>
+        <div class="section-badge" id="despesas-count">0</div>
       </div>
 
       <!-- SORT BAR -->
@@ -364,28 +337,8 @@ select.form-input{cursor:pointer}
       </div>
     </div>
 
-    <!-- ══ GANHOS TAB ══ -->
-    <div class="tab-page" id="tab-ganhos">
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input type="text" class="search-input" id="ganh-search" placeholder="Buscar ganho..." oninput="filterGanhos()">
-        <span class="search-clear" id="ganh-search-clear" onclick="clearGanhSearch()">✕</span>
-      </div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">Total recebido</div><div class="stat-value positive" id="ganh-recebido">—</div></div>
-        <div class="stat-card"><div class="stat-label">A receber</div><div class="stat-value" style="color:#f0a44a" id="ganh-areceber">—</div></div>
-      </div>
-      <div class="section-header">
-        <div class="section-title">Ganhos do mês</div>
-        <div class="section-badge" id="ganhos-count">0</div>
-      </div>
-      <div id="ganhos-list" class="expense-list">
-        <div class="loading"><div class="spinner"></div> Carregando...</div>
-      </div>
-    </div>
-
     <!-- SETTINGS -->
-    <div class="tab-page" id="tab-settings">
+    <div class="page" id="page-settings">
       <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem">Configurações</div>
       <div class="settings-section">
         <div class="settings-label">Conta</div>
@@ -423,13 +376,10 @@ select.form-input{cursor:pointer}
 
   </div>
 
-  <!-- TAB SWITCHER -->
-
   <!-- Menu de ações (aparece ao clicar no + central) -->
   <div class="nav-actions-menu" id="nav-actions-menu">
     <button class="nav-action-btn nav-action-del" onclick="closeActionsMenu();openModal('modal-delete')">🗑 Excluir</button>
-    <button class="nav-action-btn nav-action-ganh" onclick="closeActionsMenu();openModal('modal-ganho')">💰 Ganho</button>
-    <button class="nav-action-btn nav-action-add" onclick="closeActionsMenu();openModal('modal-despesa')">+ Despesa</button>
+    <button class="nav-action-btn nav-action-add" onclick="closeActionsMenu();openModal('modal-despesa')">+ Adicionar</button>
   </div>
 
   <nav class="bottom-nav">
@@ -577,20 +527,6 @@ select.form-input{cursor:pointer}
     <div class="warn-box" id="limit-warn">⚠️ Esta despesa vai ultrapassar o limite de <span id="lw-val"></span> no mês atual!</div>
     <button class="btn btn-accent" id="salvar-btn" onclick="criarDespesas()">Criar no Notion</button>
     <button class="btn btn-ghost" onclick="closeModal('modal-despesa')">Cancelar</button>
-  </div>
-</div>
-
-<!-- ══ MODAL: AÇÕES GANHO ══ -->
-<div class="modal-overlay" id="modal-actions-ganho">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="ganh-action-title">Ganho</div>
-    <div class="modal-sub" id="ganh-action-sub"></div>
-    <div class="action-list">
-      <div class="action-item" onclick="marcarRecebido()"><div class="action-item-title" id="ganh-toggle-label">✅ Marcar como recebido</div><div class="action-item-sub">Atualiza o status no Notion</div></div>
-      <div class="action-item action-warn" onclick="excluirGanho()"><div class="action-item-title">🗑 Excluir este ganho</div><div class="action-item-sub">Remove do Notion</div></div>
-    </div>
-    <button class="btn btn-ghost" onclick="closeModal('modal-actions-ganho')">Cancelar</button>
   </div>
 </div>
 
@@ -1005,18 +941,6 @@ async function getMesId(month, year) {
 // ═══════════════════════════════════════
 // LOAD DATA
 // ═══════════════════════════════════════
-async function loadMesAnterior(desp, ganh) {
-  let m=S.month-1, y=S.year;
-  if(m<0){m=11;y--;}
-  const mesId=await getMesId(m,y);
-  if(!mesId)return;
-  try{
-    const d=await qDB(DB.despesas,{property:'Mês',relation:{contains:mesId}});
-    window._despesasMesAnterior=d;
-    renderInsights(desp,ganh);
-  }catch(e){}
-}
-
 async function loadMes() {
   const mesId = await getMesId(S.month, S.year);
   if (!mesId) { renderDespesas([]); renderStats([],[]); showToast(`Mês não encontrado no Notion`,'warning'); return; }
@@ -1025,9 +949,7 @@ async function loadMes() {
   try {
     const [desp, ganh] = await Promise.all([qDB(DB.despesas,filter), qDB(DB.ganhos,gFilter)]);
     S.despesas = desp; S.ganhos = ganh;
-    renderDespesas(desp); renderGanhos(ganh); renderStats(desp, ganh);
-    // Carrega mês anterior para comparação (async)
-    loadMesAnterior(desp, ganh);
+    renderDespesas(desp); renderStats(desp, ganh);
   } catch(e) { console.error(e); showToast('Erro ao carregar','error'); }
 }
 
@@ -1053,12 +975,9 @@ function renderStats(desp, ganh) {
   const alertEl = el('limit-alert');
   if (td>S.limit) {
     alertEl.style.display='flex';
-    el('limit-alert-sub').textContent=`Você gastou ${fmt(td-S.limit)} a mais que o limite.`;
+    el('limit-alert-sub').textContent=`Você gastou ${fmt(td-S.limit)} a mais.`;
     if (S.notif) pushNotif(td);
   } else alertEl.style.display='none';
-  // Render dashboard extras
-  renderInsights(desp, ganh);
-  renderCatBars(desp);
 }
 
 function setSort(by) {
@@ -1619,11 +1538,6 @@ async function saveToken() {
   closeModal('modal-token');
   showToast('Token atualizado!','success');
   await preloadMeses(); loadMes();
-
-  // Nav buttons
-  document.querySelectorAll('.nav-btn[data-nav]').forEach(btn=>{
-    btn.addEventListener('click',()=>switchNav(btn.dataset.nav));
-  });
 }
 
 // ═══════════════════════════════════════
@@ -1663,7 +1577,6 @@ function openModal(id) {
     el('f-data').value=new Date().toISOString().split('T')[0];
     setType('unica');
   }
-  if(id==='modal-ganho'){if(el('g-data'))el('g-data').value=new Date().toISOString().split('T')[0];if(el('g-datareceb-wrap'))el('g-datareceb-wrap').style.display='none';}
   el(id).classList.add('open');
 }
 function closeModal(id) {
@@ -1697,7 +1610,15 @@ function showToast(txt, type='success') {
 // ═══════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════
-// nav handled by switchNav()
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const page=btn.dataset.page;
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    el(`page-${page}`).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b===btn));
+    closeActionsMenu();
+  });
+});
 
 function toggleActionsMenu() {
   const menu = el('nav-actions-menu');
@@ -1760,144 +1681,6 @@ async function initApp() {
   // preloadMeses usa cache local — retorna rápido na maioria das vezes
   await preloadMeses();
   await loadMes();
-}
-
-
-// ═══════════════════════════════════════
-// APP TAB NAVIGATION
-// ═══════════════════════════════════════
-function switchAppTab(tab) {
-  document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
-  const target = el(`tab-${tab}`); if(target) target.classList.add('active');
-  document.querySelectorAll('.tab-sw-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
-}
-
-// Override switchNav for new tab structure
-function switchNav(nav) {
-  closeActionsMenu();
-  const tabSwitcher = el('tab-switcher');
-  if (nav==='main') {
-    if(el('tab-settings')) el('tab-settings').classList.remove('active');
-    switchAppTab('dashboard');
-    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.nav==='main'));
-    if(tabSwitcher) tabSwitcher.style.display='';
-  } else {
-    document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
-    if(el('tab-settings')) el('tab-settings').classList.add('active');
-    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.nav===nav));
-    if(tabSwitcher) tabSwitcher.style.display='none';
-  }
-}
-
-// ═══════════════════════════════════════
-// DASHBOARD INSIGHTS + CAT BARS
-// ═══════════════════════════════════════
-window._despesasMesAnterior = [];
-
-function renderInsights(desp, ganh) {
-  const td = desp.reduce((s,d)=>s+(d.properties.Total?.number||0),0);
-  const tdAnt = (window._despesasMesAnterior||[]).reduce((s,d)=>s+(d.properties.Total?.number||0),0);
-  const maior = desp.reduce((max,d)=>{const v=d.properties.Total?.number||0;return v>max.v?{v,nome:d.properties.Nome?.title?.[0]?.plain_text||''}:max;},{v:0,nome:''});
-  if(el('insight-maior-val')) el('insight-maior-val').textContent=maior.v>0?fmt(maior.v):'—';
-  if(el('insight-maior-nome')) el('insight-maior-nome').textContent=maior.nome||'Nenhum';
-  const hoje=new Date(), ultimoDia=new Date(S.year,S.month+1,0).getDate();
-  const isNow=S.month===hoje.getMonth()&&S.year===hoje.getFullYear();
-  const diasRest=isNow?ultimoDia-hoje.getDate():0, diasPass=isNow?hoje.getDate():ultimoDia;
-  if(el('insight-dias')) el('insight-dias').textContent=diasRest>0?`${diasRest} dias`:'—';
-  const media=diasPass>0?td/diasPass:0;
-  if(el('insight-projecao')) el('insight-projecao').textContent=diasRest>0?`Projeção: ${fmt(media*ultimoDia)}`:'Mês encerrado';
-  const ce=el('insight-cmp-val'),cs=el('insight-cmp-sub');
-  if(ce){if(tdAnt>0){const diff=td-tdAnt,p=Math.abs(diff/tdAnt*100).toFixed(0);ce.textContent=(diff>=0?'+':'')+fmt(diff);ce.className='insight-value '+(diff>0?'trend-up':diff<0?'trend-down':'trend-eq');if(cs)cs.textContent=diff>0?`${p}% a mais`:diff<0?`${p}% a menos`:'Igual';}else{ce.textContent='—';ce.className='insight-value';if(cs)cs.textContent='Sem dados anteriores';}}
-  if(el('insight-media'))el('insight-media').textContent=media>0?fmt(media):'—';
-  if(el('insight-media-sub'))el('insight-media-sub').textContent=`Baseado em ${diasPass} dia(s)`;
-}
-
-function renderCatBars(desp) {
-  const c=el('cat-bars');if(!c)return;
-  if(!desp.length){c.innerHTML='<div style="font-size:.72rem;color:var(--muted2)">Nenhuma despesa</div>';return;}
-  const t={};for(const d of desp){const id=d.properties.Categoria?.relation?.[0]?.id||'_';t[id]=(t[id]||0)+(d.properties.Total?.number||0);}
-  const s=Object.entries(t).sort((a,b)=>b[1]-a[1]).slice(0,6),mx=s[0]?.[1]||1;
-  const N={'25f51ce4-0e6b-80d8-82b8-d9afa484fd84':'Relacionamento','1ea51ce4-0e6b-802f-9a09-f8c4b62631e5':'Lazer','18c51ce4-0e6b-81c3-aa6e-faee7ed17655':'Alimentação','18c51ce4-0e6b-81cc-a380-cf421fad1abb':'Contas','18c51ce4-0e6b-817e-a7c9-dc8306c3c028':'Compras','18c51ce4-0e6b-81d1-8309-ffe486b019e1':'Transporte','18c51ce4-0e6b-8185-9361-f2075f2026c4':'Viagens','18c51ce4-0e6b-8125-8d77-f3f689e95a45':'Poupança','18c51ce4-0e6b-8103-b07a-db91628af561':'Investimentos','18c51ce4-0e6b-81e7-aff9-c1db6220f800':'Dívidas','18c51ce4-0e6b-81f3-bc0e-c78c3afb3f36':'Educação','18c51ce4-0e6b-804b-9b46-dab3bb7fdced':'Academia','18c51ce4-0e6b-8044-b731-d82eb1bcc2b7':'Auto Cuidado','18c51ce4-0e6b-80e4-b07f-e99c767cd979':'Dízimos','18c51ce4-0e6b-8121-9da4-c6570ae420bb':'Empresa','30551ce4-0e6b-80cb-9709-c2aadc8c604f':'Doações'};
-  c.innerHTML=s.map(([id,val])=>`<div class="cat-bar-item"><div class="cat-bar-header"><span class="cat-bar-name">${N[id]||'Outros'}</span><span class="cat-bar-val">${fmt(val)}</span></div><div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${Math.round(val/mx*100)}%;background:${CAT_COLORS[id]||'var(--muted)'}"></div></div></div>`).join('');
-}
-
-// ═══════════════════════════════════════
-// GANHOS
-// ═══════════════════════════════════════
-const FONTE_NAMES={'18c51ce4-0e6b-810c-a45d-c8a256975ddf':'Trabalho','1ba51ce4-0e6b-80ab-b52f-e6655f8e21b6':'TikTok Shop','18c51ce4-0e6b-8148-af0e-ef73a55c1202':'Freela','1f451ce4-0e6b-804d-bc3c-f08726a73648':'Investimentos','18c51ce4-0e6b-8138-87f4-e3f20a6d7840':'YouTube','18c51ce4-0e6b-81f8-96cd-c75fc8ccb165':'Trading','18c51ce4-0e6b-816e-9357-e588f0dc5c8f':'Diversos'};
-const ICON_GANH='https://raw.githubusercontent.com/cristianNoleto/NotionPWA/main/public/icons/arrow%20down%20heavy.svg';
-
-function renderGanhos(ganh) {
-  const q=(el('ganh-search')?.value||'').toLowerCase().trim();
-  const f=q?ganh.filter(g=>(g.properties.Nome?.title?.[0]?.plain_text||'').toLowerCase().includes(q)):ganh;
-  if(el('ganhos-count'))el('ganhos-count').textContent=f.length;
-  const rec=ganh.filter(g=>g.properties.Recebido?.select?.name==='Sim');
-  const ar=ganh.filter(g=>g.properties.Recebido?.select?.name!=='Sim');
-  if(el('ganh-recebido'))el('ganh-recebido').textContent=fmt(rec.reduce((s,g)=>s+(g.properties.Quantidade?.number||0),0));
-  if(el('ganh-areceber'))el('ganh-areceber').textContent=fmt(ar.reduce((s,g)=>s+(g.properties.Quantidade?.number||0),0));
-  const list=el('ganhos-list');if(!list)return;
-  if(!f.length){list.innerHTML=q?'<div class="empty"><div class="empty-icon">🔍</div>Nenhum encontrado</div>':'<div class="empty"><div class="empty-icon">📭</div>Nenhum ganho neste mês</div>';return;}
-  const sorted=[...f].sort((a,b)=>{const ra=a.properties.Recebido?.select?.name==='Sim',rb=b.properties.Recebido?.select?.name==='Sim';if(ra!==rb)return ra?1:-1;return(b.properties.Data?.date?.start||'').localeCompare(a.properties.Data?.date?.start||'');});
-  list.innerHTML=sorted.map(g=>{
-    const nome=g.properties.Nome?.title?.[0]?.plain_text||'(sem nome)';
-    const valor=g.properties.Quantidade?.number||0;
-    const rec=g.properties.Recebido?.select?.name==='Sim';
-    const data=g.properties.Data?.date?.start||g.properties['Data Recebimento']?.date?.start||'';
-    const fonte=FONTE_NAMES[g.properties['Fonte de Renda']?.relation?.[0]?.id||'']||'';
-    const df=data?new Date(data+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'—';
-    return`<div class="expense-item" onclick="openActionsGanho('${g.id}')">
-      <div class="exp-info">
-        <div class="exp-name">${nome}${fonte?` <span style="color:var(--muted2);font-size:.68rem;font-weight:400">· ${fonte}</span>`:''}  </div>
-        <div class="exp-meta">${rec?`✓ Recebido · ${df}`:`⏳ A receber · Previsto ${df}`}</div>
-      </div>
-      <div class="exp-val ${rec?'paid':'pending'}">${fmt(valor)}<div class="val-tooltip">${rec?'✓ Já recebido':'⏳ Aguardando'}</div></div>
-    </div>`;
-  }).join('');
-}
-function filterGanhos(){el('ganh-search-clear')?.classList.toggle('show',(el('ganh-search')?.value||'').length>0);renderGanhos(S.ganhos);}
-function clearGanhSearch(){if(el('ganh-search'))el('ganh-search').value='';el('ganh-search-clear')?.classList.remove('show');renderGanhos(S.ganhos);}
-function filterDespesas(){el('desp-search-clear')?.classList.toggle('show',(el('desp-search')?.value||'').length>0);renderDespesas(S.despesas);}
-function clearDespSearch(){if(el('desp-search'))el('desp-search').value='';el('desp-search-clear')?.classList.remove('show');renderDespesas(S.despesas);}
-function onGanhoStatusChange(){const r=v('g-recebido'),w=el('g-datareceb-wrap');if(r==='Sim'){w.style.display='block';el('g-datareceb').value=new Date().toISOString().split('T')[0];}else w.style.display='none';}
-async function criarGanho(){
-  const nome=v('g-nome').trim(),valor=parseFloat(v('g-valor'));
-  if(!nome||!valor){showToast('Preencha nome e valor.','error');return;}
-  const btn=el('salvar-ganho-btn');btn.disabled=true;btn.textContent='Registrando...';
-  const data=v('g-data'),dataReceb=v('g-datareceb'),recebido=v('g-recebido');
-  const dObj=data?new Date(data+'T12:00:00'):new Date();
-  const mesId=await getMesId(dObj.getMonth(),dObj.getFullYear());
-  const props={Nome:{title:[{text:{content:nome}}]},Quantidade:{number:parseFloat(valor.toFixed(2))},Recebido:{select:{name:recebido}}};
-  if(data)props.Data={date:{start:data}};
-  if(recebido==='Sim'&&dataReceb)props['Data Recebimento']={date:{start:dataReceb}};
-  const fonte=v('g-fonte'),conta=v('g-conta'),notas=v('g-notas').trim();
-  if(fonte)props['Fonte de Renda']={relation:[{id:fonte}]};
-  if(conta)props.Conta={relation:[{id:conta}]};
-  if(notas)props.Notas={rich_text:[{text:{content:notas}}]};
-  if(mesId)props.Mês={relation:[{id:mesId}]};
-  try{const r=await nReq('pages','POST',{parent:{database_id:DB.ganhos},icon:{type:'external',external:{url:ICON_GANH}},properties:props});if(r.object==='error')throw new Error(r.message);showToast('✓ Ganho registrado!','success');closeModal('modal-ganho');await loadMes();}
-  catch(e){showToast(`Erro: ${e.message}`,'error');}
-  btn.disabled=false;btn.textContent='Registrar ganho';
-}
-let _ag=null;
-function openActionsGanho(id){
-  const g=S.ganhos.find(x=>x.id===id);if(!g)return;
-  const nome=g.properties.Nome?.title?.[0]?.plain_text||'';
-  const valor=g.properties.Quantidade?.number||0;
-  const rec=g.properties.Recebido?.select?.name==='Sim';
-  _ag={id,nome,valor,rec};
-  if(el('ganh-action-title'))el('ganh-action-title').textContent=nome;
-  if(el('ganh-action-sub'))el('ganh-action-sub').textContent=`${fmt(valor)} · ${rec?'Recebido':'A receber'}`;
-  if(el('ganh-toggle-label'))el('ganh-toggle-label').textContent=rec?'↩️ Marcar como a receber':'✅ Marcar como recebido';
-  openModal('modal-actions-ganho');
-}
-async function marcarRecebido(){
-  if(!_ag)return;const ns=_ag.rec?'Não':'Sim';
-  const p={Recebido:{select:{name:ns}}};if(ns==='Sim')p['Data Recebimento']={date:{start:new Date().toISOString().split('T')[0]}};else p['Data Recebimento']={date:null};
-  try{await nReq(`pages/${_ag.id}`,'PATCH',{properties:p});showToast(ns==='Sim'?'✓ Recebido!':'↩️ A receber','success');closeModal('modal-actions-ganho');await loadMes();}catch(e){showToast('Erro','error');}
-}
-async function excluirGanho(){
-  if(!_ag||!confirm(`Excluir "${_ag.nome}"?`))return;
-  try{await nReq(`pages/${_ag.id}`,'PATCH',{archived:true});showToast('✓ Excluído!','success');closeModal('modal-actions-ganho');await loadMes();}catch(e){showToast('Erro','error');}
 }
 
 (async()=>{
