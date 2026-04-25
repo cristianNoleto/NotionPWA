@@ -678,7 +678,7 @@ select.form-input{cursor:pointer}
 </div>
 
 <!-- MODAL: EXCLUIR EM LOTE -->
-<div class="modal-overlay" id="modal-delete">
+<div class="modal-overlay" id="modal-bulk-delete">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Excluir <span>lançamentos</span></div>
@@ -689,7 +689,7 @@ select.form-input{cursor:pointer}
     </div>
     <div id="del-results"><div class="empty"><div class="empty-icon">🔍</div>Digite um nome para buscar</div></div>
     <button class="btn btn-danger" id="del-confirm-btn" onclick="confirmDelete()" style="display:none">Excluir selecionados</button>
-    <button class="btn btn-ghost" onclick="closeModal('modal-delete')">Cancelar</button>
+    <button class="btn btn-ghost" onclick="closeModal('modal-bulk-delete')">Cancelar</button>
   </div>
 </div>
 
@@ -990,26 +990,21 @@ function renderStats(desp, ganh) {
 
 function setSort(by) {
   if (S.sortBy === by) {
-    // Já está ativo: inverte direção
     S.sortDir = S.sortDir==='desc'?'asc':'desc';
   } else {
     S.sortBy = by;
-    // Padrão: mais recente primeiro (desc) exceto nome (asc)
     S.sortDir = by==='nome' ? 'asc' : 'desc';
   }
-  document.querySelectorAll('.sort-btn[data-sort]').forEach(b=>b.classList.toggle('active',b.dataset.sort===S.sortBy));
-  updateSortDirBtn();
+  document.querySelectorAll('.sort-btn[data-sort]').forEach(b => {
+    const active = b.dataset.sort === S.sortBy;
+    b.classList.toggle('active', active);
+    const arrow = b.querySelector('.sort-arrow');
+    if (arrow) arrow.textContent = active ? (S.sortDir==='desc' ? '↓' : '↑') : '↓';
+  });
   renderDespesas(S.despesas);
 }
 
-function updateSortDirBtn() {
-  const btn = el('sort-dir-btn');
-  if (S.sortBy==='status') {
-    btn.textContent = S.sortDir==='desc' ? '↓ Recente' : '↑ Antiga';
-  } else {
-    btn.textContent = S.sortDir==='desc' ? '↓ Maior' : '↑ Menor';
-  }
-}
+function updateSortDirBtn() { /* seta embutida no botão */ }
 
 function renderItem(d) {
   const nome    = d.properties.Nome?.title?.[0]?.plain_text||'(sem nome)';
@@ -1457,7 +1452,7 @@ function getNomeBase(nome) {
 // ═══════════════════════════════════════
 function openDeleteFromItem() {
   closeModal('modal-actions');
-  openModal('modal-delete');
+  openModal('modal-bulk-delete');
   el('del-search').value = getNomeBase(S.activeItem?.nome||'');
   if (el('del-search').value) searchDelete();
 }
@@ -1521,7 +1516,7 @@ async function confirmDelete() {
   btn.disabled=false; btn.textContent='Excluir selecionados';
   if (!erros) {
     showToast(`✓ ${sel.length} excluído(s)!`,'success');
-    closeModal('modal-delete');
+    closeModal('modal-bulk-delete');
     await loadMes();
   } else showToast(`${erros} erro(s).`,'error');
 }
@@ -1602,7 +1597,7 @@ function closeModal(id) {
     el('preview-wrap').style.display='none';
     el('limit-warn').classList.remove('show');
   }
-  if (id==='modal-delete') {
+  if (id==='modal-bulk-delete') {
     el('del-search').value='';
     el('del-results').innerHTML='<div class="empty"><div class="empty-icon">🔍</div>Digite um nome para buscar</div>';
     el('del-confirm-btn').style.display='none';
