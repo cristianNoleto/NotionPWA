@@ -231,7 +231,6 @@ select.form-input{cursor:pointer}
 .divider-pagas{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:.5rem .25rem .15rem;font-family:'Syne',sans-serif;font-weight:700;border-top:1px solid var(--border);margin-top:.25rem}
 
 /* TOAST */
-.toast{/* TOAST */
 .toast{position:fixed;top:1.2rem;left:50%;transform:translateX(-50%) translateY(-130%);background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;font-size:.76rem;font-family:'Syne',sans-serif;font-weight:600;z-index:500;transition:transform .3s cubic-bezier(.4,0,.2,1);white-space:nowrap;max-width:90vw;text-align:center}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.success{border-color:var(--accent3);color:var(--accent3)}
@@ -1487,7 +1486,7 @@ function searchDelete() {
         const df=ds?new Date(ds+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}):'—';
         const pago=d.properties.Pago?.select?.name||'';
         return `<div class="del-item">
-          <input type="checkbox" class="del-chk" value="${d.id}" ${pago!=='Pago'?'checked':''}>
+          <input type="checkbox" class="del-chk" value="${d.id}" ${pago!=='Sim'?'checked':''}>
           <div class="del-item-info">
             <div class="del-item-name">${nome}</div>
             <div class="del-item-meta">${df} · ${pago}</div>
