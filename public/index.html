@@ -556,12 +556,8 @@ select.form-input{cursor:pointer}
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Editar <span id="edit-scope-label">lançamento</span></div>
+    <div class="modal-sub" id="edit-sub"></div>
 
-    <!-- RESUMO FINANCEIRO (só aparece para parceladas/recorrentes em lote) -->
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem .5rem;font-size:.72rem" id="edit-summary-grid"></div>
-    </div>
-
-    <!-- CONVERSÃO DE TIPO (parcelada ↔ recorrente) -->
     <div class="form-field">
       <div class="form-label">Nome</div>
       <input type="text" class="form-input" id="edit-nome" placeholder="Nome da despesa">
@@ -580,8 +576,8 @@ select.form-input{cursor:pointer}
         </select>
       </div>
     </div>
-    <!-- hint de valor restante para parceladas -->
-<div class="form-row">
+
+    <div class="form-row">
       <div class="form-field">
         <div class="form-label">Data da despesa</div>
         <input type="date" class="form-input" id="edit-data">
